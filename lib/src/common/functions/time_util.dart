@@ -1,0 +1,382 @@
+import 'dart:math';
+
+import 'package:staff_pos_app/src/common/const.dart';
+import 'package:staff_pos_app/src/model/shift_model.dart';
+import 'package:staff_pos_app/src/model/stafflistmodel.dart';
+
+const int weekCount = 7;
+const int minuteOnHour = 1441;
+const bool useRestFlag = true;
+
+class WorkTime {
+  static const int stateBlocked = 0;
+  static const int stateNormal = 1;
+  static const int stateEmpty = 2;
+
+  int state = stateEmpty;
+  String id = '-1';
+  int st = 0;
+  int en = 0;
+
+  int ost = 0;
+  int oen = 0;
+  List<bool> sign = List<bool>.generate(minuteOnHour, (index) => false);
+
+  bool? isRequest;
+
+  dynamic meta;
+
+  WorkTime() {
+    state = stateEmpty;
+    id = '-1';
+    st = 0;
+    en = 0;
+    ost = 0;
+    oen = 0;
+  }
+
+  void addShift(ShiftModel shift) {
+    if (constShiftAutoUsingList.contains(shift.shiftType)) {
+      state = stateNormal;
+      if (shift.shiftType == constShiftRequest) {
+        isRequest = true;
+      }
+    } else {
+      state = stateBlocked;
+    }
+
+    id = shift.shiftId;
+    st = shift.fromTime.hour * 60 + shift.fromTime.minute;
+    en = shift.toTime.hour * 60 + shift.toTime.minute;
+    ost = st;
+    oen = en;
+  }
+
+  factory WorkTime.fromAutoCalc(String organId, WorkTime other,
+      DateTime weekFirstDay, int week, String staffId, int uniqueId) {
+    String shiftType = constShiftApply;
+
+    int st = other.st;
+    int en = other.en;
+
+    if (other.isChanged()) {
+      shiftType = constShiftRequest;
+    }
+    if (other.isBadTime()) {
+      shiftType = constShiftReject;
+      st = other.ost;
+      en = other.oen;
+    }
+    DateTime dst = weekFirstDay
+        .add(Duration(days: week, hours: st ~/ 60, minutes: st % 60));
+    DateTime den = weekFirstDay
+        .add(Duration(days: week, hours: en ~/ 60, minutes: en % 60));
+    WorkTime wt = other;
+    wt.meta = ShiftModel(
+        shiftId: wt.id,
+        organId: organId,
+        staffId: staffId,
+        fromTime: dst,
+        toTime: den,
+        shiftType: shiftType,
+        uniqueId: uniqueId);
+    return wt;
+  }
+
+  bool isChanged() {
+    if (st < ost || en > oen) {
+      return true;
+    }
+    if (isRequest ?? false) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isBadTime() {
+    if (en - st <= 0) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isUpdated() {
+    if (state == stateBlocked) {
+      return false;
+    } else if (state == stateNormal) {
+      return true;
+    } else {
+      if (ost == st && oen == en) {
+        return false;
+      }
+      return true;
+    }
+  }
+
+  bool isNormal() {
+    return state == stateNormal;
+  }
+
+  bool isEmpty() {
+    return state == stateEmpty;
+  }
+
+  int getUsedMinute() {
+    if (state == stateBlocked) {
+      return 0;
+    }
+    return en - st;
+  }
+
+  void setBlockInterval(DateTime from, DateTime to) {
+    int a = from.hour * 60 + from.minute;
+    int b = to.hour * 60 + to.minute;
+    for (int i = a; i < b; i++) {
+      sign[i] = true;
+    }
+    if (state == stateEmpty) {
+      state = stateBlocked;
+    }
+  }
+}
+
+class WorkPlan {
+  int st = 0;
+  int en = 0;
+
+  // private
+  List<int> req = [];
+  List<int> now = [];
+
+  WorkPlan.newInstance() {
+    req = List.filled(minuteOnHour, 0);
+    now = List.filled(minuteOnHour, 0);
+    st = 0;
+    en = 0;
+  }
+
+  bool isNull() {
+    return en <= st;
+  }
+
+  void appendPlan(DateTime from, DateTime to, int requireCount) {
+    int tst, ten;
+    tst = from.hour * 60 + from.minute;
+    ten = to.hour * 60 + to.minute;
+    if (st == en) {
+      st = tst;
+      en = ten;
+    } else {
+      st = min(st, tst);
+      en = max(en, ten);
+    }
+    int i;
+    for (i = tst; i < ten; i++) {
+      req[i] += requireCount;
+    }
+  }
+
+  List<int> getMaxInterval(WorkTime t) {
+    int ns = st;
+    int ne = st;
+    int s = st;
+    int e = st;
+    int i;
+    for (i = st; i < en; i++) {
+      if (req[i] > now[i] && t.sign[i] == false) {
+        e = i + 1;
+      } else {
+        if (ne - ns < e - s) {
+          ne = e;
+          ns = s;
+        }
+        s = i + 1;
+        e = i + 1;
+      }
+    }
+    if (ne - ns < e - s) {
+      ne = e;
+      ns = s;
+    }
+    return [ns, ne];
+  }
+}
+
+class Worker {
+  List<WorkTime> times = [];
+  int hopeMinuteOnWeek = 0;
+
+  dynamic meta;
+
+  int getRestMinute() {
+    int used = 0;
+    for (WorkTime time in times) {
+      used += time.getUsedMinute();
+    }
+    return hopeMinuteOnWeek - used;
+  }
+
+  Worker() {
+    times = List.generate(weekCount, (index) => WorkTime());
+  }
+
+  factory Worker.fromStaffList(StaffListModel model) {
+    Worker w = Worker();
+    w.hopeMinuteOnWeek = (model.staffShift ?? 0) * 60;
+    w.meta = model;
+    return w;
+  }
+
+  void setShift(ShiftModel? s) {
+    if (s != null) {
+      times[s.fromTime.weekday - 1].addShift(s);
+    }
+  }
+
+  void setBlockShift(ShiftModel? s) {
+    if (s != null) {
+      times[s.fromTime.weekday - 1].setBlockInterval(s.fromTime, s.toTime);
+    }
+  }
+}
+
+class WorkControl {
+  static int _counter = 0;
+
+  static int getGenCounter() {
+    _counter++;
+    return _counter;
+  }
+
+  static List<WorkTime> assignWorkTime(List<Worker> workers,
+      List<WorkPlan> plans, String organId, DateTime weekFirstDay) {
+    int i, j, k;
+    workers.sort((a, b) => -a.hopeMinuteOnWeek.compareTo(b.hopeMinuteOnWeek));
+
+    int workerCount = workers.length;
+    for (i = 0; i < workerCount; i++) {
+      Worker worker = workers[i];
+      for (j = 0; j < weekCount; j++) {
+        WorkPlan plan = plans[j];
+        if (plans[j].isNull()) {
+          continue;
+        }
+        WorkTime t = worker.times[j];
+        if (!t.isNormal()) {
+          continue;
+        }
+        int st = t.st;
+        int en = t.en;
+        int tst = t.st;
+        int ten = t.st;
+        int nst = 0;
+        int nen = 0;
+        for (k = st; k < en; k++) {
+          if (plan.req[k] > plan.now[k]) {
+            ten = k + 1;
+          } else {
+            if (nen - nst < ten - tst) {
+              nst = tst;
+              nen = ten;
+            }
+            tst = k + 1;
+            ten = k + 1;
+          }
+        }
+        if (nen - nst < ten - tst) {
+          nst = tst;
+          nen = ten;
+        }
+        t.st = nst;
+        t.en = nen;
+        for (k = nst; k < nen; k++) {
+          plan.now[k]++;
+        }
+      }
+    }
+
+    for (i = 0; i < workerCount; i++) {
+      Worker worker = workers[i];
+      int rest = worker.getRestMinute();
+      for (j = 0; j < weekCount; j++) {
+        WorkPlan plan = plans[j];
+        if (plans[j].isNull()) {
+          continue;
+        }
+        WorkTime t = worker.times[j];
+        if (!t.isNormal()) {
+          continue;
+        }
+        if (useRestFlag && rest <= 0) {
+          continue;
+        }
+        for (k = t.st - 1; k >= plan.st; k--) {
+          if (plan.req[k] <= plan.now[k] || t.sign[k]) {
+            break;
+          } else {
+            plan.now[k]++;
+            t.st--;
+            rest--;
+            if (useRestFlag && rest == 0) {
+              break;
+            }
+          }
+        }
+        if (useRestFlag && rest <= 0) {
+          continue;
+        }
+        for (k = t.en; k < plan.en; k++) {
+          if (plan.req[k] <= plan.now[k]) {
+            break;
+          } else {
+            plan.now[k]++;
+            t.en++;
+            rest--;
+            if (useRestFlag && rest == 0) {
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    for (i = 0; i < workerCount; i++) {
+      Worker worker = workers[i];
+      int rest = worker.getRestMinute();
+      for (j = 0; j < weekCount; j++) {
+        WorkTime t = worker.times[j];
+        if (!t.isEmpty()) {
+          continue;
+        }
+        if (useRestFlag && rest <= 0) {
+          continue;
+        }
+        WorkPlan plan = plans[j];
+        List<int> interval = plan.getMaxInterval(t);
+        int st = interval[0];
+        int en = interval[1];
+        if (st >= en) {
+          continue;
+        }
+        t.st = st;
+        t.en = en;
+        rest -= (t.en - t.st);
+        for (k = st; k < en; k++) {
+          plan.now[k]++;
+        }
+      }
+    }
+
+    List<WorkTime> times = [];
+    for (i = 0; i < workerCount; i++) {
+      List<WorkTime> workTime = workers[i].times;
+      for (j = 0; j < workTime.length; j++) {
+        if (workTime[j].isUpdated()) {
+          times.add(WorkTime.fromAutoCalc(organId, workTime[j], weekFirstDay, j,
+              workers[i].meta.staffId ?? "", getGenCounter()));
+        }
+      }
+    }
+    return times;
+  }
+}

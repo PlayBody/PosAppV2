@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_localizations:
+    sdk: flutter
   flutter:
     sdk: flutter
 
@@ -85,6 +87,7 @@ dependencies:
   stream_transform: ^2.1.1
   modal_bottom_sheet: ^3.0.0
   local_auth: ^2.3.0
+  logging: ^1.2.0
 
 dev_dependencies:
   flutter_test:
