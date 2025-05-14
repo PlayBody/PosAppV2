@@ -4,9 +4,12 @@ class AdminRowLabel extends StatelessWidget {
   final String label;
   final double? width;
   final double? rPadding;
-  const AdminRowLabel(
-      {required this.label, this.width, this.rPadding, Key? key})
-      : super(key: key);
+  const AdminRowLabel({
+    required this.label,
+    this.width,
+    this.rPadding,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

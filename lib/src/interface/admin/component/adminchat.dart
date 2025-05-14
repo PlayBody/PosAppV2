@@ -10,13 +10,13 @@ import 'admintextformfield.dart';
 class ChatAttachContent extends StatelessWidget {
   final String attachType;
   final String filePath;
-  final tapFunc;
-  const ChatAttachContent(
-      {required this.attachType,
-      required this.filePath,
-      required this.tapFunc,
-      Key? key})
-      : super(key: key);
+  final GestureTapCallback tapFunc;
+  const ChatAttachContent({
+    required this.attachType,
+    required this.filePath,
+    required this.tapFunc,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,8 @@ class ChatAttachContent extends StatelessWidget {
       padding: EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
         border: Border(
-            top: BorderSide(width: 1, color: Colors.grey.withOpacity(0.4))),
+          top: BorderSide(width: 1, color: Colors.grey.withValues(alpha: 0.4)),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -32,13 +33,17 @@ class ChatAttachContent extends StatelessWidget {
           Expanded(child: Container()),
           SizedBox(width: 25),
           if (attachType != '')
-            Container(
-                width: 170, height: 100, child: Image.file(File(filePath))),
+            SizedBox(
+              width: 170,
+              height: 100,
+              child: Image.file(File(filePath)),
+            ),
           if (attachType != '')
             Container(
-                width: 25,
-                alignment: Alignment.bottomLeft,
-                child: AdminBtnIconRemove(tapFunc: tapFunc)),
+              width: 25,
+              alignment: Alignment.bottomLeft,
+              child: AdminBtnIconRemove(tapFunc: tapFunc),
+            ),
           Expanded(child: Container()),
         ],
       ),
@@ -47,9 +52,8 @@ class ChatAttachContent extends StatelessWidget {
 }
 
 class ChatInputContent extends StatelessWidget {
-  final controller;
-  const ChatInputContent({required this.controller, Key? key})
-      : super(key: key);
+  final TextEditingController controller;
+  const ChatInputContent({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,21 +69,21 @@ class ChatInputContent extends StatelessWidget {
 }
 
 class ChatInputButtons extends StatelessWidget {
-  final tapPhotoFunc;
-  final tapVideoFunc;
-  final tapSendFunc;
+  final GestureTapCallback tapPhotoFunc;
+  final GestureTapCallback tapVideoFunc;
+  final GestureTapCallback tapSendFunc;
   final bool isSending;
   final bool isUploading;
   final String progressPercent;
-  const ChatInputButtons(
-      {required this.tapPhotoFunc,
-      required this.tapVideoFunc,
-      required this.tapSendFunc,
-      required this.isSending,
-      required this.isUploading,
-      required this.progressPercent,
-      Key? key})
-      : super(key: key);
+  const ChatInputButtons({
+    required this.tapPhotoFunc,
+    required this.tapVideoFunc,
+    required this.tapSendFunc,
+    required this.isSending,
+    required this.isUploading,
+    required this.progressPercent,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +92,13 @@ class ChatInputButtons extends StatelessWidget {
       child: Row(
         children: [
           AdminBtnIconDefualt(
-              icon: Icons.add_photo_alternate, tapFunc: tapPhotoFunc),
+            icon: Icons.add_photo_alternate,
+            tapFunc: tapPhotoFunc,
+          ),
           AdminBtnIconDefualt(
-              icon: Icons.video_camera_back, tapFunc: tapVideoFunc),
+            icon: Icons.video_camera_back,
+            tapFunc: tapVideoFunc,
+          ),
           Expanded(child: Container()),
           if (isUploading) Text('動画アップロード中... $progressPercent%'),
           if (!isUploading)
@@ -102,12 +110,15 @@ class ChatInputButtons extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 8),
                     height: 16,
                     width: 24,
-                    child: isSending
-                        ? const CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2)
-                        : const Icon(Icons.send, size: 16),
+                    child:
+                        isSending
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            )
+                            : const Icon(Icons.send, size: 16),
                   ),
-                  const Text('送信')
+                  const Text('送信'),
                 ],
               ),
             ),
@@ -121,46 +132,45 @@ class ChatListAttach extends StatelessWidget {
   final String fileUrl;
   final String type;
   final String fileName;
-  final task;
-  final prevFunc;
-  final downloadFunc;
-  const ChatListAttach(
-      {required this.fileUrl,
-      required this.type,
-      required this.fileName,
-      this.task,
-      required this.prevFunc,
-      required this.downloadFunc,
-      Key? key})
-      : super(key: key);
+  final dynamic task;
+  final GestureTapCallback prevFunc;
+  final GestureTapCallback downloadFunc;
+  const ChatListAttach({
+    required this.fileUrl,
+    required this.type,
+    required this.fileName,
+    this.task,
+    required this.prevFunc,
+    required this.downloadFunc,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        // height: 130,
-        child: Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-            width: 170,
-            height: 120,
-            child: Image.network(apiBase + '/assets/messages/' + fileUrl)),
-        Container(
-            child: Row(
+        SizedBox(
+          width: 170,
+          height: 120,
+          child: Image.network('$apiBase/assets/messages/$fileUrl'),
+        ),
+        Row(
           children: [
             TextButton(
-                onPressed: prevFunc,
-                child: Text(fileName.length > 18
-                    ? (fileName.substring(0, 14) +
-                        '...' +
-                        fileName.substring(fileName.length - 4))
-                    : fileName)),
+              onPressed: prevFunc,
+              child: Text(
+                fileName.length > 18
+                    ? ('${fileName.substring(0, 14)}...${fileName.substring(fileName.length - 4)}')
+                    : fileName,
+              ),
+            ),
             SizedBox(width: 8),
-            AdminBtnCircleIcon(tapFunc: downloadFunc, icon: Icons.download)
+            AdminBtnCircleIcon(tapFunc: downloadFunc, icon: Icons.download),
           ],
-        ))
+        ),
       ],
-    ));
+    );
   }
 }
 
@@ -168,17 +178,26 @@ class ChatListContent extends StatelessWidget {
   final String content;
   final String type;
   final bool readflag;
-  const ChatListContent(
-      {required this.content,
-      required this.type,
-      required this.readflag,
-      Key? key})
-      : super(key: key);
+  const ChatListContent({
+    required this.content,
+    required this.type,
+    required this.readflag,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color:
+            type == '2'
+                ? Colors.blue[100]
+                : readflag
+                ? Colors.grey[300]
+                : Colors.red[100],
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Linkify(
         text: content,
         options: LinkifyOptions(humanize: false),
@@ -186,21 +205,13 @@ class ChatListContent extends StatelessWidget {
           launchUrl(Uri.parse(link.url));
         },
       ),
-      decoration: BoxDecoration(
-        color: type == '2'
-            ? Colors.blue[100]
-            : readflag
-                ? Colors.grey[300]
-                : Colors.red[100],
-        borderRadius: BorderRadius.circular(6),
-      ),
     );
   }
 }
 
 class ChatListDate extends StatelessWidget {
   final String date;
-  const ChatListDate({required this.date, Key? key}) : super(key: key);
+  const ChatListDate({required this.date, super.key});
 
   @override
   Widget build(BuildContext context) {

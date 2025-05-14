@@ -1,7 +1,7 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -20,13 +20,14 @@ import '../../../common/globals.dart' as globals;
 
 class AdminCuponAdd extends StatefulWidget {
   final String? couponId;
-  const AdminCuponAdd({this.couponId, Key? key}) : super(key: key);
+  const AdminCuponAdd({this.couponId, super.key});
 
   @override
   State<AdminCuponAdd> createState() => _AdminCuponAdd();
 }
 
 class _AdminCuponAdd extends State<AdminCuponAdd> {
+  final Logger _logger = Logger('AdminCuponAdd');
   late Future<List> loadData;
   List<String> percents = [];
 
@@ -75,9 +76,9 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
     }
     Map<dynamic, dynamic> organResults = {};
 
-    await Webservice().loadHttp(context, apiOrganList, {
-      'company_id': globals.companyId
-    }).then((value) => organResults = value);
+    await Webservice()
+        .loadHttp(context, apiOrganList, {'company_id': globals.companyId})
+        .then((value) => organResults = value);
 
     if (organResults['is_result']) {
       for (var item in organResults['data']) {
@@ -92,31 +93,34 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
 
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiLoadCouponInfoUrl,
-        {'coupon_id': selCouponId}).then((value) => results = value);
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiLoadCouponInfoUrl, {'coupon_id': selCouponId})
+          .then((value) => results = value);
 
-    if (results['isLoad']) {
-      nameController.text = results['coupon']['coupon_name'];
-      useDateValue = results['coupon']['use_date'];
-      useDate = DateFormat('yyyy年MM月dd日')
-          .format(DateTime.parse(results['coupon']['use_date']));
-      condition = results['coupon']['condition'];
-      useOrgan = results['coupon']['use_organ_id'];
-      commentController.text = results['coupon']['comment'];
-      codeController.text = results['coupon']['coupon_code'];
-      discountRate = results['coupon']['discount_rate'];
-      discountAmountController.text =
-          results['coupon']['discount_amount'] == null
-              ? ''
-              : results['coupon']['discount_amount'];
-      upperController.text = results['coupon']['upper_amount'] == null
-          ? ''
-          : results['coupon']['upper_amount'];
-      isRate = results['coupon']['discount_rate'] == null;
-      iconUrl = (results['coupon']['icon_url'] == null || results['coupon']['icon_url']=='') ? null : results['coupon']['icon_url'];
+      if (results['isLoad']) {
+        nameController.text = results['coupon']['coupon_name'];
+        useDateValue = results['coupon']['use_date'];
+        useDate = DateFormat(
+          'yyyy年MM月dd日',
+        ).format(DateTime.parse(results['coupon']['use_date']));
+        condition = results['coupon']['condition'];
+        useOrgan = results['coupon']['use_organ_id'];
+        commentController.text = results['coupon']['comment'];
+        codeController.text = results['coupon']['coupon_code'];
+        discountRate = results['coupon']['discount_rate'];
+        discountAmountController.text =
+            results['coupon']['discount_amount'] ?? '';
+        upperController.text = results['coupon']['upper_amount'] ?? '';
+        isRate = results['coupon']['discount_rate'] == null;
+        iconUrl =
+            (results['coupon']['icon_url'] == null ||
+                    results['coupon']['icon_url'] == '')
+                ? null
+                : results['coupon']['icon_url'];
+      }
     }
     setState(() {});
-
     return [];
   }
 
@@ -183,43 +187,47 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
     String imagename = '';
     if (isphoto) {
       if (isphoto) {
-        imagename = 'coupon-' +
-            DateTime.now()
-                .toString()
-                .replaceAll(':', '')
-                .replaceAll('-', '')
-                .replaceAll('.', '')
-                .replaceAll(' ', '') +
-            '.jpg';
+        imagename =
+            'coupon-${DateTime.now().toString().replaceAll(':', '').replaceAll('-', '').replaceAll('.', '').replaceAll(' ', '')}.jpg';
         await Webservice().callHttpMultiPart(
-            'picture', apiCouponUploadAvatorUrl, _photoFile.path, imagename);
+          'picture',
+          apiCouponUploadAvatorUrl,
+          _photoFile.path,
+          imagename,
+        );
 
-        print(imagename);
+        _logger.info('Uploaded coupon image: $imagename');
       }
     }
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveCouponUrl, {
-      'company_id': globals.companyId,
-      'coupon_id': selCouponId == null ? '' : selCouponId,
-      'coupon_name': nameController.text,
-      'coupon_code': codeController.text,
-      'discount_rate': discountRate == null ? '' : discountRate,
-      'discount_amount': discountAmountController.text,
-      'upper_amount': upperController.text,
-      'use_date': useDateValue,
-      'condition': condition,
-      'staff_id': globals.staffId,
-      'use_organ': useOrgan,
-      'comment': commentController.text,
-      'icon_url' : imagename,
-    }).then((value) => results = value);
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiSaveCouponUrl, {
+            'company_id': globals.companyId,
+            'coupon_id': selCouponId ?? '',
+            'coupon_name': nameController.text,
+            'coupon_code': codeController.text,
+            'discount_rate': discountRate ?? '',
+            'discount_amount': discountAmountController.text,
+            'upper_amount': upperController.text,
+            'use_date': useDateValue,
+            'condition': condition,
+            'staff_id': globals.staffId,
+            'use_organ': useOrgan,
+            'comment': commentController.text,
+            'icon_url': imagename,
+          })
+          .then((value) => results = value);
+    }
 
-    if (results['isSave']) {
-      selCouponId = results['coupon_id'].toString();
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+    if (mounted) {
+      if (results['isSave']) {
+        selCouponId = results['coupon_id'].toString();
+        Navigator.pop(context);
+      } else {
+        Dialogs().infoDialog(context, errServerActionFail);
+      }
     }
   }
 
@@ -235,178 +243,188 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
               color: bodyColor,
               padding: paddingMainContent,
               child: SingleChildScrollView(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _getAvatarContent(),
-                  AdminInputFormField(
-                    hintText: 'クーポン名',
-                    txtController: nameController,
-                    errorText: errName,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: DropdownButtonFormField(
-                      value: discountRate,
-                      decoration: const InputDecoration(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _getAvatarContent(),
+                    AdminInputFormField(
+                      hintText: 'クーポン名',
+                      txtController: nameController,
+                      errorText: errName,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: DropdownButtonFormField(
+                        value: discountRate,
+                        decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(10),
                           hintText: '割引率（％）',
                           border: OutlineInputBorder(
                             borderSide: BorderSide(width: 1),
-                          )),
-                      items: [
-                        ...percents.map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text('$e%'),
-                            ))
-                      ],
-                      onChanged: (v) {
-                        setState(() {
-                          isRate = v == null;
-                          if (isRate) discountAmountController.text = '';
-                        });
-                        discountRate = v.toString();
-                      },
+                          ),
+                        ),
+                        items: [
+                          ...percents.map(
+                            (e) =>
+                                DropdownMenuItem(value: e, child: Text('$e%')),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          setState(() {
+                            isRate = v == null;
+                            if (isRate) discountAmountController.text = '';
+                          });
+                          discountRate = v.toString();
+                        },
+                      ),
                     ),
-                  ),
-                  if (errDisCountRate != null)
-                    Text(
-                      errDisCountRate!,
-                      style: const TextStyle(
-                          color: Colors.redAccent, fontSize: 14),
-                    ),
-                  if (!isRate)
-                    Container(
+                    if (errDisCountRate != null)
+                      Text(
+                        errDisCountRate!,
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 14,
+                        ),
+                      ),
+                    if (!isRate)
+                      Container(
                         padding: const EdgeInsets.only(top: 20),
                         child: AdminInputFormField(
                           hintText: '上限金額(円）',
                           txtController: upperController,
                           errorText: errUpper,
-                        )),
-                  if (isRate)
-                    Container(
+                        ),
+                      ),
+                    if (isRate)
+                      Container(
                         padding: const EdgeInsets.only(top: 20),
                         child: AdminInputFormField(
                           hintText: '割引(円）',
                           txtController: discountAmountController,
                           errorText: errDisCountAmount,
-                        )),
-                  Container(
+                        ),
+                      ),
+                    Container(
                       padding: EdgeInsets.only(top: 20),
                       child: GestureDetector(
                         child: Container(
                           padding: EdgeInsets.all(10),
-                          child: Text(useDate == null ? '有効期限' : useDate!),
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.grey)),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Text(useDate == null ? '有効期限' : useDate!),
                         ),
                         onTap: () {
-                          DatePicker.showDatePicker(context,
-                              showTitleActions: true,
-                              currentTime: useDate == null
-                                  ? DateTime.now()
-                                  : DateTime.parse(useDateValue!),
-                              minTime: DateTime(2021, 1, 1),
-                              maxTime: DateTime(2050, 12, 31),
-                              onConfirm: (date) {
-                            setState(() {
-                              useDate = date.year.toString() +
-                                  '年' +
-                                  date.month.toString() +
-                                  '月' +
-                                  date.day.toString() +
-                                  '日';
-                              useDateValue =
-                                  DateFormat('yyyy-MM-dd').format(date);
-                            });
-                          }, locale: LocaleType.jp);
+                          DatePicker.showDatePicker(
+                            context,
+                            showTitleActions: true,
+                            currentTime:
+                                useDate == null
+                                    ? DateTime.now()
+                                    : DateTime.parse(useDateValue!),
+                            minTime: DateTime(2021, 1, 1),
+                            maxTime: DateTime(2050, 12, 31),
+                            onConfirm: (date) {
+                              setState(() {
+                                useDate =
+                                    '${date.year}年${date.month}月${date.day}日';
+                                useDateValue = DateFormat(
+                                  'yyyy-MM-dd',
+                                ).format(date);
+                              });
+                            },
+                            locale: LocaleType.jp,
+                          );
                         },
-                      )),
-                  if (errDate != null)
-                    Container(
-                      child: Text(
+                      ),
+                    ),
+                    if (errDate != null)
+                      Text(
                         errDate!,
                         style: TextStyle(color: Colors.redAccent, fontSize: 14),
                       ),
-                    ),
-                  Container(
+                    Container(
                       padding: EdgeInsets.only(top: 20),
                       child: DropdownButtonFormField(
                         value: condition,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(10),
-                            hintText: '条件',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            )),
+                          contentPadding: EdgeInsets.all(10),
+                          hintText: '条件',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(width: 1),
+                          ),
+                        ),
                         items: [
-                          ...constCouponCondition.map((e) => DropdownMenuItem(
-                                child: Text(e['val']),
-                                value: e['key'],
-                              ))
+                          ...constCouponCondition.map(
+                            (e) => DropdownMenuItem(
+                              value: e['key'],
+                              child: Text(e['val']),
+                            ),
+                          ),
                         ],
                         onChanged: (v) {
                           condition = v.toString();
                         },
-                      )),
-                  if (errCondition != null)
-                    Container(
-                      child: Text(
+                      ),
+                    ),
+                    if (errCondition != null)
+                      Text(
                         errCondition!,
                         style: TextStyle(color: Colors.redAccent, fontSize: 14),
                       ),
-                    ),
-                  Container(
+                    Container(
                       padding: EdgeInsets.only(top: 20),
                       child: DropdownButtonFormField(
                         value: useOrgan,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(10),
-                            hintText: '使用可能店舗',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            )),
-                        items: [
-                          DropdownMenuItem(
-                            child: Text('すべて'),
-                            value: '0',
+                          contentPadding: EdgeInsets.all(10),
+                          hintText: '使用可能店舗',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(width: 1),
                           ),
-                          ...organs.map((e) => DropdownMenuItem(
-                                child: Text(e.organName),
-                                value: e.organId,
-                              ))
+                        ),
+                        items: [
+                          DropdownMenuItem(value: '0', child: Text('すべて')),
+                          ...organs.map(
+                            (e) => DropdownMenuItem(
+                              value: e.organId,
+                              child: Text(e.organName),
+                            ),
+                          ),
                         ],
                         onChanged: (v) {
                           useOrgan = v.toString();
                         },
-                      )),
-                  if (errOrgan != null)
-                    Container(
-                      child: Text(
+                      ),
+                    ),
+                    if (errOrgan != null)
+                      Text(
                         errOrgan!,
                         style: TextStyle(color: Colors.redAccent, fontSize: 14),
                       ),
-                    ),
-                  Container(
+                    Container(
                       padding: EdgeInsets.only(top: 20),
                       child: AdminInputFormField(
                         hintText: 'クーポンコード',
                         txtController: codeController,
                         errorText: errCode,
-                      )),
-                  Container(
+                      ),
+                    ),
+                    Container(
                       padding: EdgeInsets.only(top: 20),
                       child: AdminInputFormField(
                         hintText: 'その他・備考',
                         txtController: commentController,
                         maxLine: 5,
                         errorText: errComment,
-                      )),
-                  SizedBox(height: 12),
-                  AdminPrimaryBtn(label: '作成', tapFunc: () => saveCoupon())
-                ],
-              )),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    AdminPrimaryBtn(label: '作成', tapFunc: () => saveCoupon()),
+                  ],
+                ),
+              ),
             );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
@@ -418,6 +436,7 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
       ),
     );
   }
+
   Widget _getAvatarContent() {
     return SizedBox(
       height: 100,
@@ -429,17 +448,23 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
               child: null,
               decoration: BoxDecoration(
                 color: const Color(0xffcecece),
-                image: isphoto
-                    ? DecorationImage(
-                        image: FileImage(_photoFile),
-                        fit: BoxFit.contain,
-                      )
-                    : DecorationImage(
-                        image: iconUrl == null
-                            ? NetworkImage(apiBase + "/assets/images/coupons/noimages.jpg")
-                            : NetworkImage(apiBase + "/assets/images/coupons/" + iconUrl!),
-                        fit: BoxFit.contain,
-                      ),
+                image:
+                    isphoto
+                        ? DecorationImage(
+                          image: FileImage(_photoFile),
+                          fit: BoxFit.contain,
+                        )
+                        : DecorationImage(
+                          image:
+                              iconUrl == null
+                                  ? NetworkImage(
+                                    "$apiBase/assets/images/coupons/noimages.jpg",
+                                  )
+                                  : NetworkImage(
+                                    "$apiBase/assets/images/coupons/${iconUrl!}",
+                                  ),
+                          fit: BoxFit.contain,
+                        ),
               ),
             ),
           ),
@@ -451,14 +476,8 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
               alignment: Alignment.topRight,
               child: DropdownButton(
                 items: [
-                  DropdownMenuItem(
-                    child: Text("カメラ撮る"),
-                    value: 1,
-                  ),
-                  DropdownMenuItem(
-                    child: Text("アルバム"),
-                    value: 2,
-                  )
+                  DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
+                  DropdownMenuItem(value: 2, child: Text("アルバム")),
                 ],
                 onChanged: (int? v) {
                   if (v == 1 || v == 2) {
@@ -468,16 +487,16 @@ class _AdminCuponAdd extends State<AdminCuponAdd> {
                 hint: const Text("画像変更"),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  _getFromPhoto(int _libType) async {
+  _getFromPhoto(int libType) async {
     XFile? image;
 
-    if (_libType == 1) {
+    if (libType == 1) {
       image = await ImagePicker().pickImage(source: ImageSource.camera);
     } else {
       image = await ImagePicker().pickImage(source: ImageSource.gallery);

@@ -88,6 +88,7 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   local_auth: ^2.3.0
   logging: ^1.2.0
+  video_player: ^2.9.5
 
 dev_dependencies:
   flutter_test:

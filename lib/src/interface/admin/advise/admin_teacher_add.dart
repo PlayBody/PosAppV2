@@ -12,10 +12,10 @@ import '../../../common/globals.dart' as globals;
 
 class AdminTeacherAdd extends StatefulWidget {
   final String? teacherId;
-  const AdminTeacherAdd({this.teacherId, Key? key}) : super(key: key);
+  const AdminTeacherAdd({this.teacherId, super.key});
 
   @override
-  _AdminTeacherAdd createState() => _AdminTeacherAdd();
+  State<AdminTeacherAdd> createState() => _AdminTeacherAdd();
 }
 
 class _AdminTeacherAdd extends State<AdminTeacherAdd> {
@@ -42,16 +42,20 @@ class _AdminTeacherAdd extends State<AdminTeacherAdd> {
 
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiSaveTeacherUrl, {
-      'company_id': globals.companyId,
-      'teacer_id': widget.teacherId == null ? '' : widget.teacherId,
-      'teacher_name': txtController.text
-    }).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiSaveTeacherUrl, {
+          'company_id': globals.companyId,
+          'teacher_id': widget.teacherId ?? '',
+          'teacher_name': txtController.text,
+        })
+        .then((value) => results = value);
 
-    if (results['isSave']) {
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+    if (mounted) {
+      if (results['isSave']) {
+        Navigator.pop(context);
+      } else {
+        Dialogs().infoDialog(context, errServerActionFail);
+      }
     }
   }
 
@@ -60,28 +64,32 @@ class _AdminTeacherAdd extends State<AdminTeacherAdd> {
     globals.adminAppTitle = '先生登録';
     return MainBodyWdiget(
       render: Container(
-          padding: paddingMainContent,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: txtController,
-                decoration: InputDecoration(
-                  errorText: errText,
-                  hintText: '先生名',
-                  contentPadding: EdgeInsets.fromLTRB(20, 5, 20, 5),
-                  filled: true,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  fillColor: Colors.white.withOpacity(0.5),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                      borderSide: BorderSide(color: Colors.grey)),
+        padding: paddingMainContent,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: txtController,
+              decoration: InputDecoration(
+                errorText: errText,
+                hintText: '先生名',
+                contentPadding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+                filled: true,
+                hintStyle: TextStyle(color: Colors.grey),
+                fillColor: Colors.white.withValues(alpha: 0.5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide: BorderSide(color: Colors.grey),
                 ),
               ),
-              RowButtonGroup(widgets: [
-                PrimaryButton(label: '作成', tapFunc: () => saveTeacher())
-              ])
-            ],
-          )),
+            ),
+            RowButtonGroup(
+              widgets: [
+                PrimaryButton(label: '作成', tapFunc: () => saveTeacher()),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

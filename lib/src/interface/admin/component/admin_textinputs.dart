@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AdminTextInputNormal extends StatelessWidget {
-  final controller;
+  final TextEditingController controller;
   final String? hintText;
   final String? errorText;
   final double? contentPadding;
   final double? fontsize;
   final TextInputType? inputType;
   final bool? obscureText;
-  const AdminTextInputNormal(
-      {required this.controller,
-      this.errorText,
-      this.hintText,
-      this.contentPadding,
-      this.inputType,
-      this.fontsize,
-      this.obscureText = false,
-      Key? key})
-      : super(key: key);
+  const AdminTextInputNormal({
+    required this.controller,
+    this.errorText,
+    this.hintText,
+    this.contentPadding,
+    this.inputType,
+    this.fontsize,
+    this.obscureText = false,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,9 @@ class AdminTextInputNormal extends StatelessWidget {
       decoration: InputDecoration(
         errorText: errorText,
         isDense: true,
-        contentPadding:
-            EdgeInsets.all(contentPadding == null ? 8 : contentPadding!),
+        contentPadding: EdgeInsets.all(
+          contentPadding == null ? 8 : contentPadding!,
+        ),
         fillColor: Colors.white,
         filled: true,
         focusedBorder: OutlineInputBorder(
@@ -39,7 +40,7 @@ class AdminTextInputNormal extends StatelessWidget {
           borderSide: BorderSide(color: Color(0xFFbebebe)),
         ),
       ),
-      style: TextStyle(fontSize: fontsize == null ? 14 : fontsize),
+      style: TextStyle(fontSize: fontsize ?? 14),
     );
   }
 }

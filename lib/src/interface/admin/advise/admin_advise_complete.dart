@@ -17,12 +17,15 @@ class AdminAdviseComplete extends StatefulWidget {
   final String adviseId;
   final File? videoFile;
   final String answer;
-  const AdminAdviseComplete(
-      {required this.adviseId, this.videoFile, required this.answer, Key? key})
-      : super(key: key);
+  const AdminAdviseComplete({
+    required this.adviseId,
+    this.videoFile,
+    required this.answer,
+    super.key,
+  });
 
   @override
-  _AdminAdviseComplete createState() => _AdminAdviseComplete();
+  State<AdminAdviseComplete> createState() => _AdminAdviseComplete();
 }
 
 class _AdminAdviseComplete extends State<AdminAdviseComplete> {
@@ -38,19 +41,21 @@ class _AdminAdviseComplete extends State<AdminAdviseComplete> {
 
   Future<List> loadAdviseData() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadAdviseInfoUrl,
-        {'advise_id': widget.adviseId}).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadAdviseInfoUrl, {'advise_id': widget.adviseId})
+        .then((value) => results = value);
 
     if (results['isLoad']) {
       question = results['advise']['question'];
     }
 
-    if (widget.videoFile != null)
+    if (widget.videoFile != null) {
       _controller = VideoPlayerController.file(widget.videoFile!)
         ..initialize().then((_) {
           // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
           setState(() {});
         });
+    }
     setState(() {});
     return [];
   }
@@ -58,34 +63,42 @@ class _AdminAdviseComplete extends State<AdminAdviseComplete> {
   Future<void> saveAdvise() async {
     String videoFileName = '';
     if (widget.videoFile != null) {
-      videoFileName = 'advise-video' +
-          DateTime.now()
-              .toString()
-              .replaceAll(':', '')
-              .replaceAll('-', '')
-              .replaceAll('.', '')
-              .replaceAll(' ', '') +
-          '.mp4';
+      videoFileName =
+          'advise-video${DateTime.now().toString().replaceAll(':', '').replaceAll('-', '').replaceAll('.', '').replaceAll(' ', '')}.mp4';
 
-      await Webservice().callHttpMultiPart('upload', apiUploadAdviseVideo,
-          widget.videoFile!.path, videoFileName);
+      await Webservice().callHttpMultiPart(
+        'upload',
+        apiUploadAdviseVideo,
+        widget.videoFile!.path,
+        videoFileName,
+      );
     }
 
-    Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveAdviseInfoUrl, {
-      'advise_id': widget.adviseId,
-      'answer': widget.answer,
-      'answer_movie_file': videoFileName,
-    }).then((value) => results = value);
-    if (results['isSave']) {
-      Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (_) {
-        return AdminAdvises();
-      }));
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+    if (mounted) {
+      Map<dynamic, dynamic> results = {};
+      await Webservice()
+          .loadHttp(context, apiSaveAdviseInfoUrl, {
+            'advise_id': widget.adviseId,
+            'answer': widget.answer,
+            'answer_movie_file': videoFileName,
+          })
+          .then((value) => results = value);
+
+      if (results['isSave'] && mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return AdminAdvises();
+            },
+          ),
+        );
+      } else if (mounted) {
+        Dialogs().infoDialog(context, errServerActionFail);
+      }
     }
   }
 
@@ -94,43 +107,40 @@ class _AdminAdviseComplete extends State<AdminAdviseComplete> {
     globals.adminAppTitle = 'アドバイス';
     return MainBodyWdiget(
       render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Container(
-                  color: Colors.white,
-                  padding: paddingMainContent,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _getAdviseContent(),
-                      _getSubmitButton(),
-                    ],
-                  ));
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            // By default, show a loading spinner.
-            return Center(child: CircularProgressIndicator());
-          }),
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              color: Colors.white,
+              padding: paddingMainContent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [_getAdviseContent(), _getSubmitButton()],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 
   Widget _getAdviseContent() {
     return Expanded(
-      child: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(child: Text('質問内容', style: stylePageSubtitle)),
-            Container(child: Text(question, style: styleContent)),
-            Container(height: 50),
-            Container(child: Text('アドバイス', style: stylePageSubtitle)),
-            Container(child: Text(widget.answer, style: styleContent)),
-            SizedBox(height: 30),
-            _getMovieView()
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('質問内容', style: stylePageSubtitle),
+          Text(question, style: styleContent),
+          SizedBox(height: 50),
+          Text('アドバイス', style: stylePageSubtitle),
+          Text(widget.answer, style: styleContent),
+          SizedBox(height: 30),
+          _getMovieView(),
+        ],
       ),
     );
   }
@@ -139,41 +149,46 @@ class _AdminAdviseComplete extends State<AdminAdviseComplete> {
     if (_controller == null) return Container();
 
     return Container(
-        padding: EdgeInsets.only(right: 20),
-        child: Stack(children: [
+      padding: EdgeInsets.only(right: 20),
+      child: Stack(
+        children: [
           _controller!.value.isInitialized
               ? AspectRatio(
-                  aspectRatio: _controller!.value.aspectRatio,
-                  child: VideoPlayer(_controller!),
-                )
+                aspectRatio: _controller!.value.aspectRatio,
+                child: VideoPlayer(_controller!),
+              )
               : Container(),
           if (_controller != null)
             Positioned.fill(
-                child: Center(
-              child: FloatingActionButton(
-                heroTag: "btn",
-                onPressed: () {
-                  setState(() {
+              child: Center(
+                child: FloatingActionButton(
+                  heroTag: "btn",
+                  onPressed: () {
+                    setState(() {
+                      _controller!.value.isPlaying
+                          ? _controller!.pause()
+                          : _controller!.play();
+                    });
+                  },
+                  child: Icon(
                     _controller!.value.isPlaying
-                        ? _controller!.pause()
-                        : _controller!.play();
-                  });
-                },
-                child: Icon(
-                  _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                  ),
                 ),
               ),
-            ))
-        ]));
+            ),
+        ],
+      ),
+    );
   }
 
   Widget _getSubmitButton() {
-    return Container(
-      child: ElevatedButton(
-          child: Text('確定'),
-          onPressed: () {
-            saveAdvise();
-          }),
+    return ElevatedButton(
+      child: Text('確定'),
+      onPressed: () {
+        saveAdvise();
+      },
     );
   }
 }

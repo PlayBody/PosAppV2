@@ -19,8 +19,7 @@ import 'admin_coupon_confirm.dart';
 
 class AdminCouponUsers extends StatefulWidget {
   final List<CouponModel> selectCoupons;
-  const AdminCouponUsers({required this.selectCoupons, Key? key})
-      : super(key: key);
+  const AdminCouponUsers({required this.selectCoupons, super.key});
 
   @override
   State<AdminCouponUsers> createState() => _AdminCouponUsers();
@@ -44,9 +43,11 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
 
   Future<List> loadinitData() async {
     Map<dynamic, dynamic> groupResults = {};
-    await Webservice().loadHttp(context, apiLoadGroupListUrl, {
-      'company_id': globals.companyId
-    }).then((value) => groupResults = value);
+    await Webservice()
+        .loadHttp(context, apiLoadGroupListUrl, {
+          'company_id': globals.companyId,
+        })
+        .then((value) => groupResults = value);
 
     groupList = [];
     if (groupResults['isLoad']) {
@@ -56,32 +57,36 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
     }
 
     Map<dynamic, dynamic> userResults = {};
-    await Webservice().loadHttp(context, apiLoadUserListUrl,
-        {'company_id': globals.companyId}).then((value) => userResults = value);
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiLoadUserListUrl, {
+            'company_id': globals.companyId,
+          })
+          .then((value) => userResults = value);
 
-    userList = [];
-    if (userResults['isLoad']) {
-      for (var item in userResults['users']) {
-        userList.add(UserModel.fromJson(item));
+      userList = [];
+      if (userResults['isLoad']) {
+        for (var item in userResults['users']) {
+          userList.add(UserModel.fromJson(item));
+        }
       }
     }
     setState(() {});
-
     return groupList;
   }
 
   Future<void> searchUser(String search) async {
-    var param = {
-      'company_id': globals.companyId,
-    };
+    var param = {'company_id': globals.companyId};
     if (search != '') {
       param['condition'] = jsonEncode({'user_name': search});
     }
     Map<dynamic, dynamic> userResults = {};
-    await Webservice().loadHttp(context, apiLoadUserListUrl, {
-      'company_id': globals.companyId,
-      'condition': jsonEncode({'user_name': search})
-    }).then((value) => userResults = value);
+    await Webservice()
+        .loadHttp(context, apiLoadUserListUrl, {
+          'company_id': globals.companyId,
+          'condition': jsonEncode({'user_name': search}),
+        })
+        .then((value) => userResults = value);
 
     userList = [];
     if (userResults['isLoad']) {
@@ -105,10 +110,17 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
       }
     }
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminCouponConfirm(
-          selectCoupons: widget.selectCoupons, selectUsers: completeUsers);
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminCouponConfirm(
+            selectCoupons: widget.selectCoupons,
+            selectUsers: completeUsers,
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -133,19 +145,26 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
                       ),
                     ),
                     Expanded(
-                        child: SingleChildScrollView(
-                            child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _getAllUserButton(),
-                        _getGroupButton(),
-                        if (isGroupView) _getGroupList(),
-                        ...userList.map((e) => _getUserItem(e)),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _getAllUserButton(),
+                            _getGroupButton(),
+                            if (isGroupView) _getGroupList(),
+                            ...userList.map((e) => _getUserItem(e)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    RowButtonGroup(
+                      widgets: [
+                        PrimaryButton(
+                          label: '確認',
+                          tapFunc: () => pushConfirm(),
+                        ),
                       ],
-                    ))),
-                    RowButtonGroup(widgets: [
-                      PrimaryButton(label: '確認', tapFunc: () => pushConfirm())
-                    ])
+                    ),
                   ],
                 ),
               ),
@@ -182,9 +201,10 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
 
   Widget _getGroupButton() {
     return ListTile(
-      trailing: isGroupView
-          ? const Icon(Icons.keyboard_arrow_up)
-          : const Icon(Icons.keyboard_arrow_down),
+      trailing:
+          isGroupView
+              ? const Icon(Icons.keyboard_arrow_up)
+              : const Icon(Icons.keyboard_arrow_down),
       title: const Text('グループ分け'),
       onTap: () {
         setState(() {
@@ -200,74 +220,76 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ...groupList.map((e) => GestureDetector(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4.0),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                      color: selectGroups.contains(e.groupId)
+          ...groupList.map(
+            (e) => GestureDetector(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color:
+                      selectGroups.contains(e.groupId)
                           ? const Color(0xffDBDBDB)
                           : Colors.white,
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              e.groupName,
-                              style: styleItemGroupTitle,
-                            ),
-                          ),
-                          Text(
-                            '(${e.userCnt == null ? '0' : e.userCnt!})',
-                            style: styleItemGroupTitle,
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                onTap: () async {
-                  Map<dynamic, dynamic> results = {};
-                  await Webservice().loadHttp(
-                      context, apiLoadUserWithGroupUrl, {
-                    'company_id': globals.companyId,
-                    'group_id': e.groupId
-                  }).then((value) => results = value);
-                  List<UserModel> groupUsers = [];
-                  if (results['isLoad']) {
-                    for (var item in results['users']) {
-                      groupUsers.add(UserModel.fromJson(item));
-                    }
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(e.groupName, style: styleItemGroupTitle),
+                        ),
+                        Text(
+                          '(${e.userCnt == null ? '0' : e.userCnt!})',
+                          style: styleItemGroupTitle,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () async {
+                Map<dynamic, dynamic> results = {};
+                await Webservice()
+                    .loadHttp(context, apiLoadUserWithGroupUrl, {
+                      'company_id': globals.companyId,
+                      'group_id': e.groupId,
+                    })
+                    .then((value) => results = value);
+                List<UserModel> groupUsers = [];
+                if (results['isLoad']) {
+                  for (var item in results['users']) {
+                    groupUsers.add(UserModel.fromJson(item));
                   }
+                }
 
-                  if (selectGroups.contains(e.groupId)) {
-                    selectGroups.remove(e.groupId);
-                    isAllSelect = false;
-                    for (var element in groupUsers) {
-                      if (element.groupId != null &&
-                          element.groupId == e.groupId) {
-                        if (selectUsers.contains(element.userId)) {
-                          selectUsers.remove(element.userId);
-                        }
-                      }
-                    }
-                  } else {
-                    selectGroups.add(e.groupId);
-                    for (var element in groupUsers) {
-                      if (element.groupId != null &&
-                          element.groupId == e.groupId) {
-                        if (!selectUsers.contains(element.userId)) {
-                          selectUsers.add(element.userId);
-                        }
+                if (selectGroups.contains(e.groupId)) {
+                  selectGroups.remove(e.groupId);
+                  isAllSelect = false;
+                  for (var element in groupUsers) {
+                    if (element.groupId != null &&
+                        element.groupId == e.groupId) {
+                      if (selectUsers.contains(element.userId)) {
+                        selectUsers.remove(element.userId);
                       }
                     }
                   }
-                  setState(() {});
-                },
-              )),
+                } else {
+                  selectGroups.add(e.groupId);
+                  for (var element in groupUsers) {
+                    if (element.groupId != null &&
+                        element.groupId == e.groupId) {
+                      if (!selectUsers.contains(element.userId)) {
+                        selectUsers.add(element.userId);
+                      }
+                    }
+                  }
+                }
+                setState(() {});
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -275,40 +297,44 @@ class _AdminCouponUsers extends State<AdminCouponUsers> {
 
   Widget _getUserItem(UserModel user) {
     return Container(
-        margin: const EdgeInsets.symmetric(vertical: 12.0),
-        child: ElevatedButton(
-          style: styleGroupButton,
-          onPressed: () {
-            if (selectUsers.contains(user.userId)) {
-              selectUsers.remove(user.userId);
-              isAllSelect = false;
-            } else {
-              selectUsers.add(user.userId);
-            }
-            setState(() {});
-          },
-          child: Container(
-              color: selectUsers.contains(user.userId)
+      margin: const EdgeInsets.symmetric(vertical: 12.0),
+      child: ElevatedButton(
+        style: styleGroupButton,
+        onPressed: () {
+          if (selectUsers.contains(user.userId)) {
+            selectUsers.remove(user.userId);
+            isAllSelect = false;
+          } else {
+            selectUsers.add(user.userId);
+          }
+          setState(() {});
+        },
+        child: Container(
+          color:
+              selectUsers.contains(user.userId)
                   ? const Color(0xffDBDBDB)
                   : Colors.white,
-              padding: paddingUserNameGruop,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Text(
-                    user.userFirstName == ''
-                        ? user.userNick!
-                        : ('${user.userFirstName!} ${user.userLastName!}'),
-                    style: styleUserName1,
-                  )),
-                  Text(
-                    user.userBirth == null
-                        ? ''
-                        : '${DateTime.now().year - DateTime.parse(user.userBirth!).year}歳${user.groupId == null ? '' : user.groupId!}',
-                    style: styleUserName1,
-                  )
-                ],
-              )),
-        ));
+          padding: paddingUserNameGruop,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  user.userFirstName == ''
+                      ? user.userNick!
+                      : ('${user.userFirstName!} ${user.userLastName!}'),
+                  style: styleUserName1,
+                ),
+              ),
+              Text(
+                user.userBirth == null
+                    ? ''
+                    : '${DateTime.now().year - DateTime.parse(user.userBirth!).year}歳${user.groupId == null ? '' : user.groupId!}',
+                style: styleUserName1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

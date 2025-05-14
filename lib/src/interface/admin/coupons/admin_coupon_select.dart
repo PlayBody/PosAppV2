@@ -12,10 +12,10 @@ import '../../../common/apiendpoint.dart';
 import '../../../common/globals.dart' as globals;
 
 class AdminCouponSelect extends StatefulWidget {
-  const AdminCouponSelect({Key? key}) : super(key: key);
+  const AdminCouponSelect({super.key});
 
   @override
-  _AdminCouponSelect createState() => _AdminCouponSelect();
+  State<AdminCouponSelect> createState() => _AdminCouponSelect();
 }
 
 class _AdminCouponSelect extends State<AdminCouponSelect> {
@@ -39,20 +39,25 @@ class _AdminCouponSelect extends State<AdminCouponSelect> {
   }
 
   void pushSelectUsers() {
-    if (selectIds.length < 1) {
+    if (selectIds.isEmpty) {
       Dialogs().infoDialog(context, '1つ以上のクーポンを選択してください。');
       return;
     }
     completeCoupons = [];
-    coupons.forEach((element) {
+    for (var element in coupons) {
       if (selectIds.contains(element.couponId)) {
         completeCoupons.add(element);
       }
-    });
+    }
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminCouponUsers(selectCoupons: completeCoupons);
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminCouponUsers(selectCoupons: completeCoupons);
+        },
+      ),
+    );
   }
 
   @override
@@ -71,12 +76,12 @@ class _AdminCouponSelect extends State<AdminCouponSelect> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                        child: SingleChildScrollView(
-                            child: Column(
-                      children: [
-                        ...coupons.map((e) => _getCouponItem(e)),
-                      ],
-                    ))),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [...coupons.map((e) => _getCouponItem(e))],
+                        ),
+                      ),
+                    ),
                     Container(
                       padding: EdgeInsets.only(top: 8),
                       child: ElevatedButton(
@@ -85,7 +90,7 @@ class _AdminCouponSelect extends State<AdminCouponSelect> {
                           pushSelectUsers();
                         },
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -105,122 +110,140 @@ class _AdminCouponSelect extends State<AdminCouponSelect> {
   Widget _getCouponItem(coupon) {
     return GestureDetector(
       child: Container(
-          margin: new EdgeInsets.symmetric(vertical: 12.0),
-          padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-          decoration: BoxDecoration(
-              color: selectIds.contains(coupon.couponId)
+        margin: EdgeInsets.symmetric(vertical: 12.0),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+        decoration: BoxDecoration(
+          color:
+              selectIds.contains(coupon.couponId)
                   ? Color(0xffDBDBDB)
                   : Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.grey)),
-          child: Column(
-            children: [
-              Container(
-                  child: Row(
-                children: [
-                  Expanded(
-                      child: Column(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          
-              Container(
-                width: 30,
-                height: 30,
-              padding: const EdgeInsets.only(right: 12),
-              child: null,
-              decoration: BoxDecoration(
-                color: const Color(0xffcecece),
-                image: DecorationImage(
-                        image: coupon.iconUrl == null
-                            ? NetworkImage(apiBase + "/assets/images/coupons/noimages.jpg")
-                            : NetworkImage(apiBase + "/assets/images/coupons/" + coupon.iconUrl!),
-                        fit: BoxFit.cover,
-                      ),
-             
-            )),
-            SizedBox(width: 8),
-                      Container(
-                          padding: EdgeInsets.only(bottom: 5),
-                          child:
-                              Text(coupon.couponName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                          Container(
+                            width: 30,
+                            height: 30,
+                            padding: const EdgeInsets.only(right: 12),
+                            child: null,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffcecece),
+                              image: DecorationImage(
+                                image:
+                                    coupon.iconUrl == null
+                                        ? NetworkImage(
+                                          "$apiBase/assets/images/coupons/noimages.jpg",
+                                        )
+                                        : NetworkImage(
+                                          "$apiBase/assets/images/coupons/${coupon.iconUrl}",
+                                        ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.only(bottom: 5),
+                            child: Text(
+                              coupon.couponName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      Container(
-                          child: Text(
-                              '有効期限: ' + coupon.useDate.replaceAll('-', '/'),
-                              style: styleContent)),
-                      Container(
-                          child: Text(
-                              coupon.condition == '1'
-                                  ? '他クーポン併用不可'
-                                  : '他クーポンと併用化',
-                              style: styleContent)),
+                      Text(
+                        '有効期限: ${coupon.useDate.replaceAll('-', '/')} ',
+                        style: styleContent,
+                      ),
+                      Text(
+                        coupon.condition == '1' ? '他クーポン併用不可' : '他クーポンと併用化',
+                        style: styleContent,
+                      ),
                     ],
-                  )),
-                  Container(
-                    width: 130,
-                    alignment: Alignment.center,
-                    child: Column(children: [
+                  ),
+                ),
+                Container(
+                  width: 130,
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
                       if (coupon.discountAmount != null)
                         Text(
-                          Funcs().currencyFormat(coupon.discountAmount!) +
-                              '円 OFF',
+                          '${Funcs().currencyFormat(coupon.discountAmount!)}円 OFF',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       if (coupon.discountRate != null)
-                        Text(coupon.discountRate! + '％OFF',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text(
+                          coupon.discountRate! + '％OFF',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       if (coupon.discountRate != null &&
                           coupon.upperAmount != null)
                         Text(
-                            '上限' +
-                                Funcs().currencyFormat(coupon.upperAmount!) +
-                                '円',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
-                    ]),
-                  )
-                ],
-              )),
-              if (openDetailId == coupon.couponId)
-                Container(
-                    padding: EdgeInsets.only(top: 8),
-                    alignment: Alignment.centerLeft,
-                    child: Text(coupon.comment)),
-              Row(
-                children: [
-                  Container(
-                      child: TextButton(
-                    child: Row(
-                      children: [
-                        Text('詳細を見る'),
-                        Icon(openDetailId == coupon.couponId
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down)
-                      ],
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        if (openDetailId == coupon.couponId) {
-                          openDetailId = '';
-                        } else {
-                          openDetailId = coupon.couponId;
-                        }
-                      });
-                    },
-                  )),
-                  Expanded(
-                      child: Container(
-                    height: 20,
-                  )),
-                ],
+                          '上限${Funcs().currencyFormat(coupon.upperAmount!)}円',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (openDetailId == coupon.couponId)
+              Container(
+                padding: EdgeInsets.only(top: 8),
+                alignment: Alignment.centerLeft,
+                child: Text(coupon.comment),
               ),
-            ],
-          )),
+            Row(
+              children: [
+                TextButton(
+                  child: Row(
+                    children: [
+                      Text('詳細を見る'),
+                      Icon(
+                        openDetailId == coupon.couponId
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                      ),
+                    ],
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (openDetailId == coupon.couponId) {
+                        openDetailId = '';
+                      } else {
+                        openDetailId = coupon.couponId;
+                      }
+                    });
+                  },
+                ),
+                Expanded(child: Container(height: 20)),
+              ],
+            ),
+          ],
+        ),
+      ),
       onTap: () {
         if (selectIds.contains(coupon.couponId)) {
           selectIds.remove(coupon.couponId);

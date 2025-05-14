@@ -8,15 +8,15 @@ class AdminRowForm extends StatelessWidget {
   final double? vMargin;
   final double? labelWidth;
   final double? labelPadding;
-  const AdminRowForm(
-      {required this.label,
-      required this.renderWidget,
-      this.hMargin,
-      this.vMargin,
-      this.labelWidth,
-      this.labelPadding,
-      Key? key})
-      : super(key: key);
+  const AdminRowForm({
+    required this.label,
+    required this.renderWidget,
+    this.hMargin,
+    this.vMargin,
+    this.labelWidth,
+    this.labelPadding,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class AdminRowForm extends StatelessWidget {
             rPadding: labelPadding,
             width: labelWidth,
           ),
-          Flexible(child: renderWidget)
+          Flexible(child: renderWidget),
         ],
       ),
     );

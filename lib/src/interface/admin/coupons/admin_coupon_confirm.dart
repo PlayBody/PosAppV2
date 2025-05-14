@@ -18,9 +18,11 @@ import '../../../common/globals.dart' as globals;
 class AdminCouponConfirm extends StatefulWidget {
   final List<CouponModel> selectCoupons;
   final List<UserModel> selectUsers;
-  const AdminCouponConfirm(
-      {required this.selectCoupons, required this.selectUsers, Key? key})
-      : super(key: key);
+  const AdminCouponConfirm({
+    required this.selectCoupons,
+    required this.selectUsers,
+    super.key,
+  });
 
   @override
   State<AdminCouponConfirm> createState() => _AdminCouponConfirm();
@@ -48,30 +50,37 @@ class _AdminCouponConfirm extends State<AdminCouponConfirm> {
     bool conf = await Dialogs().confirmDialog(context, qCommonSave);
     if (!conf) return;
 
+    if (!mounted) {
+      return;
+    }
     Dialogs().loaderDialogNormal(context);
     List<String> userIds = [];
     List<String> couponIds = [];
-    widget.selectUsers.forEach((element) {
+    for (var element in widget.selectUsers) {
       userIds.add(element.userId);
-    });
-    widget.selectCoupons.forEach((element) {
+    }
+    for (var element in widget.selectCoupons) {
       couponIds.add(element.couponId);
-    });
+    }
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveUserCouponUrl, {
-      'user_ids': jsonEncode(userIds),
-      'coupon_ids': jsonEncode(couponIds),
-      'staff_id': globals.staffId
-    }).then((value) => results = value);
-    Navigator.pop(context);
+    await Webservice()
+        .loadHttp(context, apiSaveUserCouponUrl, {
+          'user_ids': jsonEncode(userIds),
+          'coupon_ids': jsonEncode(couponIds),
+          'staff_id': globals.staffId,
+        })
+        .then((value) => results = value);
 
-    if (results['isSave']) {
+    if (mounted) {
       Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+      if (results['isSave']) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
+      } else {
+        Dialogs().infoDialog(context, errServerActionFail);
+      }
     }
   }
 
@@ -91,27 +100,37 @@ class _AdminCouponConfirm extends State<AdminCouponConfirm> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                        child: SingleChildScrollView(
-                            child: Column(
-                      children: [
-                        Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              '付与するクーポン',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            )),
-                        ...widget.selectCoupons.map((e) => _getCouponItem(e)),
-                        Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              '付与するユーザー',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            )),
-                        ...widget.selectUsers.map((e) => _getUserItem(e)),
-                      ],
-                    ))),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '付与するクーポン',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            ...widget.selectCoupons.map(
+                              (e) => _getCouponItem(e),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '付与するユーザー',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            ...widget.selectUsers.map((e) => _getUserItem(e)),
+                          ],
+                        ),
+                      ),
+                    ),
                     Container(
                       padding: EdgeInsets.only(top: 8),
                       child: ElevatedButton(
@@ -120,7 +139,7 @@ class _AdminCouponConfirm extends State<AdminCouponConfirm> {
                           saveUserCouponData();
                         },
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -138,126 +157,136 @@ class _AdminCouponConfirm extends State<AdminCouponConfirm> {
 
   Widget _getCouponItem(coupon) {
     return Container(
-        margin: new EdgeInsets.symmetric(vertical: 12.0),
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: Colors.grey)),
-        child: Column(
-          children: [
-            Container(
-                child: Row(
-              children: [
-                Expanded(
-                    child: Column(
+      margin: EdgeInsets.symmetric(vertical: 12.0),
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                        padding: EdgeInsets.only(bottom: 5),
-                        child: Text(coupon.couponName, style: styleUserName1)),
-                    Container(
-                        child: Text(
-                            '有効期限: ' + coupon.useDate.replaceAll('-', '/'),
-                            style: styleContent)),
-                    Container(
-                        child: Text(
-                            coupon.condition == '1' ? '他クーポン併用不可' : '他クーポンと併用化',
-                            style: styleContent)),
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: Text(coupon.couponName, style: styleUserName1),
+                    ),
+                    Text(
+                      '有効期限: ${coupon.useDate.replaceAll('-', '/')} ',
+                      style: styleContent,
+                    ),
+                    Text(
+                      coupon.condition == '1' ? '他クーポン併用不可' : '他クーポンと併用化',
+                      style: styleContent,
+                    ),
                   ],
-                )),
-                Container(
-                  width: 130,
-                  alignment: Alignment.center,
-                  child: Column(children: [
+                ),
+              ),
+              Container(
+                width: 130,
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
                     if (coupon.discountAmount != null)
                       Text(
-                        Funcs().currencyFormat(coupon.discountAmount!) +
-                            '円 OFF',
+                        '${Funcs().currencyFormat(coupon.discountAmount!)}円 OFF',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     if (coupon.discountRate != null)
-                      Text(coupon.discountRate! + '％OFF',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text(
+                        coupon.discountRate! + '％OFF',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     if (coupon.discountRate != null &&
                         coupon.upperAmount != null)
                       Text(
-                          '上限' +
-                              Funcs().currencyFormat(coupon.upperAmount!) +
-                              '円',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                  ]),
-                )
-              ],
-            )),
-            if (openDetailId == coupon.couponId)
-              Container(
-                  padding: EdgeInsets.only(top: 8),
-                  alignment: Alignment.centerLeft,
-                  child: Text(coupon.comment)),
-            Row(
-              children: [
-                Container(
-                    child: TextButton(
-                  child: Row(
-                    children: [
-                      Text('詳細を見る'),
-                      Icon(openDetailId == coupon.couponId
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down)
-                    ],
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      if (openDetailId == coupon.couponId) {
-                        openDetailId = '';
-                      } else {
-                        openDetailId = coupon.couponId;
-                      }
-                    });
-                  },
-                )),
-                Expanded(
-                    child: Container(
-                  height: 20,
-                )),
-              ],
+                        '上限 ${Funcs().currencyFormat(coupon.upperAmount!)}円',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (openDetailId == coupon.couponId)
+            Container(
+              padding: EdgeInsets.only(top: 8),
+              alignment: Alignment.centerLeft,
+              child: Text(coupon.comment),
             ),
-          ],
-        ));
+          Row(
+            children: [
+              TextButton(
+                child: Row(
+                  children: [
+                    Text('詳細を見る'),
+                    Icon(
+                      openDetailId == coupon.couponId
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (openDetailId == coupon.couponId) {
+                      openDetailId = '';
+                    } else {
+                      openDetailId = coupon.couponId;
+                    }
+                  });
+                },
+              ),
+              Expanded(child: Container(height: 20)),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getUserItem(user) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12.0),
       child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey), color: Colors.white),
-          padding: paddingUserNameGruop,
-          child: Row(
-            children: [
-              Expanded(
-                  child: Text(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          color: Colors.white,
+        ),
+        padding: paddingUserNameGruop,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
                 user.userFirstName == ''
                     ? user.userNick
-                    : user.userFirstName + ' ' + user.userLastName,
+                    : '${user.userFirstName} ${user.userLastName}',
                 style: styleUserName1,
-              )),
-              Text(
-                user.userBirth == null
-                    ? ''
-                    : (DateTime.now().year -
-                                DateTime.parse(user.userBirth!).year)
-                            .toString() +
-                        '歳' +
-                        (user.groupId == null ? '' : user.groupId!),
-                style: styleUserName1,
-              )
-            ],
-          )),
+              ),
+            ),
+            Text(
+              user.userBirth == null
+                  ? ''
+                  : '${DateTime.now().year - DateTime.parse(user.userBirth!).year}歳${user.groupId ?? ''}',
+              style: styleUserName1,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

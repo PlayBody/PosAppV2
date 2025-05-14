@@ -10,8 +10,8 @@ class AdminTextInputDefualt extends StatelessWidget {
     required this.hintText,
     this.multiline,
     this.errorText,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +20,14 @@ class AdminTextInputDefualt extends StatelessWidget {
       controller: controller,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(12),
-          isDense: true,
-          hintText: hintText,
-          errorText: errorText,
-          border: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey))),
+        contentPadding: const EdgeInsets.all(12),
+        isDense: true,
+        hintText: hintText,
+        errorText: errorText,
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+      ),
     );
   }
 }

@@ -1,9 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:staff_pos_app/src/common/business/orders.dart';
 import 'package:staff_pos_app/src/common/business/organ.dart';
@@ -20,10 +17,10 @@ import '../../../common/dialogs.dart';
 import '../../../common/globals.dart' as globals;
 
 class AdminCheckOrderFrame extends StatefulWidget {
-  const AdminCheckOrderFrame({Key? key}) : super(key: key);
+  const AdminCheckOrderFrame({super.key});
 
   @override
-  _AdminCheckOrderFrame createState() => _AdminCheckOrderFrame();
+  State<AdminCheckOrderFrame> createState() => _AdminCheckOrderFrame();
 }
 
 class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
@@ -45,8 +42,11 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
   }
 
   Future<List> loadInitData() async {
-    organs = await ClOrgan()
-        .loadOrganHaveShiftMode(context, globals.companyId, globals.staffId);
+    organs = await ClOrgan().loadOrganHaveShiftMode(
+      context,
+      globals.companyId,
+      globals.staffId,
+    );
 
     if (organs.isEmpty) Navigator.pop(context);
 
@@ -103,28 +103,34 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
     setState(() {});
   }
 
-  Future<void> orderUpdate(CheckShiftOrderModel group, ChceckOrderUserModel user, isCheck) async {
+  Future<void> orderUpdate(
+    CheckShiftOrderModel group,
+    ChceckOrderUserModel user,
+    isCheck,
+  ) async {
     String status = isCheck ? constOrderStatusTableComplete : constReserveApply;
     Dialogs().loaderDialogNormal(context);
     bool isUpdate = false;
-    if (user.orderId == ''){
-      if (organId != null ){
+    if (user.orderId == '') {
+      if (organId != null) {
         isUpdate = await ClOrder().insertOrder(context, {
-          'organ_id' : organId ?? '',
-          'user_id' : user.userId,
-          'from_time' : group.fromTime,
-          'to_time' : group.toTime,
-          'shift_frame_id' : group.frameId,
-          'status' : status
+          'organ_id': organId ?? '',
+          'user_id': user.userId,
+          'from_time': group.fromTime,
+          'to_time': group.toTime,
+          'shift_frame_id': group.frameId,
+          'status': status,
         });
-
       }
       orders = await ClOrder().loadCheckOrders(context, organId, selectedDate);
-      setState(() {
-        
-      });
-    }else{
-      bool isUpdate = await ClOrder().updateOrderStaus(context, user.orderId, status);
+      setState(() {});
+    } else {
+      // N??? >> bool isUpdate -> isUpdate
+      isUpdate = await ClOrder().updateOrderStaus(
+        context,
+        user.orderId,
+        status,
+      );
     }
     Navigator.pop(context);
     if (isUpdate) {
@@ -146,17 +152,18 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                      child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _getDropDownOrgans(),
-                        _getMonthNav(),
-                        _getMothCalander(),
-                        ...orders.map((e) => _getOrderContent(e)),
-                      ],
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _getDropDownOrgans(),
+                          _getMonthNav(),
+                          _getMothCalander(),
+                          ...orders.map((e) => _getOrderContent(e)),
+                        ],
+                      ),
                     ),
-                  ))
+                  ),
                 ],
               ),
             );
@@ -172,38 +179,42 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
 
   Widget _getDropDownOrgans() {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: DropdownButtonFormField(
-            onChanged: (value) async {
-              organId = value.toString();
-              await loadInitData();
-              // refreshLoad();
-            },
-            value: organId,
-            items: [
-              ...organs.map((e) => DropdownMenuItem(
-                    value: e.organId,
-                    child: Text(e.organName),
-                  )),
-            ]));
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: DropdownButtonFormField(
+        onChanged: (value) async {
+          organId = value.toString();
+          await loadInitData();
+          // refreshLoad();
+        },
+        value: organId,
+        items: [
+          ...organs.map(
+            (e) => DropdownMenuItem(value: e.organId, child: Text(e.organName)),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getMonthNav() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Row(children: [
-        Expanded(child: Container()),
-        TextButton(onPressed: () => dateMove('prev'), child: const Text('≪')),
-        SizedBox(
-          width: 150,
-          child: Text(
+      child: Row(
+        children: [
+          Expanded(child: Container()),
+          TextButton(onPressed: () => dateMove('prev'), child: const Text('≪')),
+          SizedBox(
+            width: 150,
+            child: Text(
               _selectYear.toString() + '年' + _selectMonth.toString() + '月',
               style: const TextStyle(fontSize: 26),
-              textAlign: TextAlign.center),
-        ),
-        TextButton(onPressed: () => dateMove('next'), child: Text('≫')),
-        Expanded(child: Container()),
-      ]),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          TextButton(onPressed: () => dateMove('next'), child: Text('≫')),
+          Expanded(child: Container()),
+        ],
+      ),
     );
   }
 
@@ -219,7 +230,8 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
         headerHeight: 0,
         monthViewSettings: const DateRangePickerMonthViewSettings(
           viewHeaderStyle: DateRangePickerViewHeaderStyle(
-              textStyle: TextStyle(color: Colors.blue, fontSize: 18)),
+            textStyle: TextStyle(color: Colors.blue, fontSize: 18),
+          ),
           weekendDays: [7],
         ),
         monthCellStyle: const DateRangePickerMonthCellStyle(
@@ -237,14 +249,15 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
 
   Widget _getOrderContent(CheckShiftOrderModel order) {
     return Container(
-        color: const Color(0xfff9f9f9),
-        alignment: Alignment.centerLeft,
-        child: Column(
-          children: [
-            _getGroupTitle(order),
-            ...order.users.map((e) => _getOrderItem(order, e))
-          ],
-        ));
+      color: const Color(0xfff9f9f9),
+      alignment: Alignment.centerLeft,
+      child: Column(
+        children: [
+          _getGroupTitle(order),
+          ...order.users.map((e) => _getOrderItem(order, e)),
+        ],
+      ),
+    );
   }
 
   Widget _getGroupTitle(CheckShiftOrderModel order) {
@@ -254,17 +267,22 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
         Expanded(
           child: Container(
             decoration: const BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(color: Color(0xFF117fc1), width: 3))),
+              border: Border(
+                bottom: BorderSide(color: Color(0xFF117fc1), width: 3),
+              ),
+            ),
             padding: const EdgeInsets.only(top: 20, bottom: 20, left: 18),
-            child: Text('${order.showFromTime}~${order.showToTime} ${order.groupMemo}',
-                style: organTitleStyle),
+            child: Text(
+              '${order.showFromTime}~${order.showToTime} ${order.groupMemo}',
+              style: organTitleStyle,
+            ),
           ),
         ),
         Container(
           width: 120,
           decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey, width: 3))),
+            border: Border(bottom: BorderSide(color: Colors.grey, width: 3)),
+          ),
         ),
       ],
     );
@@ -272,18 +290,22 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
 
   Widget _getOrderItem(group, ChceckOrderUserModel user) {
     return Container(
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: Color(0xffdfdfdf)))),
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-          title: Row(children: [
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xffdfdfdf))),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+        title: Row(
+          children: [
             Text(user.userName, style: staffNameStyle),
             _getGroupMark(user.isGroup),
             Expanded(child: Container()),
             _getCheckLabel(group, user),
-          ]),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _getGroupMark(bool isGroup) {
@@ -304,39 +326,57 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
 
   Widget _getCheckLabel(group, ChceckOrderUserModel user) {
     return SizedBox(
-        width: 90,
-        child: DropdownButtonFormField(
-            value: user.isEnter,
-            items: const [
-              DropdownMenuItem(
-                  value: true,
-                  child: Text('出席',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF919191)))),
-              DropdownMenuItem(
-                  value: false,
-                  child: Text('未出席',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red)))
-            ],
-            decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide.none)),
-            onChanged: (v) => orderUpdate(group, user, v)));
+      width: 90,
+      child: DropdownButtonFormField(
+        value: user.isEnter,
+        items: const [
+          DropdownMenuItem(
+            value: true,
+            child: Text(
+              '出席',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF919191),
+              ),
+            ),
+          ),
+          DropdownMenuItem(
+            value: false,
+            child: Text(
+              '未出席',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+        decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide.none),
+        ),
+        onChanged: (v) => orderUpdate(group, user, v),
+      ),
+    );
     //  Text(isCheck ? '出席済' : '未出席', style: style);
   }
 
   var organTitleStyle = const TextStyle(
-      fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF117fc1));
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Color(0xFF117fc1),
+  );
   var organSettingStyle = const TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 1,
-      color: Color(0xFF919191));
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 1,
+    color: Color(0xFF919191),
+  );
   var staffNameStyle = const TextStyle(
-      fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff454545));
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Color(0xff454545),
+  );
 }
