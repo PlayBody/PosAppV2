@@ -9,32 +9,35 @@ class RowLabelInput extends StatelessWidget {
   final double? labelWidth;
   final double? labelPadding;
   final bool? isLabelTop;
-  const RowLabelInput(
-      {required this.label,
-      required this.renderWidget,
-      this.hMargin,
-      this.labelWidth,
-      this.labelPadding,
-      this.isLabelTop,
-      Key? key})
-      : super(key: key);
+  const RowLabelInput({
+    required this.label,
+    required this.renderWidget,
+    this.hMargin,
+    this.labelWidth,
+    this.labelPadding,
+    this.isLabelTop,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(
-          horizontal: hMargin == null ? 0 : hMargin!, vertical: 6),
+        horizontal: hMargin == null ? 0 : hMargin!,
+        vertical: 6,
+      ),
       child: Row(
-        crossAxisAlignment: (isLabelTop != null && isLabelTop!)
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
+        crossAxisAlignment:
+            (isLabelTop != null && isLabelTop!)
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
         children: [
           InputLeftText(
             label: label,
             rPadding: labelPadding,
             width: labelWidth,
           ),
-          Flexible(child: renderWidget)
+          Flexible(child: renderWidget),
         ],
       ),
     );
@@ -43,14 +46,13 @@ class RowLabelInput extends StatelessWidget {
 
 class RowButtonGroup extends StatelessWidget {
   final List<Widget> widgets;
-  final bgColor;
-  const RowButtonGroup({required this.widgets, this.bgColor, Key? key})
-      : super(key: key);
+  final Color? bgColor;
+  const RowButtonGroup({required this.widgets, this.bgColor, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: bgColor == null ? Color(0xfffbfbfb) : bgColor,
+      color: bgColor ?? Color(0xfffbfbfb),
       padding: EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [

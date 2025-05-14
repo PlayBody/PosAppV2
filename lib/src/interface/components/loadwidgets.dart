@@ -6,10 +6,13 @@ import 'package:staff_pos_app/src/interface/layout/subbottomnavi.dart';
 // import 'package:syncfusion_flutter_charts/charts.dart';
 
 class LoadBodyWdiget extends StatelessWidget {
-  final loadData;
+  final Future<List<dynamic>>? loadData;
   final Widget render;
-  const LoadBodyWdiget({required this.loadData, required this.render, Key? key})
-      : super(key: key);
+  const LoadBodyWdiget({
+    required this.loadData,
+    required this.render,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +20,12 @@ class LoadBodyWdiget extends StatelessWidget {
       future: loadData,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return Center(
-            child: render,
-          );
+          return Center(child: render);
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");
         }
         // By default, show a loading spinner.
-        return Center(
-          child: CircularProgressIndicator(),
-        );
+        return Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -34,9 +33,9 @@ class LoadBodyWdiget extends StatelessWidget {
 
 class MainBodyWdiget extends StatelessWidget {
   final Widget render;
-  final resizeBottom;
+  final bool? resizeBottom;
   final bool? isFullScreen;
-  final fullScreenButton;
+  final Widget? fullScreenButton;
   final double? fullscreenTop;
   const MainBodyWdiget({
     required this.render,
@@ -44,35 +43,39 @@ class MainBodyWdiget extends StatelessWidget {
     this.isFullScreen,
     this.fullscreenTop,
     this.fullScreenButton,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Scaffold(
-          resizeToAvoidBottomInset: resizeBottom == null ? true : resizeBottom,
-          backgroundColor: Colors.transparent,
-          appBar: (isFullScreen == null || isFullScreen == false)
-              ? MyAppBar()
-              : null,
-          body: Stack(children: [
-            render,
-            if (fullScreenButton != null)
-              Positioned(
-                  left: 0,
-                  top: fullscreenTop == null ? 105 : fullscreenTop,
-                  child: fullScreenButton)
-          ]),
-          drawer: MyDrawer(),
-          bottomNavigationBar: (isFullScreen == null || isFullScreen == false)
-              ? SubBottomNavi()
-              : null),
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage('images/background.jpg'),
           fit: BoxFit.cover,
         ),
+      ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: resizeBottom ?? true,
+        backgroundColor: Colors.transparent,
+        appBar:
+            (isFullScreen == null || isFullScreen == false) ? MyAppBar() : null,
+        body: Stack(
+          children: [
+            render,
+            if (fullScreenButton != null)
+              Positioned(
+                left: 0,
+                top: fullscreenTop ?? 105,
+                child: fullScreenButton!,
+              ),
+          ],
+        ),
+        drawer: MyDrawer(),
+        bottomNavigationBar:
+            (isFullScreen == null || isFullScreen == false)
+                ? SubBottomNavi()
+                : null,
       ),
     );
   }

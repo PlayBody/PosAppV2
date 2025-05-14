@@ -17,7 +17,7 @@ var txtActiveStartController = TextEditingController();
 var txtActiveEndController = TextEditingController();
 
 class Setting extends StatefulWidget {
-  const Setting({Key? key}) : super(key: key);
+  const Setting({super.key});
 
   @override
   State<Setting> createState() => _Setting();
@@ -49,7 +49,7 @@ class _Setting extends State<Setting> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (value) {
       prefs.setString(globals.isBiometricEnableKey, 'yes');
-    }else {
+    } else {
       prefs.setString(globals.isBiometricEnableKey, 'no');
     }
     setState(() {
@@ -59,14 +59,19 @@ class _Setting extends State<Setting> {
 
   Future<List> loadSettingData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String faceIdStatus  = prefs.getString(globals.isBiometricEnableKey) ?? '';
+    String faceIdStatus = prefs.getString(globals.isBiometricEnableKey) ?? '';
     if (faceIdStatus == '' || faceIdStatus == 'yes') {
       isFace = true;
     }
 
-    StaffModel staff = await ClStaff().loadStaffInfo(context, globals.staffId);
-    //print(staff.isPush);
-    isPush = staff.isPush;
+    if (mounted) {
+      StaffModel staff = await ClStaff().loadStaffInfo(
+        context,
+        globals.staffId,
+      );
+      //print(staff.isPush);
+      isPush = staff.isPush;
+    }
     setState(() {});
     return [];
   }
@@ -75,19 +80,20 @@ class _Setting extends State<Setting> {
   Widget build(BuildContext context) {
     globals.appTitle = '設定';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return _getContentBody();
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getContentBody();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-        // By default, show a loading spinner.
-        return const Center(child: CircularProgressIndicator());
-      },
-    ));
+          // By default, show a loading spinner.
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   Widget _getContentBody() {
@@ -104,9 +110,14 @@ class _Setting extends State<Setting> {
           // }),
           if (globals.auth < constAuthSystem)
             _getContentPushRow('標準シフト', () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return const SettingShiftInit();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) {
+                    return const SettingShiftInit();
+                  },
+                ),
+              );
             }),
           // _getContentPushRow('標準シフト', () {
           //   Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -116,7 +127,9 @@ class _Setting extends State<Setting> {
           _getContentSwitchRow('プッシュ通知', isPush, (value) async {
             Dialogs().loaderDialogNormal(context);
             await ClStaff().updateStaffPush(context, value);
-            Navigator.pop(context);
+            if (mounted) {
+              Navigator.pop(context);
+            }
             loadSettingData();
           }),
           // _getContentSwitchRow('生体認証', isFace, (value) {
@@ -140,8 +153,12 @@ class _Setting extends State<Setting> {
   var rowDecoration = const BoxDecoration(
     border: Border(bottom: BorderSide(color: Color(0xFFd2dbe5), width: 1)),
   );
-  var rowContentPadding =
-      const EdgeInsets.only(left: 20, right: 10, top: 5, bottom: 5);
+  var rowContentPadding = const EdgeInsets.only(
+    left: 20,
+    right: 10,
+    top: 5,
+    bottom: 5,
+  );
 
   Widget _getContentPushRow(label, ontap) {
     return Container(

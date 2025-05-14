@@ -19,7 +19,7 @@ var txtActiveStartController = TextEditingController();
 var txtActiveEndController = TextEditingController();
 
 class AdminSettingConnectMenu extends StatefulWidget {
-  const AdminSettingConnectMenu({Key? key}) : super(key: key);
+  const AdminSettingConnectMenu({super.key});
 
   @override
   State<AdminSettingConnectMenu> createState() => _AdminSettingConnectMenu();
@@ -48,32 +48,43 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return SingleChildScrollView(
-                child: Column(children: [
-              if (globals.auth > constAuthOwner)
-                Container(
-                  padding: const EdgeInsets.only(left: 30, right: 30),
-                  child: Row(children: [
+              child: Column(
+                children: [
+                  if (globals.auth > constAuthOwner)
                     Container(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: const Text('企業名')),
-                    Flexible(
-                        child: DropdownButtonFormField(
-                            isExpanded: true,
-                            value: selCompanyId,
-                            items: [
-                              ...companies.map((e) => DropdownMenuItem(
-                                  value: e.companyId,
-                                  child: Text(e.companyName)))
-                            ],
-                            onChanged: (v) {
-                              selCompanyId = v.toString();
-                              setState(() {});
-                              refreshLoad();
-                            }))
-                  ]),
-                ),
-              ...menus.map((e) => _settingContentRow(e)),
-            ]));
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: const Text('企業名'),
+                          ),
+                          Flexible(
+                            child: DropdownButtonFormField(
+                              isExpanded: true,
+                              value: selCompanyId,
+                              items: [
+                                ...companies.map(
+                                  (e) => DropdownMenuItem(
+                                    value: e.companyId,
+                                    child: Text(e.companyName),
+                                  ),
+                                ),
+                              ],
+                              onChanged: (v) {
+                                selCompanyId = v.toString();
+                                setState(() {});
+                                refreshLoad();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ...menus.map((e) => _settingContentRow(e)),
+                ],
+              ),
+            );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -89,8 +100,9 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
   Future<List> loadSettingData() async {
     if (globals.auth > constAuthOwner) {
       Map<dynamic, dynamic> companyResults = {};
-      await Webservice().loadHttp(context, apiLoadCompanyListUrl, {}).then(
-          (value) => companyResults = value);
+      await Webservice()
+          .loadHttp(context, apiLoadCompanyListUrl, {})
+          .then((value) => companyResults = value);
       companies = [];
       if (companyResults['isLoad']) {
         for (var item in companyResults['companies']) {
@@ -105,10 +117,12 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
 
   Future<void> refreshLoad() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadConnectHomeMenus, {
-      'company_id': selCompanyId,
-      'is_admin': '1'
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadConnectHomeMenus, {
+          'company_id': selCompanyId,
+          'is_admin': '1',
+        })
+        .then((v) => {results = v});
     menus = [];
     if (results['isLoad']) {
       for (var item in results['menus']) {
@@ -116,7 +130,7 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
           'setting_id': item['id'],
           'title': item['menu_name'],
           'key': item['menu_key'],
-          'is_use': item['is_use']
+          'is_use': item['is_use'],
         });
       }
     }
@@ -126,15 +140,18 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
   Future<void> saveSetting(settingId, value) async {
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveConnectHomeMenus, {
-      'setting_id': settingId,
-      'value': value,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiSaveConnectHomeMenus, {
+          'setting_id': settingId,
+          'value': value,
+        })
+        .then((v) => {results = v});
 
-    if (!results['isSave']) {
+    if (!results['isSave'] && mounted) {
       Dialogs().infoDialog(context, errServerActionFail);
     }
     await refreshLoad();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -143,54 +160,63 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
     await ClCommon().updateHomeMenuOrder(context, selCompanyId, menuId, mode);
 
     await loadSettingData();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
   Widget _settingContentRow(menu) {
     return Container(
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Color.fromARGB(255, 230, 230, 230),
-              width: 1,
-            ),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Color.fromARGB(255, 230, 230, 230),
+            width: 1,
           ),
         ),
-        child: ListTile(
-          trailing: SizedBox(
-              width: 100,
-              child: DropDownModelSelect(
-                value: menu['is_use'],
-                items: const [
-                  DropdownMenuItem(value: '0', child: Text('使用しない')),
-                  DropdownMenuItem(value: '1', child: Text('使用する')),
-                  DropdownMenuItem(value: '2', child: Text('ユーザー限定')),
-                ],
-                tapFunc: (v) => saveSetting(menu['setting_id'], v),
-              )),
-          // trailing: Switch(
-          //   value: menu['is_use'] == '1',
-          //   onChanged: (value) {
-          //     saveSetting(menu['setting_id'], value);
-          //     refreshLoad();
-          //   },
-          //   activeTrackColor: Colors.lightGreenAccent,
-          //   activeColor: Colors.green,
-          // ),
-          contentPadding:
-              const EdgeInsets.only(left: 20, right: 10, top: 5, bottom: 5),
-          title: Row(
-            children: [
-              Expanded(child: Text(menu['title'])),
-              IconButton(
-                  onPressed: () => updateOrder(menu['setting_id'], 'down'),
-                  icon: const Icon(Icons.keyboard_arrow_down)),
-              IconButton(
-                  onPressed: () => updateOrder(menu['setting_id'], 'up'),
-                  icon: const Icon(Icons.keyboard_arrow_up))
+      ),
+      child: ListTile(
+        trailing: SizedBox(
+          width: 100,
+          child: DropDownModelSelect(
+            value: menu['is_use'],
+            items: const [
+              DropdownMenuItem(value: '0', child: Text('使用しない')),
+              DropdownMenuItem(value: '1', child: Text('使用する')),
+              DropdownMenuItem(value: '2', child: Text('ユーザー限定')),
             ],
+            tapFunc: (v) => saveSetting(menu['setting_id'], v),
           ),
-        ));
+        ),
+        // trailing: Switch(
+        //   value: menu['is_use'] == '1',
+        //   onChanged: (value) {
+        //     saveSetting(menu['setting_id'], value);
+        //     refreshLoad();
+        //   },
+        //   activeTrackColor: Colors.lightGreenAccent,
+        //   activeColor: Colors.green,
+        // ),
+        contentPadding: const EdgeInsets.only(
+          left: 20,
+          right: 10,
+          top: 5,
+          bottom: 5,
+        ),
+        title: Row(
+          children: [
+            Expanded(child: Text(menu['title'])),
+            IconButton(
+              onPressed: () => updateOrder(menu['setting_id'], 'down'),
+              icon: const Icon(Icons.keyboard_arrow_down),
+            ),
+            IconButton(
+              onPressed: () => updateOrder(menu['setting_id'], 'up'),
+              icon: const Icon(Icons.keyboard_arrow_up),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -217,7 +243,7 @@ class _AdminSettingConnectMenu extends State<AdminSettingConnectMenu> {
 class SettingFormLabel extends StatelessWidget {
   final String label;
 
-  const SettingFormLabel({required this.label, Key? key}) : super(key: key);
+  const SettingFormLabel({required this.label, super.key});
 
   @override
   Widget build(BuildContext context) {

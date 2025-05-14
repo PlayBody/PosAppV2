@@ -7,10 +7,10 @@ import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
 import '../../../common/globals.dart' as globals;
 
 class AdminFavoriteQuestionAdd extends StatefulWidget {
-  const AdminFavoriteQuestionAdd({Key? key}) : super(key: key);
+  const AdminFavoriteQuestionAdd({super.key});
 
   @override
-  _AdminFavoriteQuestionAdd createState() => _AdminFavoriteQuestionAdd();
+  State<AdminFavoriteQuestionAdd> createState() => _AdminFavoriteQuestionAdd();
 }
 
 class _AdminFavoriteQuestionAdd extends State<AdminFavoriteQuestionAdd> {
@@ -42,29 +42,31 @@ class _AdminFavoriteQuestionAdd extends State<AdminFavoriteQuestionAdd> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            Container(
-              child: TextFormField(
-                  controller: questionController,
-                  decoration: InputDecoration(
-                      errorText: errQuestion,
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(10))),
+            TextFormField(
+              controller: questionController,
+              decoration: InputDecoration(
+                errorText: errQuestion,
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.all(10),
+              ),
             ),
             Container(
               padding: EdgeInsets.only(top: 15, bottom: 10),
-              child: Text('質問答え',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text(
+                '質問答え',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-            Container(
-              child: TextFormField(
-                  controller: answerController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                      errorText: errAnswer,
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(10))),
+            TextFormField(
+              controller: answerController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                errorText: errAnswer,
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.all(10),
+              ),
             ),
           ],
         ),
@@ -92,13 +94,15 @@ class _AdminFavoriteQuestionAdd extends State<AdminFavoriteQuestionAdd> {
     if (!isCheck) return;
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveFavortieQuestionUrl, {
-      'company_id': globals.companyId,
-      'question': questionController.text,
-      'answer': answerController.text
-    }).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiSaveFavortieQuestionUrl, {
+          'company_id': globals.companyId,
+          'question': questionController.text,
+          'answer': answerController.text,
+        })
+        .then((value) => results = value);
 
-    if (results['isSave']) {
+    if (results['isSave'] && mounted) {
       Navigator.pop(context);
       // Navigator.push(context, MaterialPageRoute(builder: (_) {
       //   return AdminFavoriteQuestions();

@@ -5,10 +5,7 @@ var dropdownDecoration = InputDecoration(
   filled: true,
   isDense: true,
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(
-      width: 1,
-      color: Color(0xffbebebe),
-    ),
+    borderSide: BorderSide(width: 1, color: Color(0xffbebebe)),
   ),
   contentPadding: EdgeInsets.fromLTRB(8, 12, 0, 12),
 );
@@ -19,28 +16,28 @@ class DropDownNumberSelect extends StatelessWidget {
   final int? min;
   final int? plusnum;
   final bool? isPlusLabel;
-  final contentPadding;
+  final EdgeInsetsGeometry? contentPadding;
   final int max;
   final String? hint;
   final tapFunc;
   final String? label;
   final String? caption;
   final bool? isAddNull;
-  const DropDownNumberSelect(
-      {this.value,
-      required this.max,
-      required this.tapFunc,
-      this.diff,
-      this.plusnum,
-      this.isPlusLabel,
-      this.contentPadding,
-      this.min,
-      this.hint,
-      this.label,
-      this.caption,
-      this.isAddNull,
-      Key? key})
-      : super(key: key);
+  const DropDownNumberSelect({
+    this.value,
+    required this.max,
+    required this.tapFunc,
+    this.diff,
+    this.plusnum,
+    this.isPlusLabel,
+    this.contentPadding,
+    this.min,
+    this.hint,
+    this.label,
+    this.caption,
+    this.isAddNull,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +46,8 @@ class DropDownNumberSelect extends StatelessWidget {
     int dff = diff == null ? 1 : diff!;
     for (var i = start; i <= max; i = i + dff) {
       itemList.add(
-          i.toString() + ((isPlusLabel == null || !isPlusLabel!) ? '' : '+'));
+        i.toString() + ((isPlusLabel == null || !isPlusLabel!) ? '' : '+'),
+      );
     }
 
     if (plusnum != null) {
@@ -57,11 +55,12 @@ class DropDownNumberSelect extends StatelessWidget {
         itemList.add('+$i');
       }
     }
-    
+
     // Check if the provided value exists in the item list to prevent the error
     String? selectedValue = value;
-    if (selectedValue != null && !itemList.contains(selectedValue) && 
-        !(isAddNull != null && isAddNull! && selectedValue == null)) {
+    if (selectedValue != null &&
+        !itemList.contains(selectedValue) &&
+        !(isAddNull != null && isAddNull!)) {
       selectedValue = null;
     }
 
@@ -69,41 +68,37 @@ class DropDownNumberSelect extends StatelessWidget {
       isExpanded: true,
       hint: Text(hint == null ? '' : hint!),
       decoration: InputDecoration(
-        label: caption == null
-            ? null
-            : Text(
-                caption!,
-                style: const TextStyle(fontSize: 12, color: Colors.blue),
-              ),
+        label:
+            caption == null
+                ? null
+                : Text(
+                  caption!,
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
+                ),
         fillColor: Colors.white,
         filled: true,
         isDense: true,
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 1,
-            color: Color(0xffbebebe),
-          ),
+          borderSide: BorderSide(width: 1, color: Color(0xffbebebe)),
         ),
         enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 1,
-            color: Color(0xffbebebe),
-          ),
+          borderSide: BorderSide(width: 1, color: Color(0xffbebebe)),
         ),
         contentPadding: contentPadding ?? const EdgeInsets.fromLTRB(8, 6, 0, 6),
       ),
       value: selectedValue,
       items: [
         if (isAddNull != null && isAddNull!)
-          const DropdownMenuItem(
-            value: null,
-            child: Text('なし'),
+          const DropdownMenuItem(value: null, child: Text('なし')),
+        ...itemList.map(
+          (e) => DropdownMenuItem(
+            value: e,
+            child: Text(
+              e + (label == null ? '' : label!),
+              textAlign: TextAlign.right,
+            ),
           ),
-        ...itemList.map((e) => DropdownMenuItem(
-              value: e,
-              child: Text(e + (label == null ? '' : label!),
-                  textAlign: TextAlign.right),
-            ))
+        ),
       ],
       onChanged: tapFunc,
     );
@@ -113,28 +108,28 @@ class DropDownNumberSelect extends StatelessWidget {
 class DropDownModelSelect extends StatelessWidget {
   final dynamic value;
   final List<DropdownMenuItem> items;
-  final contentPadding;
+  final EdgeInsetsGeometry? contentPadding;
   final String? hint;
   final String? caption;
-  final dropdownState;
+  final Key? dropdownState;
   final tapFunc;
-  const DropDownModelSelect(
-      {this.value,
-      required this.items,
-      this.dropdownState,
-      this.contentPadding,
-      required this.tapFunc,
-      this.caption,
-      this.hint,
-      Key? key})
-      : super(key: key);
+  const DropDownModelSelect({
+    this.value,
+    required this.items,
+    this.dropdownState,
+    this.contentPadding,
+    required this.tapFunc,
+    this.caption,
+    this.hint,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Check if value exists in items to prevent the "exactly one item" error
     dynamic selectedValue = value;
     bool valueExists = false;
-    
+
     if (selectedValue != null) {
       for (var item in items) {
         if (item.value == selectedValue) {
@@ -142,41 +137,34 @@ class DropDownModelSelect extends StatelessWidget {
           break;
         }
       }
-      
+
       if (!valueExists) {
         selectedValue = null;
       }
     }
-    
+
     return DropdownButtonFormField(
       key: dropdownState,
       isExpanded: true,
       hint: Text(hint == null ? '' : hint!),
       decoration: InputDecoration(
-        label: caption == null
-            ? null
-            : Text(
-                caption!,
-                style: const TextStyle(fontSize: 12, color: Colors.blue),
-              ),
+        label:
+            caption == null
+                ? null
+                : Text(
+                  caption!,
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
+                ),
         fillColor: Colors.white,
         filled: true,
         isDense: true,
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 1,
-            color: Color(0xffbebebe),
-          ),
+          borderSide: BorderSide(width: 1, color: Color(0xffbebebe)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 1,
-            color: Color(0xffbebebe),
-          ),
+          borderSide: BorderSide(width: 1, color: Color(0xffbebebe)),
         ),
-        contentPadding: contentPadding == null
-            ? EdgeInsets.fromLTRB(8, 6, 0, 6)
-            : contentPadding,
+        contentPadding: contentPadding ?? EdgeInsets.fromLTRB(8, 6, 0, 6),
       ),
       value: selectedValue,
       items: items,

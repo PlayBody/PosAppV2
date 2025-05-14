@@ -9,13 +9,12 @@ import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
 import 'package:staff_pos_app/src/model/favoritequestionmodel.dart';
 
 import '../../../common/globals.dart' as globals;
-import 'admin_favorite_question_add.dart';
 
 class AdminFavoriteQuestions extends StatefulWidget {
-  const AdminFavoriteQuestions({Key? key}) : super(key: key);
+  const AdminFavoriteQuestions({super.key});
 
   @override
-  _AdminFavoriteQuestions createState() => _AdminFavoriteQuestions();
+  State<AdminFavoriteQuestions> createState() => _AdminFavoriteQuestions();
 }
 
 class _AdminFavoriteQuestions extends State<AdminFavoriteQuestions> {
@@ -43,75 +42,88 @@ class _AdminFavoriteQuestions extends State<AdminFavoriteQuestions> {
               child: Column(
                 children: [
                   Expanded(
-                      child: SingleChildScrollView(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                        Container(
-                            padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-                            decoration: borderBottomLine,
-                            child: Text(
-                              'よくあるご質問',
-                              style: styleItemGroupTitle,
-                            )),
-                        ...questions.map((e) => Container(
-                              padding: paddingItemGroupTitleSpace,
-                              decoration: borderBottomLine,
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ListTile(
-                                      trailing: openQuerys.contains(e.id)
-                                          ? Icon(Icons.keyboard_arrow_up)
-                                          : Icon(Icons.keyboard_arrow_down),
-                                      title: Text('Q. ' + e.question),
-                                      onTap: () {
-                                        if (openQuerys.contains(e.id)) {
-                                          openQuerys.remove(e.id);
-                                        } else {
-                                          openQuerys.add(e.id);
-                                        }
-                                        setState(() {});
-                                      },
-                                    ),
-                                    if (openQuerys.contains(e.id))
-                                      Container(
-                                          padding: EdgeInsets.fromLTRB(
-                                              30, 10, 40, 10),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                child: Text('A. '),
-                                                padding:
-                                                    EdgeInsets.only(right: 10),
-                                              ),
-                                              Flexible(
-                                                child: Text(e.answer),
-                                              )
-                                            ],
-                                          ))
-                                  ]),
-                            )),
-                      ]))),
-                  Container(
-                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          ElevatedButton(
-                              child: Text('よくある質問の追加'),
-                              onPressed: () async {
-                                await Navigator.push(context,
-                                    MaterialPageRoute(builder: (_) {
-                                  return AdminFavoriteQuestionAdd();
-                                }));
-
-                                loadFavoriteQuestion();
-                              }),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                            decoration: borderBottomLine,
+                            child: Text('よくあるご質問', style: styleItemGroupTitle),
+                          ),
+                          ...questions.map(
+                            (e) => Container(
+                              padding: paddingItemGroupTitleSpace,
+                              decoration: borderBottomLine,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ListTile(
+                                    trailing:
+                                        openQuerys.contains(e.id)
+                                            ? Icon(Icons.keyboard_arrow_up)
+                                            : Icon(Icons.keyboard_arrow_down),
+                                    title: Text('Q. ${e.question}'),
+                                    onTap: () {
+                                      if (openQuerys.contains(e.id)) {
+                                        openQuerys.remove(e.id);
+                                      } else {
+                                        openQuerys.add(e.id);
+                                      }
+                                      setState(() {});
+                                    },
+                                  ),
+                                  if (openQuerys.contains(e.id))
+                                    Container(
+                                      padding: EdgeInsets.fromLTRB(
+                                        30,
+                                        10,
+                                        40,
+                                        10,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.only(right: 10),
+                                            child: Text('A. '),
+                                          ),
+                                          Flexible(child: Text(e.answer)),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
-                      ))
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton(
+                          child: Text('よくある質問の追加'),
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return AdminFavoriteQuestionAdd();
+                                },
+                              ),
+                            );
+
+                            loadFavoriteQuestion();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             );
@@ -127,8 +139,11 @@ class _AdminFavoriteQuestions extends State<AdminFavoriteQuestions> {
 
   Future<List> loadFavoriteQuestion() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadFavortieQuestionUrl,
-        {'company_id': globals.companyId}).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadFavortieQuestionUrl, {
+          'company_id': globals.companyId,
+        })
+        .then((value) => results = value);
     questions = [];
     if (results['isLoad']) {
       for (var item in results['questions']) {

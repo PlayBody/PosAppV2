@@ -20,6 +20,8 @@ import '../../common/globals.dart' as globals;
 // Set up a mock HTTP client.
 
 class MyDrawer extends StatelessWidget {
+  const MyDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(

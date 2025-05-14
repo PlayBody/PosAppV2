@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:staff_pos_app/src/common/const.dart';
-import 'package:staff_pos_app/src/common/globals.dart';
 import 'package:staff_pos_app/src/interface/admin/component/adminbutton.dart';
 import 'package:staff_pos_app/src/interface/admin/style/borders.dart';
 import 'package:staff_pos_app/src/interface/admin/style/inputformfields.dart';
@@ -24,16 +23,16 @@ class AdminGroupEdit extends StatefulWidget {
   final List<UserModel> users;
   final String companyId;
 
-  const AdminGroupEdit(
-      {this.groupId,
-      required this.groupUsers,
-      required this.users,
-      required this.companyId,
-      Key? key})
-      : super(key: key);
+  const AdminGroupEdit({
+    this.groupId,
+    required this.groupUsers,
+    required this.users,
+    required this.companyId,
+    super.key,
+  });
 
   @override
-  _AdminGroupEdit createState() => _AdminGroupEdit();
+  State<AdminGroupEdit> createState() => _AdminGroupEdit();
 }
 
 class _AdminGroupEdit extends State<AdminGroupEdit> {
@@ -78,33 +77,33 @@ class _AdminGroupEdit extends State<AdminGroupEdit> {
                       ),
                     ),
                     Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text('メンバー', style: stylePageSubtitle)),
+                      alignment: Alignment.centerLeft,
+                      child: Text('メンバー', style: stylePageSubtitle),
+                    ),
                     Expanded(
-                        child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ...widget.users
-                              .map((e) => (widget.groupUsers.contains(e.userId)
-                                  ? AdminGroupsListItem(
-                                      userName: e.userNick == null
-                                          ? e.userFirstName! +
-                                              ' ' +
-                                              e.userLastName!
-                                          : e.userNick!,
-                                      tapFunc: () {
-                                        pushUserEdit(e.userId);
-                                      },
-                                    )
-                                  : Container()))
-                        ],
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ...widget.users.map(
+                              (e) =>
+                                  (widget.groupUsers.contains(e.userId)
+                                      ? AdminGroupsListItem(
+                                        userName:
+                                            e.userNick == null
+                                                ? '${e.userFirstName!} ${e.userLastName!}'
+                                                : e.userNick!,
+                                        tapFunc: () {
+                                          pushUserEdit(e.userId);
+                                        },
+                                      )
+                                      : Container()),
+                            ),
+                          ],
+                        ),
                       ),
-                    )),
-                    AdminPrimaryBtn(
-                      label: '作成',
-                      tapFunc: () => saveGroup(),
-                    )
+                    ),
+                    AdminPrimaryBtn(label: '作成', tapFunc: () => saveGroup()),
                   ],
                 ),
               ),
@@ -123,8 +122,9 @@ class _AdminGroupEdit extends State<AdminGroupEdit> {
     txtGroupNameController.clear();
     if (widget.groupId == null) return [];
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadGroupInfoUrl,
-        {'group_id': selGroupId}).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadGroupInfoUrl, {'group_id': selGroupId})
+        .then((value) => results = value);
     if (results['isLoad']) {
       txtGroupNameController.text = results['group']['group_name'];
     }
@@ -151,61 +151,70 @@ class _AdminGroupEdit extends State<AdminGroupEdit> {
 
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiSaveGroupNameUrl, {
-      'group_id': widget.groupId == null ? '' : widget.groupId,
-      'company_id': widget.companyId,
-      'staff_id': globals.staffId,
-      'group_users': jsonEncode(widget.groupUsers),
-      'group_name': groupName
-    }).then((value) => results = value);
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiSaveGroupNameUrl, {
+            'group_id': widget.groupId ?? '',
+            'company_id': widget.companyId,
+            'staff_id': globals.staffId,
+            'group_users': jsonEncode(widget.groupUsers),
+            'group_name': groupName,
+          })
+          .then((value) => results = value);
 
-    if (results['isSave']) {
-      // selGroupId = results['group_id'].toString();
-      // await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      //   return AdminGroupUser(
-      //     groupId: results['group_id'].toString(),
-      //   );
-      // }));
-      // loadGroupUsers();
-      Navigator.pop(context);
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+      if (mounted) {
+        if (results['isSave']) {
+          // selGroupId = results['group_id'].toString();
+          // await Navigator.push(context, MaterialPageRoute(builder: (_) {
+          //   return AdminGroupUser(
+          //     groupId: results['group_id'].toString(),
+          //   );
+          // }));
+          // loadGroupUsers();
+          Navigator.pop(context);
+          Navigator.pop(context);
+        } else {
+          Dialogs().infoDialog(context, errServerActionFail);
+        }
+      }
     }
   }
 
   Future<void> pushUserEdit(userId) async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminUserEdit(userId: userId);
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminUserEdit(userId: userId);
+        },
+      ),
+    );
     loadGroupUsers();
   }
 }
 
 class AdminGroupsListItem extends StatelessWidget {
   final String userName;
-  final tapFunc;
-  const AdminGroupsListItem(
-      {required this.userName, required this.tapFunc, Key? key})
-      : super(key: key);
+  final Function() tapFunc;
+  const AdminGroupsListItem({
+    required this.userName,
+    required this.tapFunc,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: tapFunc,
       child: Container(
-        margin: new EdgeInsets.symmetric(vertical: 8.0),
+        margin: EdgeInsets.symmetric(vertical: 8.0),
         decoration: borderAllRadius8,
         padding: paddingUserNameGruop,
         child: Container(
-            padding: paddingUserNameGruop,
-            child: Row(children: [
-              Text(
-                userName,
-                style: styleUserName1,
-              )
-            ])),
+          padding: paddingUserNameGruop,
+          child: Row(children: [Text(userName, style: styleUserName1)]),
+        ),
       ),
-      onTap: tapFunc,
     );
   }
 }

@@ -7,10 +7,10 @@ import 'package:staff_pos_app/src/interface/login.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 class LicenseView extends StatefulWidget {
-  const LicenseView({Key? key}) : super(key: key);
+  const LicenseView({super.key});
 
   @override
-  _LicenseView createState() => _LicenseView();
+  State<LicenseView> createState() => _LicenseView();
 }
 
 class _LicenseView extends State<LicenseView> {
@@ -25,99 +25,117 @@ class _LicenseView extends State<LicenseView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () async => false,
-        child: Scaffold(
-            body: Center(
-                child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: 30),
-                child: Text(
-                  '利用規約',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Center(
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(top: 30),
+                  child: Text(
+                    '利用規約',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              Expanded(
+                Expanded(
                   child: SingleChildScrollView(
-                      child: Column(children: [
-                Container(
-                    padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                    child: Html(
-                      data: licenseHtml,
-                      style: {
-                        'h5':
-                            Style(padding: EdgeInsets.only(top: 20, bottom: 5))
-                      },
-                    )),
-                Container(
-                    padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Checkbox(
-                            value: ischeck,
-                            onChanged: (v) {
-                              setState(() {
-                                ischeck = v!;
-                              });
-                            }),
-                        Container(child: Text('すべて読みました。'))
+                        Container(
+                          padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                          child: Html(
+                            data: licenseHtml,
+                            style: {
+                              'h5': Style(
+                                padding: HtmlPaddings.only(top: 20, bottom: 5),
+                              ),
+                            },
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: ischeck,
+                                onChanged: (v) {
+                                  setState(() {
+                                    ischeck = v!;
+                                  });
+                                },
+                              ),
+                              Text('すべて読みました。'),
+                            ],
+                          ),
+                        ),
                       ],
-                    ))
-              ]))),
-              Container(
-                child: Row(
+                    ),
+                  ),
+                ),
+                Row(
                   children: [
                     Expanded(
-                        child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: Color.fromARGB(255, 230, 230, 230),
-                                  width: 1,
-                                ),
-                                right: BorderSide(
-                                  color: Color.fromARGB(255, 230, 230, 230),
-                                  width: 1,
-                                ),
-                              ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Color.fromARGB(255, 230, 230, 230),
+                              width: 1,
                             ),
-                            child: TextButton(
-                              child: Text('同意します。'),
-                              onPressed: ischeck
+                            right: BorderSide(
+                              color: Color.fromARGB(255, 230, 230, 230),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: TextButton(
+                          onPressed:
+                              ischeck
                                   ? () {
-                                      acceptLicense();
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (_) {
-                                        return Login();
-                                      }));
-                                    }
+                                    acceptLicense();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) {
+                                          return Login();
+                                        },
+                                      ),
+                                    );
+                                  }
                                   : null,
-                            ))),
+                          child: Text('同意します。'),
+                        ),
+                      ),
+                    ),
                     Expanded(
-                        child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: Color.fromARGB(255, 230, 230, 230),
-                                  width: 1,
-                                ),
-                              ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Color.fromARGB(255, 230, 230, 230),
+                              width: 1,
                             ),
-                            child: TextButton(
-                              child: Text('同意しない。'),
-                              onPressed: () {
-                                exit(1);
-                              },
-                            )))
+                          ),
+                        ),
+                        child: TextButton(
+                          child: Text('同意しない。'),
+                          onPressed: () {
+                            exit(1);
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              )
-            ],
+              ],
+            ),
           ),
-        ))));
+        ),
+      ),
+    );
   }
 
   Future<void> acceptLicense() async {

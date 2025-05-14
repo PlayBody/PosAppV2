@@ -24,10 +24,10 @@ import '../../../common/globals.dart' as globals;
 
 class AdminUserInfo extends StatefulWidget {
   final String userId;
-  const AdminUserInfo({required this.userId, Key? key}) : super(key: key);
+  const AdminUserInfo({required this.userId, super.key});
 
   @override
-  _AdminUserInfo createState() => _AdminUserInfo();
+  State<AdminUserInfo> createState() => _AdminUserInfo();
 }
 
 class _AdminUserInfo extends State<AdminUserInfo> {
@@ -60,56 +60,64 @@ class _AdminUserInfo extends State<AdminUserInfo> {
 
   Future<List> loadinitData() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadUserInfoUrl, {
-      'user_id': widget.userId,
-      'is_reserve_list': '1'
-    }).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadUserInfoUrl, {
+          'user_id': widget.userId,
+          'is_reserve_list': '1',
+        })
+        .then((value) => results = value);
 
     if (results['isLoad']) {
       var user = results['user'];
       userName =
-          (user['user_first_name'] == null ? '' : user['user_first_name']) +
-              ' ' +
-              (user['user_last_name'] == null ? '' : user['user_last_name']);
+          "${(user['user_first_name'] ?? '')} ${(user['user_last_name'] ?? '')}";
       userNick = user['user_nick'] ?? '';
-      userAge = user['user_birthday'] == null
-          ? ''
-          : (DateTime.now().year - DateTime.parse(user['user_birthday']).year)
-              .toString();
-      userSex = user['user_sex'] == null
-          ? ' '
-          : user['user_sex'] == '1'
+      userAge =
+          user['user_birthday'] == null
+              ? ''
+              : (DateTime.now().year -
+                      DateTime.parse(user['user_birthday']).year)
+                  .toString();
+      userSex =
+          user['user_sex'] == null
+              ? ' '
+              : user['user_sex'] == '1'
               ? '男'
               : '女';
-      userPhone = user['user_tel'] == null ? '' : user['user_tel'];
-      userEmail = user['user_email'] == null ? '' : user['user_email'];
-      userBirth = user['user_birthday'] == null
-          ? ''
-          : Funcs().dateFormatJP1(user['user_birthday']);
+      userPhone = user['user_tel'] ?? '';
+      userEmail = user['user_email'] ?? '';
+      userBirth =
+          user['user_birthday'] == null
+              ? ''
+              : Funcs().dateFormatJP1(user['user_birthday']);
       userTicket =
           user['user_ticket'] == null ? '' : user['user_ticket'].toString();
       userGroupName = user['group'] == null ? '' : user['group']['group_name'];
 
-      userComment = user['user_comment'] == null ? '' : user['user_comment'];
+      userComment = user['user_comment'] ?? '';
       var ticketReset = results['ticket_reset'];
 
       if (ticketReset != null) {
-        isTicketReset = ticketReset['is_enable'] == null
-            ? '0'
-            : ticketReset['is_enable'].toString();
+        isTicketReset =
+            ticketReset['is_enable'] == null
+                ? '0'
+                : ticketReset['is_enable'].toString();
 
-        ticketResetType = ticketReset['time_type'] == null
-            ? '1'
-            : ticketReset['time_type'].toString();
+        ticketResetType =
+            ticketReset['time_type'] == null
+                ? '1'
+                : ticketReset['time_type'].toString();
 
         if (ticketResetType == '1') {
-          ticketResetMonthDay = ticketReset['time_value'] == null
-              ? '1'
-              : ticketReset['time_value'].toString();
+          ticketResetMonthDay =
+              ticketReset['time_value'] == null
+                  ? '1'
+                  : ticketReset['time_value'].toString();
         } else {
-          String tmpday = ticketReset['time_value'] == null
-              ? '1'
-              : ticketReset['time_value'].toString();
+          String tmpday =
+              ticketReset['time_value'] == null
+                  ? '1'
+                  : ticketReset['time_value'].toString();
           for (var item in constWeeks) {
             if (item['value'] == tmpday) {
               ticketResetWeekDay = item['val'];
@@ -118,32 +126,42 @@ class _AdminUserInfo extends State<AdminUserInfo> {
           }
         }
 
-        ticketResetValue = ticketReset['ticket_value'] == null
-            ? '1'
-            : ticketReset['ticket_value'].toString();
+        ticketResetValue =
+            ticketReset['ticket_value'] == null
+                ? '1'
+                : ticketReset['ticket_value'].toString();
       }
     }
-
-    orders = await ClOrder().loadOrderList(
-        context, {'user_id': widget.userId, 'is_reserve_and_complete': '1'});
+    if (mounted) {
+      orders = await ClOrder().loadOrderList(context, {
+        'user_id': widget.userId,
+        'is_reserve_and_complete': '1',
+      });
+    }
 
     setState(() {});
-
     return [];
   }
 
   Future<void> pushUserEdit() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminUserEdit(userId: widget.userId);
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminUserEdit(userId: widget.userId);
+        },
+      ),
+    );
     loadinitData();
   }
 
   Future<void> deleteUser(String userId) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
+    if (!mounted) return;
     Dialogs().loaderDialogNormal(context);
     bool isDelete = await ClUser().deleteUser(context, userId);
+    if (!mounted) return;
     Navigator.pop(context);
     if (isDelete) {
       Navigator.pop(context);
@@ -166,17 +184,17 @@ class _AdminUserInfo extends State<AdminUserInfo> {
                 child: Column(
                   children: [
                     Expanded(
-                        child: Container(
-                      // padding: paddingMainContent,
                       child: SingleChildScrollView(
-                          child: Column(
-                        children: [
-                          _getMainContent(),
-                          ...orders
-                              .map((e) => AdminUserInfoHistoryItem(item: e))
-                        ],
-                      )),
-                    )),
+                        child: Column(
+                          children: [
+                            _getMainContent(),
+                            ...orders.map(
+                              (e) => AdminUserInfoHistoryItem(item: e),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     _getBottonButton(),
                   ],
                 ),
@@ -193,39 +211,37 @@ class _AdminUserInfo extends State<AdminUserInfo> {
   }
 
   Widget _getMainContent() {
-    return Container(
-      child: Column(
-        children: [
-          _getHeaderContent(),
-          AdminLineH1(),
-          _getRowContent('ニックネーム', userNick),
-          AdminLineH1(),
-          _getRowContent('電話番号', userPhone),
-          AdminLineH1(),
-          _getRowContent('メールアドレス', userEmail),
-          AdminLineH1(),
-          _getRowContent('生年月日', userBirth),
-          AdminLineH1(),
-          _getRowContent('グループ分け', userGroupName),
-          AdminLineH1(),
-          _getRowContent('メモ', userComment),
-          AdminLineH1(),
-          // _getRowContent('チケット枚数', userTicket),
-          // AdminLineH1(),
-          // _getRowContent('チケット初期化', isTicketReset == '1' ? '設定済み' : '設定なし'),
-          // if (isTicketReset == '1')
-          //   _getRowContent(
-          //       '初期化timing',
-          //       (ticketResetType == '1' ? '毎月' : '毎週') +
-          //           '  ' +
-          //           (ticketResetType == '1'
-          //               ? (ticketResetMonthDay + 'day')
-          //               : ticketResetWeekDay)),
-          // if (isTicketReset == '1')
-          //   _getRowContent('リセットする枚数', ticketResetValue),
-          // AdminLineH1(),
-        ],
-      ),
+    return Column(
+      children: [
+        _getHeaderContent(),
+        AdminLineH1(),
+        _getRowContent('ニックネーム', userNick),
+        AdminLineH1(),
+        _getRowContent('電話番号', userPhone),
+        AdminLineH1(),
+        _getRowContent('メールアドレス', userEmail),
+        AdminLineH1(),
+        _getRowContent('生年月日', userBirth),
+        AdminLineH1(),
+        _getRowContent('グループ分け', userGroupName),
+        AdminLineH1(),
+        _getRowContent('メモ', userComment),
+        AdminLineH1(),
+        // _getRowContent('チケット枚数', userTicket),
+        // AdminLineH1(),
+        // _getRowContent('チケット初期化', isTicketReset == '1' ? '設定済み' : '設定なし'),
+        // if (isTicketReset == '1')
+        //   _getRowContent(
+        //       '初期化timing',
+        //       (ticketResetType == '1' ? '毎月' : '毎週') +
+        //           '  ' +
+        //           (ticketResetType == '1'
+        //               ? (ticketResetMonthDay + 'day')
+        //               : ticketResetWeekDay)),
+        // if (isTicketReset == '1')
+        //   _getRowContent('リセットする枚数', ticketResetValue),
+        // AdminLineH1(),
+      ],
     );
   }
 
@@ -235,13 +251,13 @@ class _AdminUserInfo extends State<AdminUserInfo> {
       child: Row(
         children: [
           Expanded(
-              child:
-                  Container(width: 100, child: AdminHeader4(label: userName))),
+            child: SizedBox(width: 100, child: AdminHeader4(label: userName)),
+          ),
           Container(
-              height: 35,
-              alignment: Alignment.bottomCenter,
-              child: AdminCommentText(
-                  label: '年齢 ' + userAge + '歳 /    性別 ' + userSex)),
+            height: 35,
+            alignment: Alignment.bottomCenter,
+            child: AdminCommentText(label: '年齢 $userAge歳 /    性別 $userSex'),
+          ),
         ],
       ),
     );
@@ -260,25 +276,36 @@ class _AdminUserInfo extends State<AdminUserInfo> {
   Widget _getBottonButton() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
-      child: Row(children: [
-        Expanded(child: Container()),
-        PrimaryColButton(label: '編集', tapFunc: () => pushUserEdit()),
-        SizedBox(width: 6),
-        // if (globals.auth >= constAuthManager)
-        DeleteColButton(
-            label: 'このユーザーを削除', tapFunc: () => deleteUser(widget.userId)),
-        SizedBox(width: 6),
-        WhiteButton(
+      child: Row(
+        children: [
+          Expanded(child: Container()),
+          PrimaryColButton(label: '編集', tapFunc: () => pushUserEdit()),
+          SizedBox(width: 6),
+          // if (globals.auth >= constAuthManager)
+          DeleteColButton(
+            label: 'このユーザーを削除',
+            tapFunc: () => deleteUser(widget.userId),
+          ),
+          SizedBox(width: 6),
+          WhiteButton(
             label: 'メッセージ',
-            tapFunc: () =>
-                Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return AdminMesseageMake(
-                      isGroup: false,
-                      userName: userName,
-                      userId: widget.userId);
-                }))),
-        Expanded(child: Container()),
-      ]),
+            tapFunc:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) {
+                      return AdminMesseageMake(
+                        isGroup: false,
+                        userName: userName,
+                        userId: widget.userId,
+                      );
+                    },
+                  ),
+                ),
+          ),
+          Expanded(child: Container()),
+        ],
+      ),
     );
   }
 }
@@ -286,109 +313,110 @@ class _AdminUserInfo extends State<AdminUserInfo> {
 class AdminUserInfoContent extends StatelessWidget {
   final String label;
   final String value;
-  const AdminUserInfoContent(
-      {required this.label, required this.value, Key? key})
-      : super(key: key);
+  const AdminUserInfoContent({
+    required this.label,
+    required this.value,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: paddingListLineSpace,
-        decoration: borderTopLine,
-        child: Row(
-          children: [
-            Container(
-                width: 120,
-                child: Text(
-                  label,
-                  style: styleContent,
-                )),
-            Flexible(child: Text(value)),
-          ],
-        ));
+      padding: paddingListLineSpace,
+      decoration: borderTopLine,
+      child: Row(
+        children: [
+          SizedBox(width: 120, child: Text(label, style: styleContent)),
+          Flexible(child: Text(value)),
+        ],
+      ),
+    );
   }
 }
 
 class AdminUserInfoHistoryItem extends StatelessWidget {
   final OrderModel item;
-  const AdminUserInfoHistoryItem({required this.item, Key? key})
-      : super(key: key);
+  const AdminUserInfoHistoryItem({required this.item, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: new EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
       padding: paddingItemGroup,
       decoration: BoxDecoration(
-          color: item.status == constOrderStatusTableComplete
-              ? Color(0xffCECECE)
-              : Colors.white,
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8)),
+        color:
+            item.status == constOrderStatusTableComplete
+                ? Color(0xffCECECE)
+                : Colors.white,
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                  child: Container(
-                      padding: paddingItemGroupTitleSpace,
-                      child: Text(item.organName, style: styleItemGroupTitle))),
+                child: Container(
+                  padding: paddingItemGroupTitleSpace,
+                  child: Text(item.organName, style: styleItemGroupTitle),
+                ),
+              ),
               Container(
-                  alignment: Alignment.topRight,
-                  child: Text(
-                      '￥' + Funcs().currencyFormat(item.amount.toString())))
+                alignment: Alignment.topRight,
+                child: Text(
+                  '￥${Funcs().currencyFormat(item.amount.toString())}',
+                ),
+              ),
             ],
           ),
           Row(
             children: [
               Expanded(
-                  child: Column(
-                children: [
-                  Container(
+                child: Column(
+                  children: [
+                    Container(
                       padding: EdgeInsets.only(left: 4, bottom: 6),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ...item.menus.map(
                             (e) => Container(
-                                padding: EdgeInsets.only(bottom: 2),
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        e.menuTitle,
-                                      ),
-                                    ),
-                                    // Container(
-                                    //   child: Text('￥' +
-                                    //       Funcs().currencyFormat(e.menuPrice)),
-                                    // )
-                                  ],
-                                )),
-                          )
+                              padding: EdgeInsets.only(bottom: 2),
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Expanded(child: Text(e.menuTitle)),
+                                  // Container(
+                                  //   child: Text('￥' +
+                                  //       Funcs().currencyFormat(e.menuPrice)),
+                                  // )
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
-                      )),
-                  if (item.staffName != '')
-                    Container(
+                      ),
+                    ),
+                    if (item.staffName != '')
+                      Container(
                         alignment: Alignment.centerLeft,
-                        child: Text('【' + item.staffName + '】')),
-                  Container(
+                        child: Text('【${item.staffName}】'),
+                      ),
+                    Container(
                       padding: paddingContentLineSpace,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                          DateFormat('yyyy年MM月dd日' +
-                                  '(' +
-                                  weekAry[
-                                      DateTime.parse(item.fromTime).weekday -
-                                          1] +
-                                  ')')
-                              .format(DateTime.parse(item.toTime)),
-                          style: styleContent))
-                ],
-              )),
+                        DateFormat(
+                          'yyyy年MM月dd日(${weekAry[DateTime.parse(item.fromTime).weekday - 1]})',
+                        ).format(DateTime.parse(item.toTime)),
+                        style: styleContent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

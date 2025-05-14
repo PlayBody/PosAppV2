@@ -19,13 +19,13 @@ class ShiftDetail extends StatefulWidget {
   final String organId;
   final DateTime from;
   final DateTime to;
-  const ShiftDetail(
-      {required this.shiftCount,
-      required this.organId,
-      required this.from,
-      required this.to,
-      Key? key})
-      : super(key: key);
+  const ShiftDetail({
+    required this.shiftCount,
+    required this.organId,
+    required this.from,
+    required this.to,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ShiftDetail> createState() => _ShiftDetail();
@@ -61,11 +61,12 @@ class _ShiftDetail extends State<ShiftDetail> {
     shifts = await ClShift().loadShifts(context, {
       'organ_id': widget.organId,
       'in_from_time': from.toString(),
-      'in_to_time': to.toString()
+      'in_to_time': to.toString(),
     });
 
     shifts.removeWhere(
-        (element) => element.fromTime.compareTo(element.toTime) >= 0);
+      (element) => element.fromTime.compareTo(element.toTime) >= 0,
+    );
 
     // shift update: from auto control shift
 
@@ -97,17 +98,19 @@ class _ShiftDetail extends State<ShiftDetail> {
     detailData = [];
     for (var sta in staffs) {
       Map<String, dynamic> data = {};
-      data['staff_name'] = sta.staffNick != ''
-          ? sta.staffNick
-          : ('${sta.staffFirstName} ${sta.staffLastName}');
+      data['staff_name'] =
+          sta.staffNick != ''
+              ? sta.staffNick
+              : ('${sta.staffFirstName} ${sta.staffLastName}');
       data['staff_id'] = sta.staffId;
       data['auth'] = sta.auth;
       data['staff_shift'] = sta.staffShift;
-      List<ShiftModel> tempShiftList = shifts
-              .where((element) => element.staffId == sta.staffId)
-              .isNotEmpty
-          ? shifts.where((element) => element.staffId == sta.staffId).toList()
-          : [];
+      List<ShiftModel> tempShiftList =
+          shifts.where((element) => element.staffId == sta.staffId).isNotEmpty
+              ? shifts
+                  .where((element) => element.staffId == sta.staffId)
+                  .toList()
+              : [];
       data['shifts'] = [];
       if (tempShiftList.isNotEmpty) {
         for (var tempShift in tempShiftList) {
@@ -123,7 +126,7 @@ class _ShiftDetail extends State<ShiftDetail> {
           e['from'] = tempShift.fromTime;
           e['to'] = tempShift.toTime;
           e['new_state'] = tempShift.metaType;
-          if(tempShift.deleted == 1){
+          if (tempShift.deleted == 1) {
             continue;
           }
           data['shifts'].add(e);
@@ -151,19 +154,20 @@ class _ShiftDetail extends State<ShiftDetail> {
 
   Future<void> changeTimeZone(e) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftTimeEdit(
-            staffId: e['staff_id'],
-            organId: e['organ_id'],
-            shiftType: e['shift_type'],
-            shiftId: e['shift_id'],
-            selectDate: e['date'],
-            fromTime: e['from_time'],
-            toTime: e['to_time'],
-            uniqueId: e['unique_id'],
-          );
-        }).then((_) => loadInitData());
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftTimeEdit(
+          staffId: e['staff_id'],
+          organId: e['organ_id'],
+          shiftType: e['shift_type'],
+          shiftId: e['shift_id'],
+          selectDate: e['date'],
+          fromTime: e['from_time'],
+          toTime: e['to_time'],
+          uniqueId: e['unique_id'],
+        );
+      },
+    ).then((_) => loadInitData());
   }
 
   void onTapClose() {
@@ -172,10 +176,8 @@ class _ShiftDetail extends State<ShiftDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return true;
-      },
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: FutureBuilder<List>(
           future: loadData,
@@ -200,8 +202,10 @@ class _ShiftDetail extends State<ShiftDetail> {
         _getTitleContent(),
         Container(
           decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.5)))),
+            border: Border(
+              bottom: BorderSide(color: Colors.grey.withOpacity(0.5)),
+            ),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Text('シフト枠     ${widget.shiftCount}'),
         ),
@@ -213,23 +217,35 @@ class _ShiftDetail extends State<ShiftDetail> {
   Widget _getTitleContent() {
     return Container(
       decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey))),
+        border: Border(bottom: BorderSide(color: Colors.grey)),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Row(
         children: [
           const Text('シフト詳細'),
           Expanded(
-              child: Container(
-                  alignment: Alignment.center,
-                  child: Column(children: [
-                    Text(Funcs().dateFormatJP1(
-                        DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.from))),
-                    Text(DateFormat('HH:mm').format(widget.from) +
+            child: Container(
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Text(
+                    Funcs().dateFormatJP1(
+                      DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.from),
+                    ),
+                  ),
+                  Text(
+                    DateFormat('HH:mm').format(widget.from) +
                         ' ~ ' +
-                        DateFormat('HH:mm').format(widget.to))
-                  ]))),
+                        DateFormat('HH:mm').format(widget.to),
+                  ),
+                ],
+              ),
+            ),
+          ),
           IconButton(
-              onPressed: () => onTapClose(), icon: const Icon(Icons.close))
+            onPressed: () => onTapClose(),
+            icon: const Icon(Icons.close),
+          ),
         ],
       ),
     );
@@ -238,36 +254,41 @@ class _ShiftDetail extends State<ShiftDetail> {
   Widget _getContents() {
     return Expanded(
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            ...detailData.map((e) => _getRowContent(e)),
-          ],
-        ),
+        child: Column(children: [...detailData.map((e) => _getRowContent(e))]),
       ),
     );
   }
 
   Widget _getRowContent(e) {
     return Container(
-        decoration: BoxDecoration(
-            border: Border(
-                bottom: BorderSide(color: Colors.grey.withOpacity(0.5)))),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-        child: Row(children: [
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5))),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+      child: Row(
+        children: [
           Container(
-              alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(
-                  border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.3)))),
-              width: MediaQuery.of(context).size.width * 0.3,
-              child: Text('${e['staff_name']} (${e['staff_shift']})')),
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              border: Border(
+                right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+              ),
+            ),
+            width: MediaQuery.of(context).size.width * 0.3,
+            child: Text('${e['staff_name']} (${e['staff_shift']})'),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: e['shifts'].isEmpty
-                ? [_getRowContentOfOneStaff(e)]
-                : [...e['shifts'].map((ee) => _getRowContentOfOneStaff(ee))],
-          )
-        ]));
+            children:
+                e['shifts'].isEmpty
+                    ? [_getRowContentOfOneStaff(e)]
+                    : [
+                      ...e['shifts'].map((ee) => _getRowContentOfOneStaff(ee)),
+                    ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getRowContentOfOneStaff(e) {
@@ -285,26 +306,33 @@ class _ShiftDetail extends State<ShiftDetail> {
     String shiftType = e['shift_type'] ?? '';
 
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-        alignment: Alignment.centerLeft,
-        child: Row(children: [
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: [
           Container(
-              decoration: BoxDecoration(
-                  border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.3)))),
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text(subject, style: TextStyle(color: color))),
+            decoration: BoxDecoration(
+              border: Border(
+                right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+              ),
+            ),
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.2,
+            child: Text(subject, style: TextStyle(color: color)),
+          ),
           GestureDetector(
-            onTap: e['from_time'] != null
-                ? () {
-                    changeTimeZone(e);
-                  }
-                : null,
+            onTap:
+                e['from_time'] != null
+                    ? () {
+                      changeTimeZone(e);
+                    }
+                    : null,
             child: Container(
               decoration: BoxDecoration(
-                  border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.3)))),
+                border: Border(
+                  right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                ),
+              ),
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width * 0.25 - 20,
               child: Text(
@@ -312,9 +340,10 @@ class _ShiftDetail extends State<ShiftDetail> {
                     ? '${e['from_time']} ~ ${e['to_time']}'
                     : '',
                 style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline),
+                  fontSize: 12,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),
@@ -335,35 +364,39 @@ class _ShiftDetail extends State<ShiftDetail> {
             _getIconButtonItem(Icons.send, Colors.blue, constShiftRequest, e),
           if (shiftType == constShiftRequest)
             _getIconButtonItem(Icons.close, Colors.red, constShiftMeReject, e),
-        ]));
+        ],
+      ),
+    );
   }
 
   Widget _getIconButtonItem(icon, color, newState, e) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        width: 25,
-        child: IconWhiteButton(
-          icon: icon,
-          backColor: newState == e['new_state'] ? Colors.grey : null,
-          color: newState == e['new_state'] ? Colors.white : color,
-          tapFunc: () => onTapAction(newState, e),
-        ),
-      );
+    margin: const EdgeInsets.symmetric(horizontal: 4),
+    width: 25,
+    child: IconWhiteButton(
+      icon: icon,
+      backColor: newState == e['new_state'] ? Colors.grey : null,
+      color: newState == e['new_state'] ? Colors.white : color,
+      tapFunc: () => onTapAction(newState, e),
+    ),
+  );
 
   void onTapAction(newState, e) {
     if (e['unique_id'] == null || e['unique_id'] == -1) {
       ShiftModel model = ShiftModel(
-          staffId: e['staff_id'],
-          organId: widget.organId,
-          shiftId: e['shift_id'] ?? '',
-          fromTime: e['from'] ?? widget.from,
-          toTime: e['to'] ?? widget.to,
-          shiftType: e['shift_type'] ?? '',
-          uniqueId: WorkControl.getGenCounter());
+        staffId: e['staff_id'],
+        organId: widget.organId,
+        shiftId: e['shift_id'] ?? '',
+        fromTime: e['from'] ?? widget.from,
+        toTime: e['to'] ?? widget.to,
+        shiftType: e['shift_type'] ?? '',
+        uniqueId: WorkControl.getGenCounter(),
+      );
       model.metaType = newState;
       globals.saveShiftFromAutoControl.add(model);
     } else {
-      int index = globals.saveShiftFromAutoControl
-          .indexWhere((element) => element.uniqueId == e['unique_id']);
+      int index = globals.saveShiftFromAutoControl.indexWhere(
+        (element) => element.uniqueId == e['unique_id'],
+      );
       if (e['new_state'] != null && e['new_state'] == newState) {
         if (globals.saveShiftFromAutoControl[index].shiftType == '') {
           globals.saveShiftFromAutoControl.removeAt(index);

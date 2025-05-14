@@ -8,17 +8,17 @@ class DialogAttachPreview extends StatefulWidget {
   final String attachUrl;
 
   const DialogAttachPreview({
-    Key? key,
+    super.key,
     required this.previewType,
     required this.attachUrl,
-  }) : super(key: key);
+  });
 
   @override
-  _DialogAttachPreview createState() => _DialogAttachPreview();
+  State<DialogAttachPreview> createState() => _DialogAttachPreview();
 }
 
 class _DialogAttachPreview extends State<DialogAttachPreview> {
-  var videoController;
+  ChewieController? videoController;
   bool isLoading = true;
   @override
   void initState() {
@@ -29,14 +29,15 @@ class _DialogAttachPreview extends State<DialogAttachPreview> {
 
   @override
   void dispose() {
-    if (videoController != null) videoController.dispose();
+    if (videoController != null) videoController!.dispose();
     super.dispose();
   }
 
   Future<void> loadShift() async {
     if (widget.previewType == '2') {
-      videoController = await SelectAttachments()
-          .loadVideoNetWorkController(widget.attachUrl);
+      videoController = await SelectAttachments().loadVideoNetWorkController(
+        widget.attachUrl,
+      );
     }
     isLoading = false;
     setState(() {});
@@ -47,14 +48,17 @@ class _DialogAttachPreview extends State<DialogAttachPreview> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-          // borderRadius: BorderRadius.circular(AppConst.padding),
-          ),
+        // borderRadius: BorderRadius.circular(AppConst.padding),
+      ),
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: isLoading
-          ? Container(
-              child: Center(child: CircularProgressIndicator()), height: 120)
-          : contentBox(context),
+      child:
+          isLoading
+              ? SizedBox(
+                height: 120,
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : contentBox(context),
     );
   }
 
@@ -68,24 +72,27 @@ class _DialogAttachPreview extends State<DialogAttachPreview> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
-                    alignment: Alignment.center,
-                    child: Image.network(widget.attachUrl, fit: BoxFit.contain))
+                  alignment: Alignment.center,
+                  child: Image.network(widget.attachUrl, fit: BoxFit.contain),
+                ),
               ],
             ),
           ),
         if (widget.previewType == '2')
           Positioned(
-              child: videoController == null
-                  ? Container()
-                  : Container(
+            child:
+                videoController == null
+                    ? Container()
+                    : SizedBox(
                       height: MediaQuery.of(context).size.height * 0.85,
-                      child: Chewie(
-                        controller: videoController,
-                      ))),
+                      child: Chewie(controller: videoController!),
+                    ),
+          ),
         Positioned(
-            right: -40,
-            top: 0,
-            child: AdminBtnCircleClose(tapFunc: () => Navigator.pop(context))),
+          right: -40,
+          top: 0,
+          child: AdminBtnCircleClose(tapFunc: () => Navigator.pop(context)),
+        ),
       ],
     );
   }

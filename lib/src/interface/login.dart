@@ -30,9 +30,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../common/globals.dart' as globals;
 
 class Login extends StatefulWidget {
-  const Login({
-    Key? key,
-  }) : super(key: key);
+  const Login({super.key});
 
   @override
   State<Login> createState() => _Login();
@@ -68,15 +66,18 @@ class _Login extends State<Login> {
 
   Future<bool> normalAuthenticate() async {
     try {
-      final bool didAuthenticate =
-          await auth.authenticate(localizedReason: '認証してください。');
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: '認証してください。',
+      );
       if (didAuthenticate) {
         await loginProcess(email!, password!, true);
       }
       return didAuthenticate;
     } on PlatformException catch (e) {
       Fluttertoast.showToast(
-          msg: 'システム設定でデバイスパスワードを設定してください。', toastLength: Toast.LENGTH_LONG);
+        msg: 'システム設定でデバイスパスワードを設定してください。',
+        toastLength: Toast.LENGTH_LONG,
+      );
       return false;
     }
   }
@@ -99,7 +100,8 @@ class _Login extends State<Login> {
 
       flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
 
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -110,34 +112,36 @@ class _Login extends State<Login> {
     }
 
     FirebaseMessaging.instance.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true);
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
 
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {});
+    FirebaseMessaging.instance.getInitialMessage().then(
+      (RemoteMessage? message) {},
+    );
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                // channelDescriptoion: channel.description,
-                icon: 'launch_background',
-              ),
-            ));
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              // channelDescriptoion: channel.description,
+              icon: 'launch_background',
+            ),
+          ),
+        );
       }
     });
 
@@ -166,24 +170,41 @@ class _Login extends State<Login> {
   Future<void> pushMessageMake(String userId) async {
     var user = await ClUser().loadUserInfo(context, userId);
     if (user['user_id'] == null) return;
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminMesseageMake(
-          userId: user['user_id'],
-          userName: user['user_first_name'] + ' ' + user['user_last_name'],
-          isGroup: false);
-    }));
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminMesseageMake(
+            userId: user['user_id'],
+            userName: "${user['user_first_name']} ${user['user_last_name']}",
+            isGroup: false,
+          );
+        },
+      ),
+    );
   }
 
   Future<void> pushShift() async {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return Shift();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return Shift();
+        },
+      ),
+    );
   }
 
   Future<void> pushPointApply(staffId) async {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return StaffPoint(staffId: staffId);
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return StaffPoint(staffId: staffId);
+        },
+      ),
+    );
   }
 
   Future<String> loadSaveInfo() async {
@@ -216,7 +237,10 @@ class _Login extends State<Login> {
   }
 
   Future<void> loginProcess(
-      String email, String password, bool isBiometric) async {
+    String email,
+    String password,
+    bool isBiometric,
+  ) async {
     if (!isFormInputCheck() && !isBiometric) {
       setState(() {});
       return;
@@ -227,20 +251,27 @@ class _Login extends State<Login> {
     StaffModel? staff = await ClStaff().login(context, email, password);
 
     if (staff == null) {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
       globals.isLogin = false;
-      this.errMsg = 'メールアドレス、パスワードが正しくありません。';
+      errMsg = 'メールアドレス、パスワードが正しくありません。';
       setState(() {});
       return;
     }
 
     String? deviceToken;
-    await FirebaseMessaging.instance.getToken().then((token) {
-      deviceToken = token;
-    }).catchError(() {
-      deviceToken = '';
-    });
-    await ClCommon().registerDeviceToken(context, staff.staffId, deviceToken);
+    await FirebaseMessaging.instance
+        .getToken()
+        .then((token) {
+          deviceToken = token;
+        })
+        .catchError((error) {
+          deviceToken = '';
+        });
+    if (mounted) {
+      await ClCommon().registerDeviceToken(context, staff.staffId, deviceToken);
+    }
 
     globals.isLogin = true;
     globals.staffId = staff.staffId;
@@ -249,9 +280,11 @@ class _Login extends State<Login> {
     globals.loginEmail = staff.mail;
     globals.loginName = staff.nick;
     if (staff.nick == '') {
-      globals.loginName = staff.firstName + ' ' + staff.lastName;
+      globals.loginName = '${staff.firstName} ${staff.lastName}';
     }
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // if (isSaveLoginInfo) {
@@ -270,19 +303,38 @@ class _Login extends State<Login> {
     // }
 
     if (globals.auth == constAuthGuest) {
-      List<OrganModel> organs =
-          await ClOrgan().loadOrganList(context, '', staff.staffId);
-
-      if (organs.isNotEmpty) {
-        globals.organId = organs.first.organId;
+      if (mounted) {
+        List<OrganModel> organs = await ClOrgan().loadOrganList(
+          context,
+          '',
+          staff.staffId,
+        );
+        if (organs.isNotEmpty) {
+          globals.organId = organs.first.organId;
+        }
       }
-      Navigator.push(context, MaterialPageRoute(builder: (_) {
-        return Tables();
-      }));
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return Tables();
+            },
+          ),
+        );
+      }
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (_) {
-        return Home();
-      }));
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return Home();
+            },
+          ),
+        );
+      }
     }
   }
 
@@ -309,7 +361,9 @@ class _Login extends State<Login> {
       isFaceId = value;
     } else {
       Fluttertoast.showToast(
-          msg: 'システム設定でデバイスパスワードを設定してください。', toastLength: Toast.LENGTH_LONG);
+        msg: 'システム設定でデバイスパスワードを設定してください。',
+        toastLength: Toast.LENGTH_LONG,
+      );
       isFaceId = false;
     }
     setState(() {});
@@ -317,44 +371,48 @@ class _Login extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    globals.isWideScreen = (MediaQuery.of(context).size.height > 600 &&
-        MediaQuery.of(context).size.width > 600);
-    return WillPopScope(
-        onWillPop: () async => false,
-        child: GestureDetector(
-          onTap: () {
-            FocusScopeNode currentFocus = FocusScope.of(context);
-            if (!currentFocus.hasPrimaryFocus) {
-              currentFocus.unfocus();
-            }
-          },
-          child: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('images/background.jpg'),
-                fit: BoxFit.cover,
-              ),
+    globals.isWideScreen =
+        (MediaQuery.of(context).size.height > 600 &&
+            MediaQuery.of(context).size.width > 600);
+    return PopScope(
+      canPop: false,
+      child: GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/background.jpg'),
+              fit: BoxFit.cover,
             ),
-            child: Scaffold(
-                backgroundColor: Colors.transparent,
-                body: FutureBuilder<String>(
-                  future: loadData,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return OrientationBuilder(
-                          builder: (context, orientation) {
-                        return _getBodyContent();
-                      });
-                    } else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
-                    }
-
-                    // By default, show a loading spinner.
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                )),
           ),
-        ));
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: FutureBuilder<String>(
+              future: loadData,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return OrientationBuilder(
+                    builder: (context, orientation) {
+                      return _getBodyContent();
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+
+                // By default, show a loading spinner.
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _getBodyContent() {
@@ -391,9 +449,7 @@ class _Login extends State<Login> {
 
   Widget _getTopSapceContent() {
     return (MediaQuery.of(context).size.height > 700)
-        ? Container(
-            height: (MediaQuery.of(context).size.height - 650) / 2,
-          )
+        ? Container(height: (MediaQuery.of(context).size.height - 650) / 2)
         : Container();
   }
 
@@ -456,20 +512,23 @@ class _Login extends State<Login> {
   Widget _getLoginBtn() {
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(
-        width: !globals.isWideScreen
-            ? sizeLoginButtonWidth
-            : sizeLoginButtonWidthTablet,
+        width:
+            !globals.isWideScreen
+                ? sizeLoginButtonWidth
+                : sizeLoginButtonWidthTablet,
       ),
       child: ElevatedButton(
-        onPressed: () =>
-            loginProcess(emailController.text, passController.text, false),
+        onPressed:
+            () =>
+                loginProcess(emailController.text, passController.text, false),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: Colors.white.withOpacity(0.7),
           foregroundColor: Colors.blue,
           padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25.0),
+          ),
           textStyle:
               !globals.isWideScreen ? styleLoginButton : styleLoginButtonTablet,
         ),
@@ -489,10 +548,13 @@ class _Login extends State<Login> {
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.all(5),
-      child: Text(label,
-          style: !globals.isWideScreen
-              ? styleTextFormLabel
-              : styleTextFormLabelTablet),
+      child: Text(
+        label,
+        style:
+            !globals.isWideScreen
+                ? styleTextFormLabel
+                : styleTextFormLabelTablet,
+      ),
     );
   }
 
@@ -502,57 +564,71 @@ class _Login extends State<Login> {
       controller: emailController,
       // autofocus: email == '',
       textInputAction: TextInputAction.next,
-      style: !globals.isWideScreen
-          ? styleTextFormFieldLogin
-          : styleTextFormFieldLoginTablet,
+      style:
+          !globals.isWideScreen
+              ? styleTextFormFieldLogin
+              : styleTextFormFieldLoginTablet,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.account_circle,
-            size: !globals.isWideScreen ? sizeInputIcon : sizeInputIconTablet),
+        prefixIcon: Icon(
+          Icons.account_circle,
+          size: !globals.isWideScreen ? sizeInputIcon : sizeInputIconTablet,
+        ),
         contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         filled: true,
         hintText: 'メールアドレスまたはログインID',
         hintStyle: const TextStyle(color: Colors.grey),
         fillColor: Colors.white.withOpacity(0.5),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6.0),
-            borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(6.0),
+          borderSide: BorderSide.none,
+        ),
       ),
       enableInteractiveSelection: true,
-      onTap: () => emailController.selection = TextSelection(
-          baseOffset: 0, extentOffset: emailController.value.text.length),
+      onTap:
+          () =>
+              emailController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: emailController.value.text.length,
+              ),
     );
   }
 
   Widget _getInputPasswordContent() {
     return TextFormField(
-      style: !globals.isWideScreen
-          ? styleTextFormFieldLogin
-          : styleTextFormFieldLoginTablet,
+      style:
+          !globals.isWideScreen
+              ? styleTextFormFieldLogin
+              : styleTextFormFieldLoginTablet,
       controller: passController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.lock,
-            size: !globals.isWideScreen ? sizeInputIcon : sizeInputIconTablet),
+        prefixIcon: Icon(
+          Icons.lock,
+          size: !globals.isWideScreen ? sizeInputIcon : sizeInputIconTablet,
+        ),
         contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         fillColor: Colors.white.withOpacity(0.5),
         filled: true,
         hintText: '○〜○文字の半角英数',
         hintStyle: const TextStyle(color: Colors.grey),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6.0),
-            borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(6.0),
+          borderSide: BorderSide.none,
+        ),
       ),
       obscureText: true,
-      onTap: () => passController.selection = TextSelection(
-          baseOffset: 0, extentOffset: passController.value.text.length),
+      onTap:
+          () =>
+              passController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: passController.value.text.length,
+              ),
     );
   }
 
   Widget _getPrivacyPolicy() {
     return TextButton(
-        onPressed: () => launchUrl(Uri.parse(consPrivacyPolicy)),
-        child: const Text(
-          'プライバシーポリシー',
-          style: TextStyle(color: Colors.white),
-        ));
+      onPressed: () => launchUrl(Uri.parse(consPrivacyPolicy)),
+      child: const Text('プライバシーポリシー', style: TextStyle(color: Colors.white)),
+    );
   }
 }

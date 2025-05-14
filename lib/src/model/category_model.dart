@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class CategoryModel {
   final String id;
   final String companyId;

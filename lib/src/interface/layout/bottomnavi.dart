@@ -8,12 +8,15 @@ import 'package:staff_pos_app/src/interface/style/textstyles.dart';
 import '../../common/globals.dart' as globals;
 
 class BottomNavi extends StatelessWidget {
+  const BottomNavi({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: MediaQuery.of(context).size.width > 600
-          ? EdgeInsets.only(left: 40, right: 40)
-          : EdgeInsets.all(0),
+      padding:
+          MediaQuery.of(context).size.width > 600
+              ? EdgeInsets.only(left: 40, right: 40)
+              : EdgeInsets.all(0),
       height: 80,
       decoration: BoxDecoration(
         boxShadow: [
@@ -34,25 +37,39 @@ class BottomNavi extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
-                    width: MediaQuery.of(context).size.width <= 600
-                        ? 10
-                        : (MediaQuery.of(context).size.width - 480) / 2),
+                  width:
+                      MediaQuery.of(context).size.width <= 600
+                          ? 10
+                          : (MediaQuery.of(context).size.width - 480) / 2,
+                ),
                 BottomNavItem(
-                    label: 'ホーム',
-                    icon: AssetImage('images/icon/icon_home.png'),
-                    onTap: () => globals.auth > constAuthGuest
-                        ? Navigator.push(context,
-                            MaterialPageRoute(builder: (_) {
-                            return Home();
-                          }))
-                        : Navigator.push(context,
-                            MaterialPageRoute(builder: (_) {
-                            return Tables();
-                          }))),
+                  label: 'ホーム',
+                  icon: AssetImage('images/icon/icon_home.png'),
+                  onTap:
+                      () =>
+                          globals.auth > constAuthGuest
+                              ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) {
+                                    return Home();
+                                  },
+                                ),
+                              )
+                              : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) {
+                                    return Tables();
+                                  },
+                                ),
+                              ),
+                ),
                 BottomNavItem(
-                    label: '戻る',
-                    icon: AssetImage('images/icon/icon_back.png'),
-                    onTap: () => {}),
+                  label: '戻る',
+                  icon: AssetImage('images/icon/icon_back.png'),
+                  onTap: () => {},
+                ),
                 // BottomNavItem(
                 //     label: '進む',
                 //     icon: AssetImage('images/icon/icon_forward.png'),
@@ -76,19 +93,26 @@ class BottomNavi extends StatelessWidget {
                 //         }))),
                 if (globals.companyId == '2' || globals.auth == constAuthSystem)
                   BottomNavItem(
-                      label: 'ポイント管理',
-                      icon: AssetImage('images/icon/icon_point.png'),
-                      onTap: (globals.isAttendance ||
-                              globals.auth > constAuthStaff)
-                          ? () => Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) {
-                                return PointManager();
-                              }))
-                          : null),
+                    label: 'ポイント管理',
+                    icon: AssetImage('images/icon/icon_point.png'),
+                    onTap:
+                        (globals.isAttendance || globals.auth > constAuthStaff)
+                            ? () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return PointManager();
+                                },
+                              ),
+                            )
+                            : null,
+                  ),
                 Container(
-                    width: MediaQuery.of(context).size.width <= 600
-                        ? 10
-                        : (MediaQuery.of(context).size.width - 480) / 2),
+                  width:
+                      MediaQuery.of(context).size.width <= 600
+                          ? 10
+                          : (MediaQuery.of(context).size.width - 480) / 2,
+                ),
               ],
             ),
           ),
@@ -106,7 +130,7 @@ class BottomNavi extends StatelessWidget {
                 Expanded(child: Container()),
               ],
             ),
-          )
+          ),
         ],
       ),
       // child: Container(
@@ -121,59 +145,58 @@ class BottomNavItem extends StatelessWidget {
   final AssetImage icon;
   final GestureTapCallback? onTap;
 
-  const BottomNavItem(
-      {required this.label, required this.icon, required this.onTap, Key? key})
-      : super(key: key);
+  const BottomNavItem({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       flex: 2,
       child: Padding(
-          padding: EdgeInsets.all(0),
-          child: Container(
-              // decoration: BoxDecoration(
-              //     border: Border(
-              //         // bottom: BorderSide(
-              //         //     width: 3, color: Color.fromARGB(255, 0, 192, 250)),
-              //         )
-              //         ),
-              child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.all(0),
-              backgroundColor: Colors.white,
-              elevation: 0,
-              shape: new RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(0),
-              ),
-              textStyle: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight
-                      .w600), // double.infinity is the width and 30 is the height
+        padding: EdgeInsets.all(0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(0),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image(
-                    image: this.icon,
-                    color: Color.fromARGB(255, 29, 72, 116),
-                    width: 24
-                    // size: globals.isWideScreen
-                    //     ? sizeBottomNaviImageSizeTablet
-                    //     : sizeBottomNaviImageSize,
-                    ),
-                Container(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Text(
-                      label,
-                      style: globals.isWideScreen
+            textStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ), // double.infinity is the width and 30 is the height
+          ),
+          onPressed: onTap,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                image: this.icon,
+                color: Color.fromARGB(255, 29, 72, 116),
+                width: 24,
+                // size: globals.isWideScreen
+                //     ? sizeBottomNaviImageSizeTablet
+                //     : sizeBottomNaviImageSize,
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  label,
+                  style:
+                      globals.isWideScreen
                           ? styleBottomNaviMenuTablet
                           : styleBottomNaviMenu,
-                    ))
-              ],
-            ),
-            onPressed: onTap,
-          ))),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

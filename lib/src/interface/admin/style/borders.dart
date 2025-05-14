@@ -17,6 +17,7 @@ var borderTopLine = BoxDecoration(
 
 var borderTopBottomLine = BoxDecoration(
   border: Border(
-      top: BorderSide(color: borderColor, width: 1),
-      bottom: BorderSide(color: borderColor, width: 1)),
+    top: BorderSide(color: borderColor, width: 1),
+    bottom: BorderSide(color: borderColor, width: 1),
+  ),
 );

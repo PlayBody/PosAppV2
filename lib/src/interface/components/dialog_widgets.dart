@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PushDialogs extends StatelessWidget {
   final Widget render;
-  const PushDialogs({required this.render, Key? key}) : super(key: key);
+  const PushDialogs({required this.render, super.key});
 
   @override
   Widget build(BuildContext context) {

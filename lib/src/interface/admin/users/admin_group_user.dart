@@ -16,11 +16,10 @@ import '../../../common/globals.dart' as globals;
 class AdminGroupUser extends StatefulWidget {
   final String? groupId;
   final String? companyId;
-  const AdminGroupUser({this.groupId, this.companyId, Key? key})
-      : super(key: key);
+  const AdminGroupUser({this.groupId, this.companyId, super.key});
 
   @override
-  _AdminGroupUser createState() => _AdminGroupUser();
+  State<AdminGroupUser> createState() => _AdminGroupUser();
 }
 
 class _AdminGroupUser extends State<AdminGroupUser> {
@@ -42,10 +41,12 @@ class _AdminGroupUser extends State<AdminGroupUser> {
 
   Future<List> loadInitData() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadUserWithGroupUrl, {
-      'company_id': selCompanyId,
-      'group_id': widget.groupId == null ? '' : widget.groupId
-    }).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadUserWithGroupUrl, {
+          'company_id': selCompanyId,
+          'group_id': widget.groupId ?? '',
+        })
+        .then((value) => results = value);
 
     userList = [];
     if (results['isLoad']) {
@@ -71,87 +72,103 @@ class _AdminGroupUser extends State<AdminGroupUser> {
   }
 
   void pushGroupMake() {
-    if (groupUserIds.length < 1) {
+    if (groupUserIds.isEmpty) {
       Dialogs().infoDialog(context, 'ユーザーを選択してください。');
       return;
     }
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return AdminGroupEdit(
-        groupId: widget.groupId,
-        groupUsers: groupUserIds,
-        users: userList,
-        companyId: selCompanyId,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return AdminGroupEdit(
+            groupId: widget.groupId,
+            groupUsers: groupUserIds,
+            users: userList,
+            companyId: selCompanyId,
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     globals.appTitle = 'メンバー選択';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Center(
-            child: Container(
-              color: bodyColor,
-              padding: paddingMainContent,
-              child: Column(
-                children: [
-                  Container(
-                    padding: paddingAdminSearchBottom,
-                    child: TextFormField(
-                      decoration: decorationSearch,
-                      onChanged: (value) {},
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Center(
+              child: Container(
+                color: bodyColor,
+                padding: paddingMainContent,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: paddingAdminSearchBottom,
+                      child: TextFormField(
+                        decoration: decorationSearch,
+                        onChanged: (value) {},
+                      ),
                     ),
-                  ),
-                  Container(
+                    Container(
                       alignment: Alignment.centerLeft,
-                      child: Text('ユーザー', style: stylePageSubtitle)),
-                  Expanded(
+                      child: Text('ユーザー', style: stylePageSubtitle),
+                    ),
+                    Expanded(
                       child: SingleChildScrollView(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ...userList.map((e) => Container(
-                                margin: new EdgeInsets.symmetric(vertical: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ...userList.map(
+                              (e) => Container(
+                                margin: EdgeInsets.symmetric(vertical: 8.0),
                                 decoration: borderAllRadius8,
                                 padding: paddingUserNameGruop,
                                 child: Container(
-                                    padding: paddingUserNameGruop,
-                                    child: Row(children: [
+                                  padding: paddingUserNameGruop,
+                                  child: Row(
+                                    children: [
                                       Expanded(
-                                          child: Text(
-                                        e.userFirstName == ''
-                                            ? e.userNick!
-                                            : (e.userFirstName! +
-                                                '  ' +
-                                                e.userLastName!),
-                                        style: styleUserName1,
-                                      )),
+                                        child: Text(
+                                          e.userFirstName == ''
+                                              ? e.userNick!
+                                              : ('${e.userFirstName!}  ${e.userLastName!}'),
+                                          style: styleUserName1,
+                                        ),
+                                      ),
                                       Checkbox(
-                                          value:
-                                              groupUserIds.contains(e.userId),
-                                          onChanged: (v) {
-                                            updateUserGroup(e.userId);
-                                          })
-                                    ])),
-                              ))
-                        ]),
-                  )),
-                  AdminPrimaryBtn(label: '次へ', tapFunc: () => pushGroupMake())
-                ],
+                                        value: groupUserIds.contains(e.userId),
+                                        onChanged: (v) {
+                                          updateUserGroup(e.userId);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    AdminPrimaryBtn(
+                      label: '次へ',
+                      tapFunc: () => pushGroupMake(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
-        // By default, show a loading spinner.
-        return Center(child: CircularProgressIndicator());
-      },
-    ));
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 }

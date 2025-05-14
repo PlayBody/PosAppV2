@@ -7,10 +7,10 @@ import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
 import '../../../common/globals.dart' as globals;
 
 class AdminReserves extends StatefulWidget {
-  const AdminReserves({Key? key}) : super(key: key);
+  const AdminReserves({super.key});
 
   @override
-  _AdminReserves createState() => _AdminReserves();
+  State<AdminReserves> createState() => _AdminReserves();
 }
 
 class _AdminReserves extends State<AdminReserves> {
@@ -39,20 +39,32 @@ class _AdminReserves extends State<AdminReserves> {
                 ),
               ),
               Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text('ユーザー', style: stylePageSubtitle)),
+                alignment: Alignment.centerLeft,
+                child: Text('ユーザー', style: stylePageSubtitle),
+              ),
               Expanded(
-                  child: SingleChildScrollView(
-                      child: Column(
-                children: [
-                  AdminUsersListItem(
-                      userName: '佐藤　太郎', userAge: '30歳', tapFunc: () {}),
-                  AdminUsersListItem(
-                      userName: '佐藤　太郎', userAge: '30歳', tapFunc: () {}),
-                  AdminUsersListItem(
-                      userName: '佐藤　太郎', userAge: '30歳', tapFunc: () {}),
-                ],
-              )))
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      AdminUsersListItem(
+                        userName: '佐藤　太郎',
+                        userAge: '30歳',
+                        tapFunc: () {},
+                      ),
+                      AdminUsersListItem(
+                        userName: '佐藤　太郎',
+                        userAge: '30歳',
+                        tapFunc: () {},
+                      ),
+                      AdminUsersListItem(
+                        userName: '佐藤　太郎',
+                        userAge: '30歳',
+                        tapFunc: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -64,58 +76,56 @@ class _AdminReserves extends State<AdminReserves> {
 class AdminUsersListItem extends StatelessWidget {
   final String userName;
   final String userAge;
-  final tapFunc;
-  const AdminUsersListItem(
-      {required this.userName,
-      required this.userAge,
-      required this.tapFunc,
-      Key? key})
-      : super(key: key);
+  final Function() tapFunc;
+  const AdminUsersListItem({
+    required this.userName,
+    required this.userAge,
+    required this.tapFunc,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: new EdgeInsets.symmetric(vertical: 12.0),
-        child: ElevatedButton(
-          child: Container(
-              padding: paddingUserNameGruop,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                        Container(
-                            padding: EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              userName,
-                              style: styleUserName1,
-                            )),
-                        Text(
-                          '2021/08/31 17:00～18:30',
-                          style: styleContent,
-                        )
-                      ])),
-                  Container(
-                      height: 60,
-                      child: Column(children: [
-                        Container(
-                            width: 90,
-                            child: Text(
-                              'ジャズコース',
-                              style: styleContent,
-                            )),
-                        Container(
-                            width: 90,
-                            child: Text(
-                              '名古屋店',
-                              style: styleContent,
-                            )),
-                      ]))
-                ],
-              )),
-          style: styleGroupButton,
-          onPressed: tapFunc,
-        ));
+      margin: EdgeInsets.symmetric(vertical: 12.0),
+      child: ElevatedButton(
+        style: styleGroupButton,
+        onPressed: tapFunc,
+        child: Container(
+          padding: paddingUserNameGruop,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text(userName, style: styleUserName1),
+                    ),
+                    Text('2021/08/31 17:00～18:30', style: styleContent),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 60,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 90,
+                      child: Text('ジャズコース', style: styleContent),
+                    ),
+                    SizedBox(
+                      width: 90,
+                      child: Text('名古屋店', style: styleContent),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

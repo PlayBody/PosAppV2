@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TextInputNormal extends StatelessWidget {
-  final controller;
+  final TextEditingController? controller;
   final String? hintText;
   final String? errorText;
   final double? contentPadding;
@@ -10,18 +10,18 @@ class TextInputNormal extends StatelessWidget {
   final bool? isEnable;
   final bool? obscureText;
   final String? caption;
-  const TextInputNormal(
-      {required this.controller,
-      this.errorText,
-      this.hintText,
-      this.contentPadding,
-      this.inputType,
-      this.multiLine,
-      this.isEnable,
-      this.obscureText = false,
-      this.caption,
-      Key? key})
-      : super(key: key);
+  const TextInputNormal({
+    required this.controller,
+    this.errorText,
+    this.hintText,
+    this.contentPadding,
+    this.inputType,
+    this.multiLine,
+    this.isEnable,
+    this.obscureText = false,
+    this.caption,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,9 @@ class TextInputNormal extends StatelessWidget {
         label: caption == null ? null : Text(caption!),
         errorText: errorText,
         isDense: true,
-        contentPadding:
-            EdgeInsets.all(contentPadding == null ? 10 : contentPadding!),
+        contentPadding: EdgeInsets.all(
+          contentPadding == null ? 10 : contentPadding!,
+        ),
         fillColor: Colors.white,
         filled: true,
         errorBorder: const OutlineInputBorder(

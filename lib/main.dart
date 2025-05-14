@@ -20,12 +20,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FlutterDownloader.initialize();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky)
-      .then((_) => runApp(const MyApp()));
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  ).then((_) => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +39,7 @@ class MyApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
         ],
         // ignore: prefer_const_literals_to_create_immutables
-        supportedLocales: [
-          const Locale('ja'),
-          const Locale('en'),
-        ],
+        supportedLocales: [const Locale('ja'), const Locale('en')],
         locale: const Locale('ja'),
         debugShowCheckedModeBanner: false,
         title: 'VISIT',
@@ -49,7 +47,7 @@ class MyApp extends StatelessWidget {
         home: const AppInit(), //ConnectRegister(), //AdminHome(), //AppInit(),
         routes: <String, WidgetBuilder>{
           '/Login': (BuildContext context) => const Login(),
-          '/License': (BuildContext context) => const LicenseView()
+          '/License': (BuildContext context) => const LicenseView(),
         },
       ),
     );
@@ -57,7 +55,7 @@ class MyApp extends StatelessWidget {
 }
 
 class AppInit extends StatefulWidget {
-  const AppInit({Key? key}) : super(key: key);
+  const AppInit({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -87,8 +85,8 @@ class _AppInit extends State<AppInit> {
       }
     } else {
       bool conf =
-          // ignore: use_build_context_synchronously
-          await Dialogs().oldVersionDialog(context, warningVersionUpdate);
+      // ignore: use_build_context_synchronously
+      await Dialogs().oldVersionDialog(context, warningVersionUpdate);
       if (conf) {
         launched = _launchInBrowser();
         setState(() {});

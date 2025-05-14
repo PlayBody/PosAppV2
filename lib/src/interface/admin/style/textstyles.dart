@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:staff_pos_app/src/interface/admin/style/fontsizes.dart';
 
-var styleItemGroupTitle =
-    TextStyle(fontWeight: FontWeight.bold, fontSize: sizeItemGroupTitle);
+var styleItemGroupTitle = TextStyle(
+  fontWeight: FontWeight.bold,
+  fontSize: sizeItemGroupTitle,
+);
 
 var styleContent = TextStyle(fontSize: sizeNormalPage);
 
-var styleUserName1 =
-    TextStyle(fontWeight: FontWeight.bold, fontSize: sizeUserName1);
+var styleUserName1 = TextStyle(
+  fontWeight: FontWeight.bold,
+  fontSize: sizeUserName1,
+);
 
 var styleAddButtonText = TextStyle(fontSize: sizeAddButtonText);
 
@@ -19,10 +23,11 @@ var decorationSearch = InputDecoration(
   filled: true,
   hintText: '検索',
   hintStyle: TextStyle(color: Colors.grey),
-  fillColor: Colors.white.withOpacity(0.5),
+  fillColor: Colors.white.withValues(alpha: 0.5),
   border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6.0),
-      borderSide: BorderSide(color: Colors.grey)),
+    borderRadius: BorderRadius.circular(6.0),
+    borderSide: BorderSide(color: Colors.grey),
+  ),
 );
 
 var decorationInputText = InputDecoration(
@@ -30,8 +35,9 @@ var decorationInputText = InputDecoration(
   filled: true,
   hintText: '',
   hintStyle: TextStyle(color: Colors.grey),
-  fillColor: Colors.white.withOpacity(0.5),
+  fillColor: Colors.white.withValues(alpha: 0.5),
   border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6.0),
-      borderSide: BorderSide(color: Colors.grey)),
+    borderRadius: BorderRadius.circular(6.0),
+    borderSide: BorderSide(color: Colors.grey),
+  ),
 );

@@ -1,7 +1,4 @@
 import 'package:intl/intl.dart';
-// ignore: depend_on_referenced_packages
-import 'package:video_player/video_player.dart';
-
 class CheckShiftOrderModel {
   final String frameId;
   final String fromTime;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BadgeContent extends StatelessWidget {
   final int badgeCount;
-  const BadgeContent({required this.badgeCount, Key? key}) : super(key: key);
+  const BadgeContent({required this.badgeCount, super.key});
 
   @override
   Widget build(BuildContext context) {

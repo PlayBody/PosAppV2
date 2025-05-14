@@ -12,10 +12,10 @@ import 'package:staff_pos_app/src/common/functions.dart';
 import '../../../common/globals.dart' as globals;
 
 class AdminHistory extends StatefulWidget {
-  const AdminHistory({Key? key}) : super(key: key);
+  const AdminHistory({super.key});
 
   @override
-  _AdminHistory createState() => _AdminHistory();
+  State<AdminHistory> createState() => _AdminHistory();
 }
 
 class _AdminHistory extends State<AdminHistory> {
@@ -31,7 +31,7 @@ class _AdminHistory extends State<AdminHistory> {
     orders = await ClOrder().loadOrderList(context, {
       'staff_id': globals.staffId,
       'company_id': globals.companyId,
-      'is_complete': '1'
+      'is_complete': '1',
     });
 
     setState(() {});
@@ -44,37 +44,38 @@ class _AdminHistory extends State<AdminHistory> {
     globals.appTitle = '履歴一覧';
     return MainBodyWdiget(
       render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Container(
-                  color: bodyColor,
-                  padding: paddingMainContent,
-                  child: SingleChildScrollView(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ...orders.map((e) => AdminHistoryItem(item: e)),
-                    ],
-                  )));
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            // By default, show a loading spinner.
-            return Center(child: CircularProgressIndicator());
-          }),
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              color: bodyColor,
+              padding: paddingMainContent,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [...orders.map((e) => AdminHistoryItem(item: e))],
+                ),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 }
 
 class AdminHistoryItem extends StatelessWidget {
   final OrderModel item;
-  const AdminHistoryItem({required this.item, Key? key}) : super(key: key);
+  const AdminHistoryItem({required this.item, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: new EdgeInsets.symmetric(vertical: 8.0),
+      margin: EdgeInsets.symmetric(vertical: 8.0),
       padding: paddingItemGroup,
       decoration: borderAllRadius8,
       child: Column(
@@ -82,63 +83,58 @@ class AdminHistoryItem extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                  child: Container(
-                      padding: paddingItemGroupTitleSpace,
-                      child:
-                          Text((item.userName), style: styleItemGroupTitle))),
+                child: Container(
+                  padding: paddingItemGroupTitleSpace,
+                  child: Text((item.userName), style: styleItemGroupTitle),
+                ),
+              ),
               Container(
-                  alignment: Alignment.topRight,
-                  child: Text(
-                      '￥' + Funcs().currencyFormat(item.amount.toString())))
+                alignment: Alignment.topRight,
+                child: Text(
+                  '￥${Funcs().currencyFormat(item.amount.toString())}',
+                ),
+              ),
             ],
           ),
           Row(
             children: [
               Expanded(
-                  child: Column(
-                children: [
-                  Container(
+                child: Column(
+                  children: [
+                    Container(
                       padding: paddingContentLineSpace,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                          item.organName +
-                              '   ' +
-                              DateFormat('yyyy年MM月dd日' +
-                                      '(' +
-                                      weekAry[DateTime.parse(item.fromTime)
-                                              .weekday -
-                                          1] +
-                                      ')')
-                                  .format(DateTime.parse(item.toTime)),
-                          style: styleContent)),
-                  Container(
+                        '${item.organName}   ${DateFormat('yyyy年MM月dd日(${weekAry[DateTime.parse(item.fromTime).weekday - 1]})').format(DateTime.parse(item.toTime))}',
+                        style: styleContent,
+                      ),
+                    ),
+                    Container(
                       padding: EdgeInsets.only(left: 4, bottom: 6),
                       child: Column(
                         children: [
                           ...item.menus.map(
                             (e) => Container(
-                                padding: EdgeInsets.only(bottom: 2),
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        e.menuTitle,
-                                      ),
-                                    ),
-                                    Container(
-                                      child: Text('￥' +
-                                          Funcs().currencyFormat(e.menuPrice)),
-                                    )
-                                  ],
-                                )),
-                          )
+                              padding: EdgeInsets.only(bottom: 2),
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Expanded(child: Text(e.menuTitle)),
+                                  Text(
+                                    '￥${Funcs().currencyFormat(e.menuPrice)}',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
-                      )),
-                ],
-              )),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

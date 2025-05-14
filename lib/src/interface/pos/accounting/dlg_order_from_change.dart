@@ -13,13 +13,10 @@ import 'package:flutter/material.dart';
 class DlgOrderFromChange extends StatefulWidget {
   final String date;
 
-  const DlgOrderFromChange({
-    Key? key,
-    required this.date,
-  }) : super(key: key);
+  const DlgOrderFromChange({super.key, required this.date});
 
   @override
-  _DlgOrderFromChange createState() => _DlgOrderFromChange();
+  State<DlgOrderFromChange> createState() => _DlgOrderFromChange();
 }
 
 class _DlgOrderFromChange extends State<DlgOrderFromChange> {
@@ -33,50 +30,53 @@ class _DlgOrderFromChange extends State<DlgOrderFromChange> {
   @override
   Widget build(BuildContext context) {
     return PushDialogs(
-        render: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        PosDlgHeaderText(label: qChangeInputTime),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-                child: PosDlgSubHeaderText(
-              label: '入店時間',
-              bottomPadding: 0,
-            )),
-            PosTimePicker(
+      render: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PosDlgHeaderText(label: qChangeInputTime),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              PosDlgSubHeaderText(label: '入店時間', bottomPadding: 0),
+              PosTimePicker(
                 date: DateFormat('HH:mm').format(_date),
                 confFunc: (date) {
-                  String _time = Funcs()
-                      .getDurationTime(date, isShowSecond: false, duration: 5);
+                  String time = Funcs().getDurationTime(
+                    date,
+                    isShowSecond: false,
+                    duration: 5,
+                  );
                   _date = DateTime.parse(
-                      DateFormat('yyyy-MM-dd').format(_date) +
-                          ' ' +
-                          _time +
-                          ':00');
+                    '${DateFormat('yyyy-MM-dd').format(_date)} $time:00',
+                  );
 
                   setState(() {});
-                })
-          ],
-        ),
-        SizedBox(height: 24),
-        _getButtons(),
-      ],
-    ));
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+          _getButtons(),
+        ],
+      ),
+    );
   }
 
   Widget _getButtons() {
-    return Container(
-      child: Row(children: [
+    return Row(
+      children: [
         Expanded(child: Container()),
         PrimaryColButton(
-            label: '変更',
-            tapFunc: () => Navigator.pop(
-                context, DateFormat('yyyy-MM-dd HH:mm:ss').format(_date))),
+          label: '変更',
+          tapFunc:
+              () => Navigator.pop(
+                context,
+                DateFormat('yyyy-MM-dd HH:mm:ss').format(_date),
+              ),
+        ),
         Container(width: 12),
         CancelColButton(label: 'キャンセル', tapFunc: () => Navigator.pop(context)),
-      ]),
+      ],
     );
   }
 }

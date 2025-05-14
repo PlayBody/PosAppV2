@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:staff_pos_app/src/common/business/point.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:staff_pos_app/src/interface/components/dropdowns.dart';
 import 'package:staff_pos_app/src/model/payslip_model.dart';
@@ -12,7 +11,6 @@ import 'package:staff_pos_app/src/common/functions.dart';
 import 'package:staff_pos_app/src/http/webservice.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
-import 'package:staff_pos_app/src/interface/home.dart';
 import 'package:open_file_safe_plus/open_file_safe_plus.dart';
 
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
@@ -270,7 +268,7 @@ class _PaySlip extends State<PaySlip> {
     final file = File('${output.path}/payslip.pdf');
     file.writeAsBytesSync(await document.save());
     document.dispose();
-    OpenFile.open(file.path);
+    OpenFileSafePlus.open(file.path);
     // file.open(); // Page
     return file;
   }

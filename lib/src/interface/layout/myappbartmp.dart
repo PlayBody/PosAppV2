@@ -4,6 +4,8 @@ import '../../common/globals.dart' as globals;
 // Set up a mock HTTP client.
 
 class MyAppBarTmp extends StatelessWidget implements PreferredSizeWidget {
+  const MyAppBarTmp({super.key});
+
   @override
   Size get preferredSize => const Size.fromHeight(60);
 
