@@ -12,7 +12,7 @@ var btnTxtStyle1 = TextStyle(
 //----degine complete ----------
 class PrimaryButton extends StatelessWidget {
   final String label;
-  final Function() tapFunc;
+  final Function()? tapFunc;
   const PrimaryButton({required this.label, required this.tapFunc, super.key});
 
   @override
@@ -31,7 +31,7 @@ class PrimaryButton extends StatelessWidget {
 
 class PrimaryColButton extends StatelessWidget {
   final String label;
-  final Function() tapFunc;
+  final Function()? tapFunc;
   const PrimaryColButton({
     required this.label,
     required this.tapFunc,
@@ -86,7 +86,7 @@ class CancelColButton extends StatelessWidget {
 
 class DeleteButton extends StatelessWidget {
   final String label;
-  final Function() tapFunc;
+  final Function()? tapFunc;
   const DeleteButton({required this.label, required this.tapFunc, super.key});
 
   @override
@@ -103,7 +103,7 @@ class DeleteButton extends StatelessWidget {
 
 class DeleteColButton extends StatelessWidget {
   final String label;
-  final Function() tapFunc;
+  final Function()? tapFunc;
   const DeleteColButton({
     required this.label,
     required this.tapFunc,

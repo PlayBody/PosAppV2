@@ -23,7 +23,7 @@ class DlgAddEvent extends StatefulWidget {
   final String? eventId;
 
   const DlgAddEvent({Key? key, required this.selection, this.eventId})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _DlgAddEvent createState() => _DlgAddEvent();
@@ -56,14 +56,18 @@ class _DlgAddEvent extends State<DlgAddEvent> {
       if (widget.selection.hour >= 22) {
         toTime = '23:59:59';
       } else {
-        toTime = DateFormat('HH:mm:ss')
-            .format(widget.selection.add(Duration(hours: 2)));
+        toTime = DateFormat(
+          'HH:mm:ss',
+        ).format(widget.selection.add(Duration(hours: 2)));
       }
     } else {
-      EventModel event =
-          await ClEvent().loadEventDetail(context, widget.eventId!);
-      selectDate =
-          DateFormat('yyyy-MM-dd').format(DateTime.parse(event.fromTime));
+      EventModel event = await ClEvent().loadEventDetail(
+        context,
+        widget.eventId!,
+      );
+      selectDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateTime.parse(event.fromTime));
       fromTime = DateFormat('HH:mm:ss').format(DateTime.parse(event.fromTime));
       toTime = DateFormat('HH:mm:ss').format(DateTime.parse(event.toTime));
       organId = event.organId;
@@ -82,13 +86,14 @@ class _DlgAddEvent extends State<DlgAddEvent> {
 
     Dialogs().loaderDialogNormal(context);
     await ClEvent().saveEvents(
-        context,
-        widget.eventId,
-        organId,
-        selectDate + ' ' + fromTime,
-        selectDate + ' ' + toTime,
-        txtCommentController.text,
-        txtUrlController.text);
+      context,
+      widget.eventId,
+      organId,
+      selectDate + ' ' + fromTime,
+      selectDate + ' ' + toTime,
+      txtCommentController.text,
+      txtUrlController.text,
+    );
     Navigator.pop(context);
     Navigator.pop(context);
   }
@@ -105,32 +110,41 @@ class _DlgAddEvent extends State<DlgAddEvent> {
   @override
   Widget build(BuildContext context) {
     return PushDialogs(
-        render: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        PosDlgHeaderText(label: 'イベントの追加'),
-        PosDlgSubHeaderText(label: selectDate),
-        _getTimeRow(),
-        RowLabelInput(
+      render: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PosDlgHeaderText(label: 'イベントの追加'),
+          PosDlgSubHeaderText(label: selectDate),
+          _getTimeRow(),
+          RowLabelInput(
             label: '実施店舗',
             renderWidget: DropDownModelSelect(
-                value: organId,
-                items: [
-                  DropdownMenuItem(child: Text('全店舗'), value: '0'),
-                  ...organs.map((e) => DropdownMenuItem(
-                      child: Text(e.organName), value: e.organId))
-                ],
-                tapFunc: (v) => organId = v)),
-        RowLabelInput(
+              value: organId,
+              items: [
+                DropdownMenuItem(child: Text('全店舗'), value: '0'),
+                ...organs.map(
+                  (e) => DropdownMenuItem(
+                    child: Text(e.organName),
+                    value: e.organId,
+                  ),
+                ),
+              ],
+              tapFunc: (v) => organId = v,
+            ),
+          ),
+          RowLabelInput(
             label: '内容',
-            renderWidget: TextInputNormal(controller: txtCommentController)),
-        RowLabelInput(
+            renderWidget: TextInputNormal(controller: txtCommentController),
+          ),
+          RowLabelInput(
             label: 'URL',
-            renderWidget: TextInputNormal(controller: txtUrlController)),
-        SizedBox(height: 24),
-        _getButtons(),
-      ],
-    ));
+            renderWidget: TextInputNormal(controller: txtUrlController),
+          ),
+          SizedBox(height: 24),
+          _getButtons(),
+        ],
+      ),
+    );
   }
 
   Widget _getTimeRow() {
@@ -151,15 +165,21 @@ class _DlgAddEvent extends State<DlgAddEvent> {
 
   Widget _getButtons() {
     return Container(
-      child: Row(children: [
-        PrimaryColButton(label: '保存する', tapFunc: () => saveEvent()),
-        Container(width: 12),
-        DeleteColButton(
+      child: Row(
+        children: [
+          PrimaryColButton(label: '保存する', tapFunc: () => saveEvent()),
+          Container(width: 12),
+          DeleteColButton(
             label: '削除',
-            tapFunc: widget.eventId == null ? null : () => deleteEvent()),
-        Container(width: 12),
-        CancelColButton(label: 'キャンセル', tapFunc: () => Navigator.pop(context)),
-      ]),
+            tapFunc: widget.eventId == null ? null : () => deleteEvent(),
+          ),
+          Container(width: 12),
+          CancelColButton(
+            label: 'キャンセル',
+            tapFunc: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }

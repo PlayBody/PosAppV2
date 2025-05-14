@@ -53,14 +53,15 @@ class _CompanyEdit extends State<CompanyEdit> {
   }
 
   Future<List> loadFormInit() async {
-    if (this.editComapnyId == null){
+    if (this.editComapnyId == null) {
       cVisible = "1";
       return [];
-    } 
+    }
 
-
-    CompanyModel company =
-        await ClCompany().loadCompanyInfo(context, this.editComapnyId!);
+    CompanyModel company = await ClCompany().loadCompanyInfo(
+      context,
+      this.editComapnyId!,
+    );
     txtTitleController.text = company.companyName;
     txtDomainController.text = company.companyDomain;
     txtUrlController.text = company.ecUrl;
@@ -99,13 +100,15 @@ class _CompanyEdit extends State<CompanyEdit> {
     if (!isCheck) return;
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveCompanyData, {
-      'company_id': this.editComapnyId == null ? '' : this.editComapnyId,
-      'company_name': txtTitleController.text,
-      'company_domain': txtDomainController.text,
-      'ec_site_url': txtUrlController.text,
-      'company_receipt_number': txtReceiptNumController.text
-    }).then((v) => results = v);
+    await Webservice()
+        .loadHttp(context, apiSaveCompanyData, {
+          'company_id': this.editComapnyId == null ? '' : this.editComapnyId,
+          'company_name': txtTitleController.text,
+          'company_domain': txtDomainController.text,
+          'ec_site_url': txtUrlController.text,
+          'company_receipt_number': txtReceiptNumController.text,
+        })
+        .then((v) => results = v);
 
     if (results['isSave']) {
       setState(() {
@@ -125,10 +128,12 @@ class _CompanyEdit extends State<CompanyEdit> {
 
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteCompanyData, {
-      'company_id': editComapnyId,
-      'is_restore': '1'
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteCompanyData, {
+          'company_id': editComapnyId,
+          'is_restore': '1',
+        })
+        .then((v) => {results = v});
     Navigator.pop(context);
     if (!results['isDelete']) {
       Dialogs().infoDialog(context, errServerActionFail);
@@ -147,8 +152,9 @@ class _CompanyEdit extends State<CompanyEdit> {
 
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteCompanyData,
-        {'company_id': editComapnyId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteCompanyData, {'company_id': editComapnyId})
+        .then((v) => {results = v});
     Navigator.pop(context);
     if (!results['isDelete']) {
       Dialogs().infoDialog(context, errServerActionFail);
@@ -178,12 +184,11 @@ class _CompanyEdit extends State<CompanyEdit> {
     if (this.editComapnyId == null) return;
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgCompanySites(
-            companyId: this.editComapnyId!,
-          );
-        }).then((_) {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgCompanySites(companyId: this.editComapnyId!);
+      },
+    ).then((_) {
       setState(() {
         loadData = loadFormInit();
       });
@@ -194,27 +199,23 @@ class _CompanyEdit extends State<CompanyEdit> {
   Widget build(BuildContext context) {
     globals.appTitle = '会社管理';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Container(
-            color: bodyColor,
-            child: Column(
-              children: [
-                _getContents(),
-                SizedBox(height: 8),
-              ],
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              color: bodyColor,
+              child: Column(children: [_getContents(), SizedBox(height: 8)]),
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-        // By default, show a loading spinner.
-        return Center(child: CircularProgressIndicator());
-      },
-    ));
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   Widget _getCompanyInfo() {
@@ -226,29 +227,41 @@ class _CompanyEdit extends State<CompanyEdit> {
           RowLabelInput(
             label: '会社名',
             renderWidget: TextInputNormal(
-                controller: txtTitleController, errorText: errTitle),
+              controller: txtTitleController,
+              errorText: errTitle,
+            ),
           ),
           SizedBox(height: 12),
           RowLabelInput(
             label: 'ドメイン',
             renderWidget: TextInputNormal(
-                controller: txtDomainController, errorText: errDomain),
+              controller: txtDomainController,
+              errorText: errDomain,
+            ),
           ),
           SizedBox(height: 12),
           RowLabelInput(
             label: '適格領収書番号',
             renderWidget: TextInputNormal(
-                controller: txtReceiptNumController, errorText: errReceiptNum),
+              controller: txtReceiptNumController,
+              errorText: errReceiptNum,
+            ),
           ),
           SizedBox(height: 24),
           WhiteButton(
-              label: 'ランキング管理',
-              tapFunc: editComapnyId == null
-                  ? null
-                  : () =>
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return Stamps(companyId: editComapnyId!);
-                      })))
+            label: 'ランキング管理',
+            tapFunc:
+                editComapnyId == null
+                    ? null
+                    : () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return Stamps(companyId: editComapnyId!);
+                        },
+                      ),
+                    ),
+          ),
         ],
       ),
     );
@@ -265,15 +278,18 @@ class _CompanyEdit extends State<CompanyEdit> {
             if (globals.auth > constAuthOwner) PageSubHeader(label: 'サイト'),
             if (this.editComapnyId != null && globals.auth > constAuthOwner)
               Container(
-                  padding: EdgeInsets.only(top: 12),
-                  width: 150,
-                  child: WhiteButton(
-                      label: 'サイトの追加',
-                      tapFunc: (cVisible == null || cVisible != '1')
+                padding: EdgeInsets.only(top: 12),
+                width: 150,
+                child: WhiteButton(
+                  label: 'サイトの追加',
+                  tapFunc:
+                      (cVisible == null || cVisible != '1')
                           ? null
-                          : () => showSiteEdit())),
+                          : () => showSiteEdit(),
+                ),
+              ),
             if (this.editComapnyId != null && globals.auth > constAuthOwner)
-              ...sites.map((e) => _getSiteItemContent(e))
+              ...sites.map((e) => _getSiteItemContent(e)),
           ],
         ),
       ),
@@ -287,36 +303,44 @@ class _CompanyEdit extends State<CompanyEdit> {
         children: [
           Container(
             width: 90,
-            child:
-                Container(child: Text(e.title, style: TextStyle(fontSize: 18))),
+            child: Container(
+              child: Text(e.title, style: TextStyle(fontSize: 18)),
+            ),
           ),
           Expanded(
-            child:
-                Container(child: Text(e.url, style: TextStyle(fontSize: 18))),
+            child: Container(
+              child: Text(e.url, style: TextStyle(fontSize: 18)),
+            ),
           ),
           Container(
             child: TextButton(
-                child: Text('削除'), onPressed: () => deleteSite(e.siteId)),
-          )
+              child: Text('削除'),
+              onPressed: () => deleteSite(e.siteId),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _getBottomButton() {
-    return RowButtonGroup(widgets: [
-      PrimaryButton(
+    return RowButtonGroup(
+      widgets: [
+        PrimaryButton(
           label: '保存',
-          tapFunc: (cVisible == null || cVisible != '1')
-              ? null
-              : () => saveCompanyData()),
-      SizedBox(width: 16),
-      CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
-      SizedBox(width: 16),
-      if (editComapnyId!=null &&  (cVisible == null || cVisible != '1'))
-        PrimaryButton(label: '使用回復', tapFunc: () => restoreCompany()),
-      if (editComapnyId!=null && (cVisible != null && cVisible == '1'))
-        DeleteButton(label: '使用中止', tapFunc: () => deleteCompany()),
-    ]);
+          tapFunc:
+              (cVisible == null || cVisible != '1')
+                  ? null
+                  : () => saveCompanyData(),
+        ),
+        SizedBox(width: 16),
+        CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
+        SizedBox(width: 16),
+        if (editComapnyId != null && (cVisible == null || cVisible != '1'))
+          PrimaryButton(label: '使用回復', tapFunc: () => restoreCompany()),
+        if (editComapnyId != null && (cVisible != null && cVisible == '1'))
+          DeleteButton(label: '使用中止', tapFunc: () => deleteCompany()),
+      ],
+    );
   }
 }

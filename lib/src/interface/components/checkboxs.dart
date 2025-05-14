@@ -5,7 +5,7 @@ class CheckNomal extends StatelessWidget {
   final String label;
   final double? scale;
   final bool value;
-  final Function(bool?)? tapFunc;
+  final dynamic tapFunc;
   const CheckNomal({
     required this.label,
     required this.value,
