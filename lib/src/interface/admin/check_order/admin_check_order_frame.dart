@@ -206,7 +206,7 @@ class _AdminCheckOrderFrame extends State<AdminCheckOrderFrame> {
           SizedBox(
             width: 150,
             child: Text(
-              _selectYear.toString() + '年' + _selectMonth.toString() + '月',
+              '$_selectYear年$_selectMonth月',
               style: const TextStyle(fontSize: 26),
               textAlign: TextAlign.center,
             ),

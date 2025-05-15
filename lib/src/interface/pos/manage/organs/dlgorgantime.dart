@@ -23,8 +23,7 @@ class DlgOrganTime extends StatefulWidget {
       required this.endTime,
       this.timeId,
       required this.type,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _DlgOrganTime createState() => _DlgOrganTime();
@@ -48,31 +47,28 @@ class _DlgOrganTime extends State<DlgOrganTime> {
   }
 
   void setStringTime() {
-    _startTime = (_start.toInt() < 10
+    _startTime = '${_start.toInt() < 10
             ? '0' + _start.toInt().toString()
-            : _start.toInt().toString()) +
-        ':' +
-        (((_start - _start.toInt()) * 60).toInt() < 10
+            : _start.toInt().toString()}:${((_start - _start.toInt()) * 60).toInt() < 10
             ? '0' + ((_start - _start.toInt()) * 60).toInt().toString()
-            : ((_start - _start.toInt()) * 60).toInt().toString());
+            : ((_start - _start.toInt()) * 60).toInt().toString()}';
 
-    _endTime = (_end.toInt() < 10
+    _endTime = '${_end.toInt() < 10
             ? '0' + _end.toInt().toString()
-            : _end.toInt().toString()) +
-        ':' +
-        (((_end - _end.toInt()) * 60).toInt() < 10
+            : _end.toInt().toString()}:${((_end - _end.toInt()) * 60).toInt() < 10
             ? '0' + ((_end - _end.toInt()) * 60).toInt().toString()
-            : ((_end - _end.toInt()) * 60).toInt().toString());
+            : ((_end - _end.toInt()) * 60).toInt().toString()}';
   }
 
   Future<void> saveOrganTime() async {
-    String apiUrl = apiBase + '/apiorgans/saveOrganTime';
-    if (widget.type == 'shift')
-      apiUrl = apiBase + '/apiorgans/saveOrganShiftTime';
+    String apiUrl = '$apiBase/apiorgans/saveOrganTime';
+    if (widget.type == 'shift') {
+      apiUrl = '$apiBase/apiorgans/saveOrganShiftTime';
+    }
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiUrl, {
-      'time_id': widget.timeId == null ? '' : widget.timeId,
+      'time_id': widget.timeId ?? '',
       'organ_id': widget.organId,
       'weekday': widget.weekday,
       'from_time': _startTime,
@@ -93,7 +89,7 @@ class _DlgOrganTime extends State<DlgOrganTime> {
         children: <Widget>[
           PosDlgHeaderText(
               label: widget.type == 'bussiness' ? '営業時間設定' : '勤務可能時間設定'),
-          PosDlgSubHeaderText(label: _startTime + ' ~ ' + _endTime),
+          PosDlgSubHeaderText(label: '$_startTime ~ $_endTime'),
           RangeSlider(
             activeColor: Colors.blue,
             inactiveColor: Colors.blue[100],

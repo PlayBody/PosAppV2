@@ -33,7 +33,7 @@ import 'package:image_picker/image_picker.dart';
 
 class StaffEdit extends StatefulWidget {
   final String? selectStaffId;
-  const StaffEdit({this.selectStaffId, Key? key}) : super(key: key);
+  const StaffEdit({this.selectStaffId, super.key});
 
   @override
   State<StaffEdit> createState() => _StaffEdit();
@@ -112,17 +112,17 @@ class _StaffEdit extends State<StaffEdit> {
   }
 
   Future<List> loadStaffInfoData() async {
-    if (this.editStaffId != null) {
-      staffInfo = await ClStaff().loadStaffInfo(context, this.editStaffId);
+    if (editStaffId != null) {
+      staffInfo = await ClStaff().loadStaffInfo(context, editStaffId);
 
       ownerOrgans =
-          await ClOrgan().loadOrganList(context, '', this.editStaffId!);
+          await ClOrgan().loadOrganList(context, '', editStaffId!);
 
       for (var item in ownerOrgans) {
         staffOrgans.add(item.organId);
       }
 
-      if (menuOrganSelId == null && ownerOrgans.length > 0) {
+      if (menuOrganSelId == null && ownerOrgans.isNotEmpty) {
         menuOrganSelId = ownerOrgans.first.organId;
         loadStaffEnableMenus(menuOrganSelId);
       }
@@ -247,7 +247,7 @@ class _StaffEdit extends State<StaffEdit> {
 
     setState(() {});
 
-    if (staffOrgans.length == 0) {
+    if (staffOrgans.isEmpty) {
       Dialogs().infoDialog(context, warningSelectOrgan);
       return;
     }
@@ -255,14 +255,12 @@ class _StaffEdit extends State<StaffEdit> {
     String imagename = '';
     if (isphoto) {
       if (isphoto) {
-        imagename = 'avator-' +
-            DateTime.now()
+        imagename = 'avator-${DateTime.now()
                 .toString()
                 .replaceAll(':', '')
                 .replaceAll('-', '')
                 .replaceAll('.', '')
-                .replaceAll(' ', '') +
-            '.jpg';
+                .replaceAll(' ', '')}.jpg';
         await Webservice().callHttpMultiPart(
             'picture', apiStaffUploadAvatorUrl, _photoFile.path, imagename);
       }
@@ -274,9 +272,9 @@ class _StaffEdit extends State<StaffEdit> {
 
     print(apiStaffSave);
     print({
-      'staff_id': this.editStaffId == null ? '' : this.editStaffId,
-      'staff_auth': selStaffAuth == null ? '' : selStaffAuth,
-      'table_position': selTablePosition == null ? '' : selTablePosition,
+      'staff_id': this.editStaffId ?? '',
+      'staff_auth': selStaffAuth ?? '',
+      'table_position': selTablePosition ?? '',
       'staff_first_name': txtFirstName,
       'staff_last_name': txtLastName,
       'staff_nick': txtNickController.text,
@@ -285,30 +283,27 @@ class _StaffEdit extends State<StaffEdit> {
       'staff_shift': txtShift,
       'staff_password': txtPwdController.text,
       'staff_sex': sexValue,
-      'staff_birthday': selectYear + '-' + selectMonth + '-' + selectDay,
-      'staff_entering_date': selEnteringDateYear +
-          '-' +
-          (int.parse(selEnteringDateMonth) < 10 ? '0' : '') +
-          selEnteringDateMonth,
+      'staff_birthday': '$selectYear-$selectMonth-$selectDay',
+      'staff_entering_date': '$selEnteringDateYear-${int.parse(selEnteringDateMonth) < 10 ? '0' : ''}$selEnteringDateMonth',
       'grade_level': gradeLevel,
       'national_level': nationalLevel,
       'staff_organs': jsonEncode(staffOrgans),
       'staff_salary_months': txtSalaryMonths,
       'staff_salary_days': txtSalaryDays,
-      'staff_salary_minutes': selectSalaryMin == null ? '' : selectSalaryMin,
+      'staff_salary_minutes': selectSalaryMin ?? '',
       'staff_salary_times': txtSalaryTimes,
       'staff_avatar': imagename,
       'staff_comment': txtCommentController.text,
-      'menu_response': allMenuValue == null ? '' : allMenuValue,
+      'menu_response': allMenuValue ?? '',
       'add_rate': txtAddRateController.text,
       'test_rate': txtTestRateController.text,
       'quality_rate': txtQualityRateController.text,
       'epark_id': txtEparkIdController.text
     });
     await Webservice().loadHttp(context, apiStaffSave, {
-      'staff_id': this.editStaffId == null ? '' : this.editStaffId,
-      'staff_auth': selStaffAuth == null ? '' : selStaffAuth,
-      'table_position': selTablePosition == null ? '' : selTablePosition,
+      'staff_id': this.editStaffId ?? '',
+      'staff_auth': selStaffAuth ?? '',
+      'table_position': selTablePosition ?? '',
       'staff_first_name': txtFirstName,
       'staff_last_name': txtLastName,
       'staff_nick': txtNickController.text,
@@ -317,21 +312,18 @@ class _StaffEdit extends State<StaffEdit> {
       'staff_shift': txtShift,
       'staff_password': txtPwdController.text,
       'staff_sex': sexValue,
-      'staff_birthday': selectYear + '-' + selectMonth + '-' + selectDay,
-      'staff_entering_date': selEnteringDateYear +
-          '-' +
-          (int.parse(selEnteringDateMonth) < 10 ? '0' : '') +
-          selEnteringDateMonth,
+      'staff_birthday': '$selectYear-$selectMonth-$selectDay',
+      'staff_entering_date': '$selEnteringDateYear-${int.parse(selEnteringDateMonth) < 10 ? '0' : ''}$selEnteringDateMonth',
       'grade_level': gradeLevel,
       'national_level': nationalLevel,
       'staff_organs': jsonEncode(staffOrgans),
       'staff_salary_months': txtSalaryMonths,
       'staff_salary_days': txtSalaryDays,
-      'staff_salary_minutes': selectSalaryMin == null ? '' : selectSalaryMin,
+      'staff_salary_minutes': selectSalaryMin ?? '',
       'staff_salary_times': txtSalaryTimes,
       'staff_avatar': imagename,
       'staff_comment': txtCommentController.text,
-      'menu_response': allMenuValue == null ? '' : allMenuValue,
+      'menu_response': allMenuValue ?? '',
       'add_rate': txtAddRateController.text,
       'test_rate': txtTestRateController.text,
       'quality_rate': txtQualityRateController.text,
@@ -342,7 +334,7 @@ class _StaffEdit extends State<StaffEdit> {
     if (results['is_load']) {
       Fluttertoast.showToast(msg: "保存されました。");
       setState(() {
-        this.editStaffId = results['staff_id'].toString();
+        editStaffId = results['staff_id'].toString();
         txtPwdController.text = '';
         txtPwdConfController.text = '';
 
@@ -364,7 +356,7 @@ class _StaffEdit extends State<StaffEdit> {
   }
 
   Future<void> deleteStaffInfo() async {
-    if (this.editStaffId == null) return;
+    if (editStaffId == null) return;
 
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
@@ -373,7 +365,7 @@ class _StaffEdit extends State<StaffEdit> {
     // if (widget.selectStaffId == null) {
     Dialogs().loaderDialogNormal(context);
     await Webservice().loadHttp(context, apiDeleteStaffInfoUrl, {
-      'staff_id': this.editStaffId,
+      'staff_id': editStaffId,
       'login_staff_id': globals.staffId
     }).then((v) => {results = v});
 
@@ -399,10 +391,10 @@ class _StaffEdit extends State<StaffEdit> {
     // }
   }
 
-  _getFromPhoto(int _libType) async {
+  _getFromPhoto(int libType) async {
     XFile? image;
 
-    if (_libType == 1) {
+    if (libType == 1) {
       image = await ImagePicker().pickImage(source: ImageSource.camera);
     } else {
       image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -705,12 +697,12 @@ class _StaffEdit extends State<StaffEdit> {
               child: DropdownButton(
                 items: [
                   DropdownMenuItem(
-                    child: Text("カメラ撮る"),
                     value: 1,
+                    child: Text("カメラ撮る"),
                   ),
                   DropdownMenuItem(
-                    child: Text("アルバム"),
                     value: 2,
+                    child: Text("アルバム"),
                   )
                 ],
                 onChanged: (int? v) {

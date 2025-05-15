@@ -14,8 +14,7 @@ class DlgCompanySites extends StatefulWidget {
   final String companyId;
   final String? siteId;
 
-  const DlgCompanySites({required this.companyId, this.siteId, Key? key})
-      : super(key: key);
+  const DlgCompanySites({required this.companyId, this.siteId, super.key});
 
   @override
   _DlgCompanySites createState() => _DlgCompanySites();

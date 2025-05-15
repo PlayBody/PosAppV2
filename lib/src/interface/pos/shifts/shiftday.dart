@@ -32,8 +32,7 @@ class ShiftDay extends StatefulWidget {
   final String? initOrgan;
   final DateTime initDate;
   const ShiftDay(
-      {required this.isEdit, this.initOrgan, required this.initDate, Key? key})
-      : super(key: key);
+      {required this.isEdit, this.initOrgan, required this.initDate, super.key});
 
   @override
   _ShiftDay createState() => _ShiftDay();
@@ -82,7 +81,7 @@ class _ShiftDay extends State<ShiftDay> {
     isDetail = false;
     organList = await ClOrgan()
         .loadOrganList(context, globals.companyId, globals.staffId);
-    if (selOrganId == null) selOrganId = organList.first.organId;
+    selOrganId ??= organList.first.organId;
     organStaffs = await ClStaff()
         .loadStaffs(context, {'organ_id': selOrganId.toString()});
     times = await ClOrgan().loadOrganShiftTime(
@@ -95,37 +94,39 @@ class _ShiftDay extends State<ShiftDay> {
 
     staffs = [];
     staffNames = {};
-    shifts.forEach((element) {
+    for (var element in shifts) {
       if (!staffs.contains(element.staffId)) {
         staffs.add(element.staffId);
         staffNames[element.staffId] = element.staffName;
 
-        if (!showSorts.contains(element.staffId))
+        if (!showSorts.contains(element.staffId)) {
           showSorts.add(element.staffId);
+        }
       }
-    });
-    organStaffs.forEach((e) {
+    }
+    for (var e in organStaffs) {
       if (addStaffs.contains(e.staffId)) {
         staffs.add(e.staffId.toString());
 
         staffNames[e.staffId] = (e.staffNick == ''
-            ? (e.staffFirstName! + ' ' + e.staffLastName!)
+            ? ('${e.staffFirstName!} ${e.staffLastName!}')
             : e.staffNick);
 
         if (!showSorts.contains(e.staffId)) showSorts.add(e.staffId.toString());
       }
-    });
+    }
 
     reserves = await ClShift().loadDayReserve(
         context, selOrganId!, DateFormat('yyyy-MM-dd').format(selectedDate));
-    reserves.forEach((element) {
+    for (var element in reserves) {
       if (!staffs.contains(element.staffId)) {
         staffs.add(element.staffId);
         staffNames[element.staffId] = element.staffName;
-        if (!showSorts.contains(element.staffId))
+        if (!showSorts.contains(element.staffId)) {
           showSorts.add(element.staffId);
+        }
       }
-    });
+    }
 
     await ClCommon().saveStaffShiftSort(context, globals.staffId, showSorts);
     staffs.sort((a, b) => showSorts.indexOf(a).compareTo(showSorts.indexOf(b)));
@@ -254,13 +255,13 @@ class _ShiftDay extends State<ShiftDay> {
     setState(() {});
   }
 
-  Future<void> setSubmitShift(DateTime _date) async {
+  Future<void> setSubmitShift(DateTime date) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgShiftSubmit(
             organId: selOrganId!,
-            selection: _date,
+            selection: date,
             isLock: true,
           );
         }).then((_) async {
@@ -283,7 +284,7 @@ class _ShiftDay extends State<ShiftDay> {
             ...organStaffs.map((e) => !staffs.contains(e.staffId)
                 ? WhiteButton(
                     label: (e.staffNick == ''
-                        ? (e.staffFirstName! + ' ' + e.staffLastName!)
+                        ? ('${e.staffFirstName!} ${e.staffLastName!}')
                         : e.staffNick),
                     tapFunc: () {
                       addStaffs.add(e.staffId.toString());
@@ -311,11 +312,11 @@ class _ShiftDay extends State<ShiftDay> {
             child: DropDownModelSelect(
           value: shiftType,
           items: [
-            DropdownMenuItem(child: Text('申請中'), value: '1'),
-            DropdownMenuItem(child: Text('承認'), value: '2'),
-            DropdownMenuItem(child: Text('店外待機'), value: '-3'),
-            DropdownMenuItem(child: Text('出勤要請'), value: '4'),
-            DropdownMenuItem(child: Text('拒否'), value: '-2'),
+            DropdownMenuItem(value: '1', child: Text('申請中')),
+            DropdownMenuItem(value: '2', child: Text('承認')),
+            DropdownMenuItem(value: '-3', child: Text('店外待機')),
+            DropdownMenuItem(value: '4', child: Text('出勤要請')),
+            DropdownMenuItem(value: '-2', child: Text('拒否')),
           ],
           tapFunc: (v) {
             shiftType = v;
@@ -414,7 +415,7 @@ class _ShiftDay extends State<ShiftDay> {
             ? Row(children: [
                 _getTopSelectDate(),
                 Expanded(child: Container()),
-                Container(width: 450, child: _getTopOrganSelect()),
+                SizedBox(width: 450, child: _getTopOrganSelect()),
               ])
             : Column(children: [
                 _getTopSelectDate(),
@@ -452,8 +453,8 @@ class _ShiftDay extends State<ShiftDay> {
           value: selOrganId,
           items: [
             ...organList.map((e) => DropdownMenuItem(
-                  child: Text(e.organName),
                   value: e.organId,
+                  child: Text(e.organName),
                 ))
           ],
           tapFunc: (v) {
@@ -502,10 +503,10 @@ class _ShiftDay extends State<ShiftDay> {
           ...times.map(
             (e) => Container(
               width: timeWidth,
-              child: _getTimeContent(e.toString()),
               padding: EdgeInsets.only(bottom: 5),
               alignment: Alignment.bottomLeft,
               height: timeHeight,
+              child: _getTimeContent(e.toString()),
             ),
           )
         ],
@@ -517,10 +518,10 @@ class _ShiftDay extends State<ShiftDay> {
     return Container(
       width: 25,
       height: 25,
-      child: Text(h, style: TextStyle(color: Colors.white, fontSize: 14)),
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: Color(0xff666666), borderRadius: BorderRadius.circular(20)),
+      child: Text(h, style: TextStyle(color: Colors.white, fontSize: 14)),
     );
   }
 
@@ -536,16 +537,16 @@ class _ShiftDay extends State<ShiftDay> {
             ...staffs.map(
               (e) => LongPressDraggable(
                 data: {'mode': 'staff_sort', 'key': e},
-                child: DragTarget(
-                  builder: (context, candidateData, rejectedData) =>
-                      _getGridRow(e),
-                  onAccept: (item) => dragComplete(item, e),
-                ),
                 feedback: Container(
                     child: Text(
                   staffNames[e],
                   style: TextStyle(color: Colors.grey),
                 )),
+                child: DragTarget(
+                  builder: (context, candidateData, rejectedData) =>
+                      _getGridRow(e),
+                  onAccept: (item) => dragComplete(item, e),
+                ),
               ),
             ),
           ],
@@ -564,7 +565,6 @@ class _ShiftDay extends State<ShiftDay> {
           Container(
             alignment: Alignment.center,
             width: staffWidth,
-            child: Text(staffNames[item]),
             height: gridHeight,
             decoration: BoxDecoration(
               color: Colors.grey.withOpacity(0.4),
@@ -572,6 +572,7 @@ class _ShiftDay extends State<ShiftDay> {
                 bottom: BorderSide(width: 1, color: gridColor),
               ),
             ),
+            child: Text(staffNames[item]),
           ),
           ...times.map(
             (e) => Row(
@@ -602,10 +603,10 @@ class _ShiftDay extends State<ShiftDay> {
   }
 
   Widget _getShiftContent(e) {
-    double _top = gridHeight * staffs.indexOf(e.staffId).toDouble() +
+    double top = gridHeight * staffs.indexOf(e.staffId).toDouble() +
         (gridHeight - shiftHeight) / 2;
-    double _left = staffWidth + (times.indexOf(e.fromH) + e.fromM) * timeWidth;
-    num _length = timeWidth * e.length;
+    double left = staffWidth + (times.indexOf(e.fromH) + e.fromM) * timeWidth;
+    num length = timeWidth * e.length;
     var shiftColor = Colors.purple.withOpacity(0.5);
     String shiftComment = '';
     if (e.type == '1') {
@@ -635,8 +636,8 @@ class _ShiftDay extends State<ShiftDay> {
     }
 
     return Positioned(
-        top: e.type == '0' ? _top + (shiftHeight - reserveHeight) : _top,
-        left: _left,
+        top: e.type == '0' ? top + (shiftHeight - reserveHeight) : top,
+        left: left,
         child: GestureDetector(
           child: e.type == '0' && e.staffId == '0' && widget.isEdit
               ? LongPressDraggable(
@@ -650,9 +651,9 @@ class _ShiftDay extends State<ShiftDay> {
                         decoration: TextDecoration.none),
                   )),
                   child: _getShiftEachContent(
-                      e, shiftColor, shiftComment, _length),
+                      e, shiftColor, shiftComment, length),
                 )
-              : _getShiftEachContent(e, shiftColor, shiftComment, _length),
+              : _getShiftEachContent(e, shiftColor, shiftComment, length),
           onTap: () {
             viewDetail(e);
           },
@@ -662,9 +663,13 @@ class _ShiftDay extends State<ShiftDay> {
         ));
   }
 
-  Widget _getShiftEachContent(e, shiftColor, shiftComment, _length) {
+  Widget _getShiftEachContent(e, shiftColor, shiftComment, length) {
     return Row(children: [
       Container(
+        height: e.type == '0' ? reserveHeight : shiftHeight,
+        width: length.toDouble(),
+        decoration:
+            BoxDecoration(color: shiftColor, border: Border.all(width: 0.2)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
             ' ' + shiftComment,
@@ -676,13 +681,13 @@ class _ShiftDay extends State<ShiftDay> {
               style: TextStyle(fontSize: 9),
             ),
         ]),
-        height: e.type == '0' ? reserveHeight : shiftHeight,
-        width: _length.toDouble(),
-        decoration:
-            BoxDecoration(color: shiftColor, border: Border.all(width: 0.2)),
       ),
       if (int.parse(e.reserveInterval) > 0)
         Container(
+          height: e.type == '0' ? reserveHeight : shiftHeight,
+          width: timeWidth * (int.parse(e.reserveInterval) / 60),
+          decoration:
+              BoxDecoration(color: Colors.grey, border: Border.all(width: 0.2)),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
@@ -695,10 +700,6 @@ class _ShiftDay extends State<ShiftDay> {
                 style: TextStyle(fontSize: 9),
               ),
           ]),
-          height: e.type == '0' ? reserveHeight : shiftHeight,
-          width: timeWidth * (int.parse(e.reserveInterval) / 60),
-          decoration:
-              BoxDecoration(color: Colors.grey, border: Border.all(width: 0.2)),
         ),
     ]);
   }
@@ -718,7 +719,7 @@ class _ShiftDay extends State<ShiftDay> {
         children: [
           Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
             Text(
-              detailData!.userName + '(' + detailData!.userSex + ')',
+              '${detailData!.userName}(${detailData!.userSex})',
               style: TextStyle(
                 color: Colors.red,
                 fontSize: 18,
@@ -744,32 +745,30 @@ class _ShiftDay extends State<ShiftDay> {
           ]),
           SizedBox(height: 8),
           Text(
-              detailData!.menus.toString() +
-                  '  ' +
-                  Funcs().dateTimeFormatJP1(detailData!.strFromTime),
+              '${detailData!.menus}  ${Funcs().dateTimeFormatJP1(detailData!.strFromTime)}',
               style: TextStyle(fontSize: 16)),
           SizedBox(height: 8),
           Row(children: [
-            Container(
+            SizedBox(
                 width: 120, child: Text('クレジット: ', style: amountTxtStyle)),
             Container(
                 child: Text(
                     detailData!.payMethod == "1"
-                        ? (Funcs().currencyFormat(detailData!.allAmount) + '円')
+                        ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
                         : '',
                     style: amountTxtStyle)),
           ]),
           Row(children: [
-            Container(width: 120, child: Text('回数券: ', style: amountTxtStyle)),
+            SizedBox(width: 120, child: Text('回数券: ', style: amountTxtStyle)),
             Container(child: Text('', style: amountTxtStyle)),
           ]),
           Row(children: []),
           Row(children: [
-            Container(width: 120, child: Text('店払い: ', style: amountTxtStyle)),
+            SizedBox(width: 120, child: Text('店払い: ', style: amountTxtStyle)),
             Container(
                 child: Text(
                     detailData!.payMethod == "2"
-                        ? (Funcs().currencyFormat(detailData!.allAmount) + '円')
+                        ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
                         : '',
                     style: amountTxtStyle)),
           ]),
@@ -809,7 +808,7 @@ class _ShiftDay extends State<ShiftDay> {
                 ),
               ),
               SizedBox(width: 40),
-              Text(detailData!.fromTime + '~' + detailData!.toTime,
+              Text('${detailData!.fromTime}~${detailData!.toTime}',
                   style: TextStyle(fontSize: 16)),
             ],
           ),

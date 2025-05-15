@@ -18,8 +18,7 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 class SumSaleDetail extends StatefulWidget {
   final String? organId;
   final DateTime detailDate;
-  const SumSaleDetail({this.organId, required this.detailDate, Key? key})
-      : super(key: key);
+  const SumSaleDetail({this.organId, required this.detailDate, super.key});
 
   @override
   _SumSaleDetail createState() => _SumSaleDetail();
@@ -43,23 +42,23 @@ class _SumSaleDetail extends State<SumSaleDetail> {
 
   Future<List> loadSaleData() async {
     organs = await ClOrgan().loadOrganList(context, '', globals.staffId);
-    if (organId == null) organId = organs.first.organId;
+    organId ??= organs.first.organId;
     if (organId == '') {
       Navigator.pop(context);
     }
 
-    String _dateYear = widget.detailDate.year.toString();
-    String _dateMonth = widget.detailDate.month < 10
-        ? '0' + widget.detailDate.month.toString()
+    String dateYear = widget.detailDate.year.toString();
+    String dateMonth = widget.detailDate.month < 10
+        ? '0${widget.detailDate.month}'
         : widget.detailDate.month.toString();
-    String _dateDay = widget.detailDate.day < 10
-        ? '0' + widget.detailDate.day.toString()
+    String dateDay = widget.detailDate.day < 10
+        ? '0${widget.detailDate.day}'
         : widget.detailDate.day.toString();
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadSumSaleDetailUrl, {
       'organ_id': organId,
-      'select_date': _dateYear + '-' + _dateMonth + '-' + _dateDay
+      'select_date': dateYear + '-' + dateMonth + '-' + dateDay
     }).then((v) => {results = v});
 
     tableSaleData = [];
@@ -69,7 +68,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
       for (var item in results['sales']) {
         i++;
         item['user_sort'] =
-            ('000' + i.toString()).substring(('000' + i.toString()).length - 3);
+            ('000$i').substring(('000$i').length - 3);
         tableSaleData.add(SaleDetailModel.fromJson(item));
       }
     }
@@ -78,18 +77,18 @@ class _SumSaleDetail extends State<SumSaleDetail> {
   }
 
   Future<void> refreshData() async {
-    String _dateYear = widget.detailDate.year.toString();
-    String _dateMonth = widget.detailDate.month < 10
-        ? '0' + widget.detailDate.month.toString()
+    String dateYear = widget.detailDate.year.toString();
+    String dateMonth = widget.detailDate.month < 10
+        ? '0${widget.detailDate.month}'
         : widget.detailDate.month.toString();
-    String _dateDay = widget.detailDate.day < 10
-        ? '0' + widget.detailDate.day.toString()
+    String dateDay = widget.detailDate.day < 10
+        ? '0${widget.detailDate.day}'
         : widget.detailDate.day.toString();
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadSumSaleDetailUrl, {
       'organ_id': organId,
-      'select_date': _dateYear + '-' + _dateMonth + '-' + _dateDay
+      'select_date': dateYear + '-' + dateMonth + '-' + dateDay
     }).then((v) => {results = v});
 
     tableSaleData = [];
@@ -99,7 +98,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
       for (var item in results['sales']) {
         i++;
         item['user_sort'] =
-            ('000' + i.toString()).substring(('000' + i.toString()).length - 3);
+            ('000$i').substring(('000$i').length - 3);
         tableSaleData.add(SaleDetailModel.fromJson(item));
       }
     }
@@ -123,10 +122,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
 
   @override
   Widget build(BuildContext context) {
-    globals.appTitle = widget.detailDate.month.toString() +
-        '月' +
-        widget.detailDate.day.toString() +
-        '日売上詳細';
+    globals.appTitle = '${widget.detailDate.month}月${widget.detailDate.day}日売上詳細';
     return MainBodyWdiget(
         render: FutureBuilder<List>(
       future: loadData,
@@ -162,7 +158,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
         value: organId,
         items: [
           ...organs.map((e) =>
-              DropdownMenuItem(child: Text(e.organName), value: e.organId))
+              DropdownMenuItem(value: e.organId, child: Text(e.organName)))
         ],
         tapFunc: (v) {
           organId = v.toString();
@@ -189,22 +185,22 @@ class _SumSaleDetail extends State<SumSaleDetail> {
           rows: [
             ...tableSaleData.map(
               (e) => DataRow(cells: [
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         1.5, //SET width
                     child: Text(e.startTime))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) * 1,
                     child: Text(e.position))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width:
                         ((MediaQuery.of(context).size.width - 60) / 10) * 1.5,
                     child: Text(e.amount))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         1, //SET width
                     child: Text(e.personCount))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         2, //SET width
                     child: WhiteButton(
@@ -218,7 +214,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
                         }));
                       },
                     ))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         1, //SET width
                     child: IconWhiteButton(
@@ -238,7 +234,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
     return Container(
       padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: Text(
-        'レジ現金残高    ￥' + Funcs().currencyFormat(sumAmount),
+        'レジ現金残高    ￥${Funcs().currencyFormat(sumAmount)}',
         style: TextStyle(fontSize: 22),
       ),
     );

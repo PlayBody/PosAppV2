@@ -24,8 +24,8 @@ class ShiftDetail extends StatefulWidget {
     required this.organId,
     required this.from,
     required this.to,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ShiftDetail> createState() => _ShiftDetail();
@@ -234,9 +234,7 @@ class _ShiftDetail extends State<ShiftDetail> {
                     ),
                   ),
                   Text(
-                    DateFormat('HH:mm').format(widget.from) +
-                        ' ~ ' +
-                        DateFormat('HH:mm').format(widget.to),
+                    '${DateFormat('HH:mm').format(widget.from)} ~ ${DateFormat('HH:mm').format(widget.to)}',
                   ),
                 ],
               ),

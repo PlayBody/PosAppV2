@@ -204,14 +204,14 @@ class _PointManager extends State<PointManager> {
     Navigator.pop(context);
   }
 
-  Future<void> deletePointsettings(_id) async {
+  Future<void> deletePointsettings(id) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
 
     // ignore: use_build_context_synchronously
     Dialogs().loaderDialogNormal(context);
     // ignore: use_build_context_synchronously
-    await ClPoint().deleteOrganPointSetting(context, _id);
+    await ClPoint().deleteOrganPointSetting(context, id);
     loadInitData();
     // ignore: use_build_context_synchronously
     Navigator.pop(context);
@@ -248,13 +248,13 @@ class _PointManager extends State<PointManager> {
     });
   }
 
-  Future<void> deletePointSubmit(_id) async {
+  Future<void> deletePointSubmit(id) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
     // ignore: use_build_context_synchronously
     Dialogs().loaderDialogNormal(context);
     // ignore: use_build_context_synchronously
-    await ClPoint().deleteStaffPoint(context, _id);
+    await ClPoint().deleteStaffPoint(context, id);
     loadInitData();
     // ignore: use_build_context_synchronously
     Navigator.pop(context);

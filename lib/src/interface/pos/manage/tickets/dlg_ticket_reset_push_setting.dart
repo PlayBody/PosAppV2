@@ -13,8 +13,7 @@ import 'package:staff_pos_app/src/interface/components/timepicker.dart';
 
 class DlgTicketResetPushSetting extends StatefulWidget {
   final String ticketId;
-  const DlgTicketResetPushSetting({required this.ticketId, Key? key})
-      : super(key: key);
+  const DlgTicketResetPushSetting({required this.ticketId, super.key});
 
   @override
   _DlgTicketResetPushSetting createState() => _DlgTicketResetPushSetting();
@@ -30,7 +29,7 @@ class _DlgTicketResetPushSetting extends State<DlgTicketResetPushSetting> {
   }
 
   Future<void> savePushSetting() async {
-    String apiUrl = apiBase + '/apitickets/savePushSetting';
+    String apiUrl = '$apiBase/apitickets/savePushSetting';
     await Webservice().loadHttp(context, apiUrl, {
       'ticket_id': widget.ticketId,
       'before_day': beforeDay,

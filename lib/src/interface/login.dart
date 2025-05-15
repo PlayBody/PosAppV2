@@ -73,7 +73,7 @@ class _Login extends State<Login> {
         await loginProcess(email!, password!, true);
       }
       return didAuthenticate;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       Fluttertoast.showToast(
         msg: 'システム設定でデバイスパスワードを設定してください。',
         toastLength: Toast.LENGTH_LONG,
@@ -606,7 +606,7 @@ class _Login extends State<Login> {
           size: !globals.isWideScreen ? sizeInputIcon : sizeInputIconTablet,
         ),
         contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        fillColor: Colors.white.withOpacity(0.5),
+        fillColor: Colors.white.withValues(alpha: 0.5),
         filled: true,
         hintText: '○〜○文字の半角英数',
         hintStyle: const TextStyle(color: Colors.grey),

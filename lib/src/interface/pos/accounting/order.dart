@@ -33,7 +33,7 @@ import 'orderIndividual.dart';
 
 class Order extends StatefulWidget {
   final String orderId;
-  const Order({required this.orderId, Key? key}) : super(key: key);
+  const Order({required this.orderId, super.key});
 
   @override
   _Order createState() => _Order();
@@ -164,7 +164,7 @@ class _Order extends State<Order> {
     // }
     // return;
     List data = [];
-    globals.pendingOrderMenus.forEach((e) {
+    for (var e in globals.pendingOrderMenus) {
       data.add({
         'title': e.menuTitle,
         'price': e.menuPrice,
@@ -174,20 +174,20 @@ class _Order extends State<Order> {
         'variation_id': e.variationId,
         'use_tickets': e.useTickets,
       });
-    });
-    globals.orderMenus.forEach((e) {
+    }
+    for (var e in globals.orderMenus) {
       if (data.any((element) =>
           element['menu_id'] == e.menuId &&
           element['variation_id'] == e.variationId)) {
-        data.forEach((element) {
+        for (var element in data) {
           if (element['menu_id'] == e.menuId &&
               element['variation_id'] == e.variationId) {
             element['quantity'] =
                 (int.parse(element['quantity']) + int.parse(e.quantity))
                     .toString();
           }
-        });
-        return;
+        }
+        continue;
       }
       data.add({
         'title': e.menuTitle,
@@ -198,7 +198,7 @@ class _Order extends State<Order> {
         'variation_id': e.variationId,
         'use_tickets': e.useTickets
       });
-    });
+    }
 
     bool isSave = await ClOrder()
         .saveOrderMenus(context, widget.orderId, jsonEncode(data));
@@ -558,8 +558,7 @@ class OrderItemList extends StatelessWidget {
       required this.rowNm,
       this.onTap,
       this.onQuantityChanged,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -654,6 +653,7 @@ class OrderItemList extends StatelessWidget {
             )),
             Container(width: globals.isWideScreen ? 80 : 25),
             GestureDetector(
+              onTap: onTap,
               child: Container(
                   margin: EdgeInsets.only(top: 10),
                   alignment: Alignment.center,
@@ -667,7 +667,6 @@ class OrderItemList extends StatelessWidget {
                         color: Color.fromRGBO(70, 88, 134, 1),
                         fontWeight: FontWeight.bold),
                   )),
-              onTap: onTap,
             ),
           ],
         ));

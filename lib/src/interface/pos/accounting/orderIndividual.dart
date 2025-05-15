@@ -13,7 +13,7 @@ bool isMinus = false;
 String? orderIndividualAmount;
 
 class OrderIndividual extends StatefulWidget {
-  const OrderIndividual({Key? key}) : super(key: key);
+  const OrderIndividual({super.key});
 
   @override
   _OrderIndividual createState() => _OrderIndividual();
@@ -49,6 +49,12 @@ class _OrderIndividual extends State<OrderIndividual> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('images/background.jpg'),
+          fit: BoxFit.cover,
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
@@ -292,12 +298,6 @@ class _OrderIndividual extends State<OrderIndividual> {
         drawer: MyDrawer(),
         bottomNavigationBar: SubBottomNavi(),
       ),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('images/background.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
     );
   }
 
@@ -340,19 +340,18 @@ class QuantityList extends StatelessWidget {
   final String quantity;
   final GestureTapCallback? tap;
 
-  const QuantityList({required this.quantity, this.tap, Key? key})
-      : super(key: key);
+  const QuantityList({required this.quantity, this.tap, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(this.quantity), onTap: this.tap);
+    return ListTile(title: Text(quantity), onTap: tap);
   }
 }
 
 class NumberPad extends StatelessWidget {
   final String num;
 
-  const NumberPad({required this.num, Key? key}) : super(key: key);
+  const NumberPad({required this.num, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -365,7 +364,7 @@ class NumberPad extends StatelessWidget {
             if (num == '+/-') {
               isMinus = !isMinus;
               if (isMinus) {
-                orderIndividualAmount = "-" + orderIndividualAmount!;
+                orderIndividualAmount = "-${orderIndividualAmount!}";
               } else {
                 orderIndividualAmount =
                     orderIndividualAmount!.replaceAll("-", '');
@@ -376,30 +375,29 @@ class NumberPad extends StatelessWidget {
               }
             } else if (orderIndividualAmount == '-0') {
               if (num != '000') {
-                orderIndividualAmount = '-' + num;
+                orderIndividualAmount = '-$num';
               }
             } else {
               orderIndividualAmount = orderIndividualAmount! + num;
             }
           }
           txtIndividualAmountController.text = isMinus
-              ? '-' +
-                  Funcs().currencyFormat(
-                      orderIndividualAmount!.replaceAll('-', ''))
+              ? '-${Funcs().currencyFormat(
+                      orderIndividualAmount!.replaceAll('-', ''))}'
               : Funcs().currencyFormat(orderIndividualAmount!);
         },
         child: Container(
           alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Text(
             num,
             style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: Color(0xff465886)),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(12),
           ),
           // ElevatedButton.styleFrom(
           //   primary: Colors.white,

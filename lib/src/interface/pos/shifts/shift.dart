@@ -27,7 +27,7 @@ import 'viewshiftdialog.dart';
 import 'shiftmanager.dart';
 
 class Shift extends StatefulWidget {
-  const Shift({Key? key}) : super(key: key);
+  const Shift({super.key});
 
   @override
   _Shift createState() => _Shift();
@@ -71,12 +71,12 @@ class _Shift extends State<Shift> {
     print('okokokokokokokokokokokokokokokokokokokokokok');
     regions = [];
     appointments = [];
-    String vFromDateTime = showFromDate + ' 00:00:00';
-    String vToDateTime = showToDate + ' 23:59:59';
+    String vFromDateTime = '$showFromDate 00:00:00';
+    String vToDateTime = '$showToDate 23:59:59';
 
     organList = await ClOrgan().loadOrganList(context, '', globals.staffId);
-    if (organList.length < 1) return [];
-    if (selOrganId == null) selOrganId = organList.first.organId;
+    if (organList.isEmpty) return [];
+    selOrganId ??= organList.first.organId;
 
     isLock = await ClShift()
         .loadShiftLock(context, selOrganId!, showFromDate, showToDate);
@@ -107,26 +107,26 @@ class _Shift extends State<Shift> {
   }
 
   Future<List<TimeRegion>> loadRegions() async {
-    String _fromTime = showFromDate + ' 00:00:00';
-    String _toTime = showToDate + ' 23:59:59';
+    String fromTime = '$showFromDate 00:00:00';
+    String toTime = '$showToDate 23:59:59';
 
-    List<TimeRegion> _regions = [];
-    if (!DateTime.parse(_toTime).isBefore(DateTime.now())) {
-      _regions = await ClShift()
+    List<TimeRegion> regions = [];
+    if (!DateTime.parse(toTime).isBefore(DateTime.now())) {
+      regions = await ClShift()
           .loadActiveShiftRegions(context, selOrganId!, showFromDate);
     }
 
     //load shift_counts
-    _regions.addAll(await ClShift()
-        .loadColorShiftCountsByWeek(context, selOrganId!, _fromTime, _toTime));
-    return _regions;
+    regions.addAll(await ClShift()
+        .loadColorShiftCountsByWeek(context, selOrganId!, fromTime, toTime));
+    return regions;
   }
 
-  Future<void> changeViewCalander(DateTime _date) async {
+  Future<void> changeViewCalander(DateTime date) async {
     showFromDate = DateFormat('yyyy-MM-dd')
-        .format(_date.subtract(Duration(days: _date.weekday - 1)));
+        .format(date.subtract(Duration(days: date.weekday - 1)));
     showToDate = DateFormat('yyyy-MM-dd').format(
-        _date.add(Duration(days: DateTime.daysPerWeek - _date.weekday)));
+        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
 
     // Dialogs().loaderDialogNormal(context);
     await loadShiftData();
@@ -135,8 +135,8 @@ class _Shift extends State<Shift> {
 
   DateTime getDate(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  Future<void> loadShiftStatus(_date) async {
-    String selDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(_date);
+  Future<void> loadShiftStatus(date) async {
+    String selDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadShiftStatus, {
@@ -153,7 +153,7 @@ class _Shift extends State<Shift> {
 
       if (results['status'] == '1') {
         // if (results['admin'] == '1') {
-        actionShift(_date, results);
+        actionShift(date, results);
         // } else {
         // viewShift(selDate, results);
         // }
@@ -166,13 +166,13 @@ class _Shift extends State<Shift> {
     return;
   }
 
-  Future<void> setSubmitShift(_date) async {
+  Future<void> setSubmitShift(date) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgShiftSubmit(
             organId: selOrganId!,
-            selection: _date,
+            selection: date,
             isLock: isLock,
           );
         }).then((_) async {
@@ -182,12 +182,12 @@ class _Shift extends State<Shift> {
     });
   }
 
-  Future<void> actionShift(_date, params) async {
+  Future<void> actionShift(date, params) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgActionShift(
-            selectDate: DateFormat('yyyy-MM-dd').format(_date),
+            selectDate: DateFormat('yyyy-MM-dd').format(date),
             param: params,
           );
         }).then((_) async {
@@ -234,7 +234,7 @@ class _Shift extends State<Shift> {
   Future<void> pushShiftManage() async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) {
       return ShiftManager(
-        initOrgan: this.selOrganId!,
+        initOrgan: selOrganId!,
         initDate: selectedDate,
       );
     }));
@@ -384,8 +384,8 @@ class _Shift extends State<Shift> {
           value: selOrganId,
           items: [
             ...organList.map((e) => DropdownMenuItem(
-                  child: Text(e.organName),
                   value: e.organId,
+                  child: Text(e.organName),
                 ))
           ],
           tapFunc: (v) async {
@@ -418,7 +418,7 @@ class _Shift extends State<Shift> {
         Container(
           child: WhiteButton(
             label: '標準設定適用', // Apply Standard Settings
-            tapFunc: DateTime.parse(showToDate + ' 23:59:59')
+            tapFunc: DateTime.parse('$showToDate 23:59:59')
                     .isBefore(DateTime.now())
                 ? null
                 : () => resetToInit(),
@@ -494,7 +494,7 @@ class _Shift extends State<Shift> {
       specialRegions: regions,
       dataSource: _AppointmentDataSource(appointments),
       onLongPress: (d) =>
-          (DateTime.parse(showToDate + ' 23:59:59').isBefore(DateTime.now()))
+          (DateTime.parse('$showToDate 23:59:59').isBefore(DateTime.now()))
               ? null
               : setSubmitShift(d.date),
       onViewChanged: (d) => changeViewCalander(d.visibleDates[1]),

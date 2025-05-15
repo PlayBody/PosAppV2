@@ -22,7 +22,7 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 
 class StaffPoint extends StatefulWidget {
   final String staffId;
-  const StaffPoint({required this.staffId, Key? key}) : super(key: key);
+  const StaffPoint({required this.staffId, super.key});
 
   @override
   _StaffPoint createState() => _StaffPoint();
@@ -65,13 +65,13 @@ class _StaffPoint extends State<StaffPoint> {
   Future<List> loadPointData() async {
     if (selOrgan == null) {
       organs = await ClOrgan().loadOrganList(context, '', widget.staffId);
-      if (organs.length > 0) selOrgan = organs.first.organId;
+      if (organs.isNotEmpty) selOrgan = organs.first.organId;
     }
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadStaffPointUrl, {
       'staff_id': widget.staffId,
-      'organ_id': selOrgan == null ? '' : selOrgan,
+      'organ_id': selOrgan ?? '',
       'setting_year': selYear,
       'setting_month': selMonth
     }).then((v) => results = v);
@@ -241,7 +241,7 @@ class _StaffPoint extends State<StaffPoint> {
     }
 
     selMonth =
-        tmpMonth < 10 ? ('0' + tmpMonth.toString()) : tmpMonth.toString();
+        tmpMonth < 10 ? ('0$tmpMonth') : tmpMonth.toString();
     selYear = tmpYear.toString();
 
     setState(() {});

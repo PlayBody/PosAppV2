@@ -26,7 +26,7 @@ var txtTableAmountController = TextEditingController();
 
 class CategoryList extends StatefulWidget {
   final String? organId;
-  const CategoryList({this.organId, Key? key}) : super(key: key);
+  const CategoryList({this.organId, super.key});
 
   @override
   _CategoryList createState() => _CategoryList();
@@ -52,7 +52,7 @@ class _CategoryList extends State<CategoryList> {
 
   Future<List<CategoryModel>> loadInitData() async {
     companyList = await ClCompany().loadCompanyList(context);
-    if (selCompanyId == null) selCompanyId = companyList.first.companyId;
+    selCompanyId ??= companyList.first.companyId;
 
     if (globals.auth < constAuthSystem) selCompanyId = globals.companyId;
 
@@ -88,13 +88,13 @@ class _CategoryList extends State<CategoryList> {
     refreshLoad();
   }
 
-  void onOrganChange(String? _organId) {
-    selOrganId = _organId;
+  void onOrganChange(String? organId) {
+    selOrganId = organId;
     refreshLoad();
   }
 
-  void onCompanyChange(String _companyId) {
-    selCompanyId = _companyId;
+  void onCompanyChange(String companyId) {
+    selCompanyId = companyId;
     selOrganId = null;
     refreshLoad();
   }
@@ -139,7 +139,8 @@ class _CategoryList extends State<CategoryList> {
           value: selCompanyId,
           items: [
             ...companyList.map((e) => DropdownMenuItem(
-                child: Text(e.companyName), value: e.companyId))
+                value: e.companyId,
+                child: Text(e.companyName)))
           ],
           tapFunc: (v) => onCompanyChange(v.toString())),
     );

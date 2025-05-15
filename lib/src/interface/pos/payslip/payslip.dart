@@ -16,7 +16,7 @@ import 'package:open_file_safe_plus/open_file_safe_plus.dart';
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 
 class PaySlip extends StatefulWidget {
-  const PaySlip({Key? key}) : super(key: key);
+  const PaySlip({super.key});
 
   @override
   State<PaySlip> createState() => _PaySlip();

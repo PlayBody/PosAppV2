@@ -29,7 +29,7 @@ import 'components/styles.dart';
 import 'pos/accounting/tables.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   State<Home> createState() => _Home();

@@ -18,8 +18,7 @@ class SettingOrganTime extends StatefulWidget {
   final String selOrganId;
   final String type;
   const SettingOrganTime(
-      {required this.selOrganId, required this.type, Key? key})
-      : super(key: key);
+      {required this.selOrganId, required this.type, super.key});
 
   @override
   _SettingOrganTime createState() => _SettingOrganTime();
@@ -73,7 +72,7 @@ class _SettingOrganTime extends State<SettingOrganTime> {
         context: context,
         builder: (BuildContext context) {
           return DlgOrganTime(
-            timeId: item == null ? null : item.id,
+            timeId: item?.id,
             organId: widget.selOrganId,
             weekday: item == null ? weekday : item.weekday,
             startTime: item == null ? '00:00' : item.fromTime,
@@ -90,7 +89,7 @@ class _SettingOrganTime extends State<SettingOrganTime> {
         context: context,
         builder: (BuildContext context) {
           return DlgSpecialTime(
-            timeId: item == null ? null : item.id,
+            timeId: item?.id,
             organId: widget.selOrganId,
             startTime: item == null ? '00:00' : item.fromTime,
             endTime: item == null ? '24:00' : item.toTime,
@@ -106,7 +105,7 @@ class _SettingOrganTime extends State<SettingOrganTime> {
         context: context,
         builder: (BuildContext context) {
           return DlgSpecialTime(
-            timeId: item == null ? null : item.id,
+            timeId: item?.id,
             organId: widget.selOrganId,
             startTime: item == null ? '00:00' : item.fromTime,
             endTime: item == null ? '24:00' : item.toTime,
@@ -149,7 +148,7 @@ class _SettingOrganTime extends State<SettingOrganTime> {
                 label: widget.type == 'bussiness' ? '店舗営業時間' : '勤務可能時間'),
             for (int i = 1; i <= 7; i++)
               _getWeekDayTime(
-                  weekAry[i - 1].toString() + '曜日',
+                  '${weekAry[i - 1]}曜日',
                   i.toString(),
                   organTimes
                       .where((element) => element.weekday == i.toString())),

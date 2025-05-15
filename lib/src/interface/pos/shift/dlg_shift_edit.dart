@@ -22,11 +22,11 @@ class DlgShiftEdit extends StatefulWidget {
   final bool isLock;
 
   const DlgShiftEdit({
-    Key? key,
+    super.key,
     required this.selection,
     required this.organId,
     required this.isLock,
-  }) : super(key: key);
+  });
 
   @override
   State<DlgShiftEdit> createState() => _DlgShiftEdit();
@@ -152,7 +152,9 @@ class _DlgShiftEdit extends State<DlgShiftEdit> {
     if (widget.isLock) return false;
     if (oldType == constShiftRequest ||
         oldType == constShiftMeReply ||
-        oldType == constShiftMeReject) return false;
+        oldType == constShiftMeReject) {
+      return false;
+    }
     // if (shiftType == constShiftApply) return false;
     if (shiftType == constShiftRequest) return false;
     if (shiftType == constShiftMeReply) return false;
@@ -171,7 +173,9 @@ class _DlgShiftEdit extends State<DlgShiftEdit> {
   bool isShowSubmitType() {
     if (oldType == constShiftRequest ||
         oldType == constShiftMeReply ||
-        oldType == constShiftMeReject) return false;
+        oldType == constShiftMeReject) {
+      return false;
+    }
     // if (widget.isLock) return false;
     if (shiftType == constShiftSubmit) return true;
     if (shiftType == constShiftApply) return true;

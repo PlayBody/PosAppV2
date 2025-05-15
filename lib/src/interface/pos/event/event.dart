@@ -14,7 +14,7 @@ import 'package:staff_pos_app/src/common/const.dart';
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 
 class Event extends StatefulWidget {
-  const Event({Key? key}) : super(key: key);
+  const Event({super.key});
 
   @override
   _Event createState() => _Event();
@@ -51,8 +51,8 @@ class _Event extends State<Event> {
 
   Future<List> loadEventData() async {
     selectedDate = DateTime.now();
-    String vFromDateTime = _fromDate + ' 00:00:00';
-    String vToDateTime = _toDate + ' 23:59:59';
+    String vFromDateTime = '$_fromDate 00:00:00';
+    String vToDateTime = '$_toDate 23:59:59';
 
     appointments = [];
     appointments = await ClEvent().loadEvents(context, {
@@ -72,11 +72,11 @@ class _Event extends State<Event> {
     return [];
   }
 
-  Future<void> changeViewCalander(DateTime _date) async {
+  Future<void> changeViewCalander(DateTime date) async {
     _fromDate = DateFormat('yyyy-MM-dd')
-        .format(_date.subtract(Duration(days: _date.weekday - 1)));
+        .format(date.subtract(Duration(days: date.weekday - 1)));
     _toDate = DateFormat('yyyy-MM-dd').format(
-        _date.add(Duration(days: DateTime.daysPerWeek - _date.weekday)));
+        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
 
     await refreshLoad();
   }
@@ -89,11 +89,11 @@ class _Event extends State<Event> {
     Navigator.pop(context);
   }
 
-  Future<void> addEvent(_date, eventId) async {
+  Future<void> addEvent(date, eventId) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return DlgAddEvent(selection: _date, eventId: eventId);
+          return DlgAddEvent(selection: date, eventId: eventId);
         }).then((_) async {
       Dialogs().loaderDialogNormal(context);
       await loadEventData();

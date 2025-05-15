@@ -23,11 +23,11 @@ class DlgSettingInitShift extends StatefulWidget {
   final String pattern;
 
   const DlgSettingInitShift({
-    Key? key,
+    super.key,
     required this.selection,
     required this.organId,
     required this.pattern,
-  }) : super(key: key);
+  });
 
   @override
   State<DlgSettingInitShift> createState() => _DlgSettingInitShift();
@@ -116,8 +116,8 @@ class _DlgSettingInitShift extends State<DlgSettingInitShift> {
     }
   }
 
-  void onSelectType(_type) {
-    shiftType = _type;
+  void onSelectType(type) {
+    shiftType = type;
     setState(() {});
   }
 

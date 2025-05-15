@@ -10,10 +10,10 @@ class DlgActionShift extends StatefulWidget {
   final dynamic param;
 
   const DlgActionShift({
-    Key? key,
+    super.key,
     required this.param,
     required this.selectDate,
-  }) : super(key: key);
+  });
 
   @override
   _DlgActionShift createState() => _DlgActionShift();

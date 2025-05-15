@@ -14,12 +14,12 @@ class DlgShiftManager extends StatefulWidget {
   final String organId;
 
   const DlgShiftManager({
-    Key? key,
+    super.key,
     required this.selection,
     required this.selectionFrom,
     required this.selectionTo,
     required this.organId,
-  }) : super(key: key);
+  });
 
   @override
   _DlgShiftManager createState() => _DlgShiftManager();
@@ -48,8 +48,9 @@ class _DlgShiftManager extends State<DlgShiftManager> {
     for (var item in results['staffs']) {
       for (var shift in globals.organShifts) {
         if (widget.selectionFrom.isBefore(DateTime.parse(shift['from_time'])) ||
-            widget.selectionTo.isAfter(DateTime.parse(shift['to_time'])))
+            widget.selectionTo.isAfter(DateTime.parse(shift['to_time']))) {
           continue;
+        }
 
         if (item['staff_id'] != shift['staff_id']) continue;
 
@@ -101,7 +102,7 @@ class _DlgShiftManager extends State<DlgShiftManager> {
         }
         // tmp.add(item);
       }
-      if (!isAdd)
+      if (!isAdd) {
         globals.organShifts.add({
           'staff_id': e.staffId,
           'shift_type': '5',
@@ -110,6 +111,7 @@ class _DlgShiftManager extends State<DlgShiftManager> {
           'to_time':
               DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.selectionTo)
         });
+      }
     } else {
       var tmp = [];
 
@@ -200,13 +202,13 @@ class _DlgShiftManager extends State<DlgShiftManager> {
                   },
                 ),
               ),
-              Container(
+              SizedBox(
                   width: 70,
                   child: Text(
                     e.staffName,
                     style: TextStyle(fontSize: 12),
                   )),
-              Container(
+              SizedBox(
                   width: 32,
                   child: Text(
                       e.fromTime == ''
@@ -214,8 +216,8 @@ class _DlgShiftManager extends State<DlgShiftManager> {
                           : Funcs()
                               .getTimeFormatHHMM(DateTime.parse(e.fromTime)),
                       style: TextStyle(fontSize: 12))),
-              Container(width: 12, child: Text('~')),
-              Container(
+              SizedBox(width: 12, child: Text('~')),
+              SizedBox(
                   width: 32,
                   child: Text(
                       e.fromTime == ''
@@ -269,8 +271,8 @@ class _DlgShiftManager extends State<DlgShiftManager> {
           // ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("閉じる", style: TextStyle(fontSize: 14)),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+            child: Text("閉じる", style: TextStyle(fontSize: 14)),
           ),
           Container(width: 24),
         ],

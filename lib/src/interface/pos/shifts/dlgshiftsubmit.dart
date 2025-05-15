@@ -21,11 +21,11 @@ class DlgShiftSubmit extends StatefulWidget {
   final bool isLock;
 
   const DlgShiftSubmit({
-    Key? key,
+    super.key,
     required this.selection,
     required this.organId,
     required this.isLock,
-  }) : super(key: key);
+  });
 
   @override
   _DlgShiftSubmit createState() => _DlgShiftSubmit();
@@ -97,12 +97,12 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
     Map<dynamic, dynamic> results = {};
     Dialogs().loaderDialogNormal(context);
     await Webservice().loadHttp(context, apiSubmitShiftStatus, {
-      'shift_id': this.shiftId == null ? '' : shiftId,
+      'shift_id': shiftId == null ? '' : shiftId,
       'staff_id': globals.staffId,
       'organ_id': widget.organId,
-      'from_time': selectDate + ' ' + fromTime,
+      'from_time': '$selectDate $fromTime',
       'to_time':
-          selectDate + ' ' + (toTime == '24:00:00' ? '23:59:59' : toTime),
+          '$selectDate ${toTime == '24:00:00' ? '23:59:59' : toTime}',
       'shift_type': shiftType.toString(),
     }).then((v) => {results = v});
     Navigator.pop(context);

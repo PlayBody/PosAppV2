@@ -29,8 +29,7 @@ import '../../../common/business/epark.dart';
 class ShiftManage extends StatefulWidget {
   final String initOrgan;
   final DateTime initDate;
-  const ShiftManage({required this.initOrgan, required this.initDate, Key? key})
-      : super(key: key);
+  const ShiftManage({required this.initOrgan, required this.initDate, super.key});
 
   @override
   State<ShiftManage> createState() => _ShiftManage();
@@ -177,14 +176,14 @@ class _ShiftManage extends State<ShiftManage> {
     return [];
   }
 
-  Future<void> onChangeCalander(DateTime _date) async {
-    String _from = DateFormat('yyyy-MM-dd')
-        .format(_date.subtract(Duration(days: _date.weekday - 1)));
-    String _to = DateFormat('yyyy-MM-dd').format(
-        _date.add(Duration(days: DateTime.daysPerWeek - _date.weekday)));
-    if (_from == showFromDate) return;
-    showFromDate = _from;
-    showToDate = _to;
+  Future<void> onChangeCalander(DateTime date) async {
+    String from = DateFormat('yyyy-MM-dd')
+        .format(date.subtract(Duration(days: date.weekday - 1)));
+    String to = DateFormat('yyyy-MM-dd').format(
+        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+    if (from == showFromDate) return;
+    showFromDate = from;
+    showToDate = to;
 
     refreshLoad();
   }
@@ -344,10 +343,10 @@ class _ShiftManage extends State<ShiftManage> {
     // }
   }
 
-  Future<void> lockUpdate(bool _isLock) async {
+  Future<void> lockUpdate(bool isLock) async {
     Dialogs().loaderDialogNormal(context);
     bool isUpdate = await ClShift().updateShiftLock(
-        context, selOrganId!, showFromDate, showToDate, _isLock);
+        context, selOrganId!, showFromDate, showToDate, isLock);
     Navigator.pop(context);
 
     if (!isUpdate) {
@@ -411,7 +410,8 @@ class _ShiftManage extends State<ShiftManage> {
                 value: selOrganId,
                 items: [
                   ...organList.map((e) => DropdownMenuItem(
-                      child: Text(e.organName), value: e.organId))
+                      value: e.organId,
+                      child: Text(e.organName)))
                 ],
                 tapFunc: (v) => onChangeOrgan(v))),
         PopupMenuButton(

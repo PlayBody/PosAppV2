@@ -18,7 +18,7 @@ import 'package:staff_pos_app/src/common/globals.dart' as globals;
 import 'dlgsettinginitshift.dart';
 
 class SettingShiftInit extends StatefulWidget {
-  const SettingShiftInit({Key? key}) : super(key: key);
+  const SettingShiftInit({super.key});
 
   @override
   State<SettingShiftInit> createState() => _SettingShiftInit();
@@ -50,9 +50,7 @@ class _SettingShiftInit extends State<SettingShiftInit> {
 
     selOrganId ??= globals.workOrganId;
 
-    if (selOrganId == null) {
-      selOrganId = organList.first.organId;
-    }
+    selOrganId ??= organList.first.organId;
 
     List<InitShiftModel> shifts = await ClShift().loadInitShifts(context, {
       'organ_id': selOrganId,
@@ -78,13 +76,13 @@ class _SettingShiftInit extends State<SettingShiftInit> {
     return [];
   }
 
-  Future<void> setInitShift(_date) async {
+  Future<void> setInitShift(date) async {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgSettingInitShift(
             organId: selOrganId!,
-            selection: _date,
+            selection: date,
             pattern: pattern,
           );
         }).then((_) {
@@ -130,7 +128,8 @@ class _SettingShiftInit extends State<SettingShiftInit> {
               value: selOrganId,
               items: [
                 ...organList.map((e) => DropdownMenuItem(
-                    child: Text(e.organName), value: e.organId))
+                    value: e.organId,
+                    child: Text(e.organName)))
               ],
               tapFunc: (v) async {
                 selOrganId = v!.toString();

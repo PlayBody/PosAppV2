@@ -22,7 +22,7 @@ import 'package:staff_pos_app/src/common/const.dart';
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 
 class ShiftFrame extends StatefulWidget {
-  const ShiftFrame({Key? key}) : super(key: key);
+  const ShiftFrame({super.key});
 
   @override
   State<ShiftFrame> createState() => _ShiftFrame();
@@ -225,7 +225,7 @@ class _ShiftFrame extends State<ShiftFrame> {
             value: selOrganId,
             items: [
               ...organList.map((e) =>
-                  DropdownMenuItem(child: Text(e.organName), value: e.organId))
+                  DropdownMenuItem(value: e.organId, child: Text(e.organName)))
             ],
             tapFunc: (v) {
               selOrganId = v!.toString();

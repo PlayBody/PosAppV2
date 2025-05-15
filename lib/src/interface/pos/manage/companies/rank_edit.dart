@@ -21,8 +21,7 @@ class RankEdit extends StatefulWidget {
   final String companyId;
   final String? rankId;
 
-  const RankEdit({required this.companyId, this.rankId, Key? key})
-      : super(key: key);
+  const RankEdit({required this.companyId, this.rankId, super.key});
 
   @override
   State<RankEdit> createState() => _RankEdit();

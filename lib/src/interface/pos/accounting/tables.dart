@@ -11,7 +11,7 @@ import 'package:staff_pos_app/src/model/order_model.dart';
 import '../../../common/globals.dart' as globals;
 
 class Tables extends StatefulWidget {
-  const Tables({Key? key}) : super(key: key);
+  const Tables({super.key});
 
   @override
   _Tables createState() => _Tables();
@@ -93,12 +93,12 @@ class _Tables extends State<Tables> {
     loadTables();
   }
 
-  Future<void> updateTitle(String _title, position) async {
+  Future<void> updateTitle(String title, position) async {
     Navigator.of(context).pop();
-    if (_title == '') return;
+    if (title == '') return;
 
     bool isUpdate = await ClOrder()
-        .updateTableTitle(context, globals.organId, position, _title);
+        .updateTableTitle(context, globals.organId, position, title);
     if (isUpdate) {
       loadTables();
     } else {
@@ -107,10 +107,10 @@ class _Tables extends State<Tables> {
   }
 
   void titleChangeDialog(String txtInputTitle, String position) {
-    final _controller = TextEditingController();
+    final controller = TextEditingController();
 
-    _controller.text = txtInputTitle;
-    _controller.selection = TextSelection(
+    controller.text = txtInputTitle;
+    controller.selection = TextSelection(
       baseOffset: 0,
       extentOffset: txtInputTitle.length,
     );
@@ -124,7 +124,7 @@ class _Tables extends State<Tables> {
           // onChanged: (v) {
           //   titleNew = v;
           // },
-          controller: _controller,
+          controller: controller,
           decoration: InputDecoration(
             hintText: hintInputTitle,
           ),
@@ -132,7 +132,7 @@ class _Tables extends State<Tables> {
         actions: [
           TextButton(
             child: const Text('変更'),
-            onPressed: () => {updateTitle(_controller.text, position)},
+            onPressed: () => {updateTitle(controller.text, position)},
           ),
           TextButton(
             child: const Text('キャンセル'),
@@ -252,6 +252,20 @@ class _Tables extends State<Tables> {
   Widget _getTableItemButton(OrderModel item) {
     return ElevatedButton(
         onPressed: () => pushTableDetail(item.orderId, item.seatno),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0)),
+          elevation: 0,
+          backgroundColor: Colors.white.withOpacity(0.8),
+          foregroundColor: (item.status == constOrderStatusTableStart ||
+                  item.status == constOrderStatusTableEnd)
+              ? Color.fromRGBO(255, 137, 155, 1)
+              : (item.status == constOrderStatusReserveApply
+                  ? Color(0xFF00856a)
+                  : Color.fromRGBO(24, 100, 123, 1)),
+          textStyle: TextStyle(
+              color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+        ),
         child: Column(children: [
           Expanded(child: Container()),
           Container(
@@ -274,21 +288,7 @@ class _Tables extends State<Tables> {
                           TextStyle(fontSize: globals.isWideScreen ? 24 : 14)),
               ])),
           Expanded(child: Container()),
-        ]),
-        style: ElevatedButton.styleFrom(
-          shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(15.0)),
-          elevation: 0,
-          backgroundColor: Colors.white.withOpacity(0.8),
-          foregroundColor: (item.status == constOrderStatusTableStart ||
-                  item.status == constOrderStatusTableEnd)
-              ? Color.fromRGBO(255, 137, 155, 1)
-              : (item.status == constOrderStatusReserveApply
-                  ? Color(0xFF00856a)
-                  : Color.fromRGBO(24, 100, 123, 1)),
-          textStyle: TextStyle(
-              color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-        ));
+        ]));
   }
 
   Widget _getItemPlusMark(OrderModel item) {

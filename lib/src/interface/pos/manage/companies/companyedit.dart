@@ -20,7 +20,7 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 
 class CompanyEdit extends StatefulWidget {
   final String? selComapnyId;
-  const CompanyEdit({this.selComapnyId, Key? key}) : super(key: key);
+  const CompanyEdit({this.selComapnyId, super.key});
 
   @override
   _CompanyEdit createState() => _CompanyEdit();
@@ -53,14 +53,14 @@ class _CompanyEdit extends State<CompanyEdit> {
   }
 
   Future<List> loadFormInit() async {
-    if (this.editComapnyId == null) {
+    if (editComapnyId == null) {
       cVisible = "1";
       return [];
     }
 
     CompanyModel company = await ClCompany().loadCompanyInfo(
       context,
-      this.editComapnyId!,
+      editComapnyId!,
     );
     txtTitleController.text = company.companyName;
     txtDomainController.text = company.companyDomain;
@@ -68,7 +68,7 @@ class _CompanyEdit extends State<CompanyEdit> {
     txtReceiptNumController.text = company.companyReceiptNumber;
     cVisible = company.visible;
 
-    sites = await ClCompany().loadCompanySites(context, this.editComapnyId!);
+    sites = await ClCompany().loadCompanySites(context, editComapnyId!);
     return [];
   }
 
@@ -102,7 +102,7 @@ class _CompanyEdit extends State<CompanyEdit> {
     Map<dynamic, dynamic> results = {};
     await Webservice()
         .loadHttp(context, apiSaveCompanyData, {
-          'company_id': this.editComapnyId == null ? '' : this.editComapnyId,
+          'company_id': this.editComapnyId ?? '',
           'company_name': txtTitleController.text,
           'company_domain': txtDomainController.text,
           'ec_site_url': txtUrlController.text,
@@ -112,7 +112,7 @@ class _CompanyEdit extends State<CompanyEdit> {
 
     if (results['isSave']) {
       setState(() {
-        this.editComapnyId = results['company_id'].toString();
+        editComapnyId = results['company_id'].toString();
       });
       Dialogs().infoDialog(context, successUpdateAction);
     } else {
@@ -121,7 +121,7 @@ class _CompanyEdit extends State<CompanyEdit> {
   }
 
   Future<void> restoreCompany() async {
-    if (this.editComapnyId == null) return;
+    if (editComapnyId == null) return;
     bool conf = await Dialogs().confirmDialog(context, '使用を回復しますか？');
 
     if (!conf) return;
@@ -145,7 +145,7 @@ class _CompanyEdit extends State<CompanyEdit> {
   }
 
   Future<void> deleteCompany() async {
-    if (this.editComapnyId == null) return;
+    if (editComapnyId == null) return;
     bool conf = await Dialogs().confirmDialog(context, '使用を中止しますか？');
 
     if (!conf) return;
@@ -165,15 +165,15 @@ class _CompanyEdit extends State<CompanyEdit> {
     }
   }
 
-  Future<void> deleteSite(_id) async {
-    if (this.editComapnyId == null) return;
+  Future<void> deleteSite(id) async {
+    if (editComapnyId == null) return;
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
 
     Dialogs().loaderDialogNormal(context);
 
-    await ClCompany().deleteCompanySite(context, _id);
+    await ClCompany().deleteCompanySite(context, id);
     setState(() {
       loadData = loadFormInit();
     });
@@ -181,12 +181,12 @@ class _CompanyEdit extends State<CompanyEdit> {
   }
 
   Future<void> showSiteEdit() async {
-    if (this.editComapnyId == null) return;
+    if (editComapnyId == null) return;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DlgCompanySites(companyId: this.editComapnyId!);
+        return DlgCompanySites(companyId: editComapnyId!);
       },
     ).then((_) {
       setState(() {
@@ -276,7 +276,7 @@ class _CompanyEdit extends State<CompanyEdit> {
             _getCompanyInfo(),
             _getBottomButton(),
             if (globals.auth > constAuthOwner) PageSubHeader(label: 'サイト'),
-            if (this.editComapnyId != null && globals.auth > constAuthOwner)
+            if (editComapnyId != null && globals.auth > constAuthOwner)
               Container(
                 padding: EdgeInsets.only(top: 12),
                 width: 150,
@@ -288,7 +288,7 @@ class _CompanyEdit extends State<CompanyEdit> {
                           : () => showSiteEdit(),
                 ),
               ),
-            if (this.editComapnyId != null && globals.auth > constAuthOwner)
+            if (editComapnyId != null && globals.auth > constAuthOwner)
               ...sites.map((e) => _getSiteItemContent(e)),
           ],
         ),
@@ -301,7 +301,7 @@ class _CompanyEdit extends State<CompanyEdit> {
       padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 90,
             child: Container(
               child: Text(e.title, style: TextStyle(fontSize: 18)),

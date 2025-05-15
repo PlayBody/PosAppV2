@@ -18,10 +18,10 @@ var txtSetAmountController = TextEditingController();
 var txtTableAmountController = TextEditingController();
 
 class TicketList extends StatefulWidget {
-  const TicketList({Key? key}) : super(key: key);
+  const TicketList({super.key});
 
   @override
-  _TicketList createState() => _TicketList();
+  State<TicketList> createState() => _TicketList();
 }
 
 class _TicketList extends State<TicketList> {
@@ -102,7 +102,7 @@ class _TicketList extends State<TicketList> {
               children: [
                 Expanded(
                   child: Text(
-                    e.title + ' [' + e.name + ']',
+                    '${e.title} [${e.name}]',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),

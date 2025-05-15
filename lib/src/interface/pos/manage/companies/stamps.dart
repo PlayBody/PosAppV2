@@ -22,7 +22,7 @@ var txtTableAmountController = TextEditingController();
 
 class Stamps extends StatefulWidget {
   final String companyId;
-  const Stamps({required this.companyId, Key? key}) : super(key: key);
+  const Stamps({required this.companyId, super.key});
 
   @override
   State<Stamps> createState() => _Stamps();
@@ -57,14 +57,14 @@ class _Stamps extends State<Stamps> {
     return companyList;
   }
 
-  Future<void> deleteOrgan(_id) async {
+  Future<void> deleteOrgan(id) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiDeleteOrganUrl,
-        {'organ_id': _id}).then((v) => {results = v});
+        {'organ_id': id}).then((v) => {results = v});
     if (!results['isDelete']) {
       Dialogs().infoDialog(context, errServerActionFail);
     }
@@ -165,12 +165,12 @@ class _Stamps extends State<Stamps> {
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: Row(
                         children: [
-                          Container(child: Text('特典１'), width: 60),
-                          Container(child: Text('スタンプ数'), width: 80),
+                          SizedBox(width: 60, child: Text('特典１')),
+                          SizedBox(width: 80, child: Text('スタンプ数')),
                           Container(
                               alignment: Alignment.centerRight,
-                              child: Text(e.stampCount.toString()),
-                              width: 30),
+                              width: 30,
+                              child: Text(e.stampCount.toString())),
                           SizedBox(width: 16),
                           Expanded(
                               child: Text(

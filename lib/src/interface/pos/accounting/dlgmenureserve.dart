@@ -22,8 +22,7 @@ class DlgMenuReserve extends StatefulWidget {
       {required this.item,
       required this.userId,
       required this.variationList,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _DlgMenuReserve createState() => _DlgMenuReserve();
@@ -60,13 +59,13 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
 
     int ticketSumAmount = 0;
     dynamic inuseTickets = {};
-    userTickets.forEach((element) {
+    for (var element in userTickets) {
       if (element.usecount != null) {
         ticketSumAmount +=
             int.parse(element.price02) * int.parse(element.usecount!);
         inuseTickets[element.ticketId] = element.usecount;
       }
-    });
+    }
 
     if ((int.parse(widget.item.menuPrice) * int.parse(selQuantity)) <
        ticketSumAmount) {
@@ -81,7 +80,7 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
             menuTitle: widget.item.menuTitle +
                 (selVariation == null
                     ? ''
-                    : (' (' + selVariation!.variationTitle + ')')),
+                    : (' (${selVariation!.variationTitle})')),
             quantity: selQuantity,
             menuPrice: selVariation == null
                 ? widget.item.menuPrice
@@ -89,7 +88,7 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
             menuTax: widget.item.menuTax,
             menuId: widget.item.menuId,
             variationId:
-                selVariation == null ? null : selVariation!.variationId,
+                selVariation?.variationId,
             useTickets: inuseTickets));
     Navigator.of(context).pop();
   }
@@ -101,7 +100,7 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           PosDlgHeaderText(label: qMenuReserve),
-          if (errMsgs.length > 0)
+          if (errMsgs.isNotEmpty)
             Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,14 +113,14 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
                 ],
               ),
             ),
-          if (widget.variationList.length > 0)
+          if (widget.variationList.isNotEmpty)
             Container(
               child: DropDownModelSelect(
                 hint: warningSelectMenuVariation,
                 items: [
                   ...widget.variationList.map((e) => DropdownMenuItem(
-                        child: Text(e.variationTitle),
                         value: e,
+                        child: Text(e.variationTitle),
                       ))
                 ],
                 tapFunc: (v) {
@@ -148,7 +147,7 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
                   Flexible(
                       child: DropDownNumberSelect(
                     value: e.usecount,
-                    hint: e.title + 'の利用枚数',
+                    hint: '${e.title}の利用枚数',
                     max: e.count == null ? 0 : int.parse(e.count!),
                     tapFunc: (String? v) {
                       e.usecount = v;

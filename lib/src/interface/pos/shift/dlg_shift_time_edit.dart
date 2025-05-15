@@ -27,7 +27,7 @@ class DlgShiftTimeEdit extends StatefulWidget {
   final String shiftType;
 
   const DlgShiftTimeEdit(
-      {Key? key,
+      {super.key,
       required this.shiftId,
       required this.selectDate,
       required this.fromTime,
@@ -35,8 +35,7 @@ class DlgShiftTimeEdit extends StatefulWidget {
       required this.uniqueId,
       required this.staffId,
       required this.organId,
-      required this.shiftType})
-      : super(key: key);
+      required this.shiftType});
 
   @override
   State<DlgShiftTimeEdit> createState() => _DlgShiftTimeEdit();
@@ -88,9 +87,9 @@ class _DlgShiftTimeEdit extends State<DlgShiftTimeEdit> {
 
   Future<void> saveShiftTime() async {
     DateTime fromDateTime =
-        DateTime.parse('${widget.selectDate} ' + selectedFromTime);
+        DateTime.parse('${widget.selectDate} $selectedFromTime');
     DateTime toDateTime =
-        DateTime.parse('${widget.selectDate} ' + selectedToTime);
+        DateTime.parse('${widget.selectDate} $selectedToTime');
     if (fromDateTime.compareTo(toDateTime) >= 0) {
       Fluttertoast.showToast(msg: '開始時間は完了時間を超えることはできません。');
       return;

@@ -35,8 +35,7 @@ class MenuVariation extends StatefulWidget {
       this.variationPrice,
       this.variationStaff,
       this.variationAmount,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _MenuVariation createState() => _MenuVariation();
@@ -74,20 +73,20 @@ class _MenuVariation extends State<MenuVariation> {
 
   Future<List> loadVariationData() async {
     _items = [];
-    widget.vStaffList.forEach((element) {
+    for (var element in widget.vStaffList) {
       //print(element.toJson());
       _items.add(element.toJson());
-    });
+    }
     print(_items);
     // _items = widget.vStaffList
     //     .map((e) => MultiSelectItem<VariationBackStaffModel>(e, e.backName))
     //     .toList();
     selStaff = [];
     if (widget.variationStaff != null) {
-      widget.variationStaff!.forEach((element) {
+      for (var element in widget.variationStaff!) {
         selStaff.add(element.backId);
         backStaffs.add(element.backId);
-      });
+      }
     }
     setState(() {});
     return [];
@@ -111,12 +110,12 @@ class _MenuVariation extends State<MenuVariation> {
     Map<dynamic, dynamic> results = {};
     print(jsonEncode(backStaffs));
     await Webservice().loadHttp(context, apiSaveMenuVariationUrl, {
-      'variation_id': widget.variationId == null ? '' : widget.variationId,
+      'variation_id': widget.variationId ?? '',
       'menu_id': widget.menuId,
       'title': title,
       'price': price,
       'staff_type': 'staff',
-      'staff': backStaffs.length < 1 ? '' : jsonEncode(backStaffs),
+      'staff': backStaffs.isEmpty ? '' : jsonEncode(backStaffs),
       'amount': amount
     }).then((v) => results = v);
 
@@ -183,7 +182,7 @@ class _MenuVariation extends State<MenuVariation> {
         padding: EdgeInsets.only(bottom: 15),
         child: Row(
           children: <Widget>[
-            Container(
+            SizedBox(
               width: 100,
               child: Text('バリエーション名', style: TextStyle(fontSize: 12)),
             ),
@@ -203,7 +202,7 @@ class _MenuVariation extends State<MenuVariation> {
         padding: EdgeInsets.only(bottom: 15),
         child: Row(
           children: <Widget>[
-            Container(
+            SizedBox(
               width: 100,
               child: Text('税抜価格', style: TextStyle(fontSize: 12)),
             ),
@@ -224,7 +223,7 @@ class _MenuVariation extends State<MenuVariation> {
         padding: EdgeInsets.only(bottom: 15),
         child: Row(
           children: <Widget>[
-            Container(
+            SizedBox(
               width: 100,
               child: Text('バックスタッフ', style: TextStyle(fontSize: 12)),
             ),
@@ -298,13 +297,13 @@ class _MenuVariation extends State<MenuVariation> {
         padding: EdgeInsets.only(bottom: 15),
         child: Row(
           children: <Widget>[
-            Container(
+            SizedBox(
               width: 100,
               child: Text('バック金額', style: TextStyle(fontSize: 12)),
             ),
             Flexible(
               child: TextFormField(
-                readOnly: backStaffs.length < 1 ? true : false,
+                readOnly: backStaffs.isEmpty ? true : false,
                 keyboardType: TextInputType.number,
                 controller: txtBackAmountController,
                 decoration: txtDecoration,
@@ -327,11 +326,11 @@ class _MenuVariation extends State<MenuVariation> {
           Container(width: 12),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("いいえ", style: TextStyle(fontSize: 14)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.grey,
               textStyle: TextStyle(fontSize: 14),
             ),
+            child: Text("いいえ", style: TextStyle(fontSize: 14)),
           ),
         ],
       ),

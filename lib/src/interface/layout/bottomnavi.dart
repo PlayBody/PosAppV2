@@ -176,7 +176,7 @@ class BottomNavItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Image(
-                image: this.icon,
+                image: icon,
                 color: Color.fromARGB(255, 29, 72, 116),
                 width: 24,
                 // size: globals.isWideScreen

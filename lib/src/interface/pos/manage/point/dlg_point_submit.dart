@@ -14,8 +14,7 @@ class DlgPointSubmit extends StatefulWidget {
   final String organId;
   final String pointDate;
   const DlgPointSubmit(
-      {required this.organId, required this.pointDate, Key? key})
-      : super(key: key);
+      {required this.organId, required this.pointDate, super.key});
 
   @override
   _DlgPointSubmit createState() => _DlgPointSubmit();

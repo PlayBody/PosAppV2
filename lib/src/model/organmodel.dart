@@ -160,7 +160,7 @@ class OrganModel {
         pointEntering3: json['entering_3_point'],
         pointEntering4: json['entering_4_point'],
         pointEntering5: json['entering_5_point'],
-        serviceTax: json['service_tax'] == null ? null : json['service_tax'].toString(),
+        serviceTax: json['service_tax']?.toString(),
         isServiceTax: json['is_service_tax'] == null ? '0' : json['is_service_tax'].toString(),
         isRoundAmount: json['is_round_amount'] == null ? '0' : json['is_round_amount'].toString(),
         eparkId: json['epark_id'] ?? '',

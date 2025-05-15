@@ -32,7 +32,7 @@ import 'package:staff_pos_app/src/model/organspecialtimemodel.dart';
 
 class OrganSetting extends StatefulWidget {
   final String? organId;
-  const OrganSetting({this.organId, Key? key}) : super(key: key);
+  const OrganSetting({this.organId, super.key});
 
   @override
   _OrganSetting createState() => _OrganSetting();
@@ -127,7 +127,7 @@ class _OrganSetting extends State<OrganSetting> {
     companies = await ClCompany().loadCompanyList(context);
     // organList = [];
     organList = await ClOrgan().loadOrganList(context, '', globals.staffId);
-    if (selOrganId == null) selOrganId = organList.first.organId;
+    selOrganId ??= organList.first.organId;
 
     OrganModel organ = await ClOrgan().loadOrganInfo(context, selOrganId!);
     organTitle = organ.organName;
@@ -213,28 +213,24 @@ class _OrganSetting extends State<OrganSetting> {
 
     String imagename = '';
     if (uploadPrintLogoUrl != null) {
-      imagename = 'print-logo-' +
-          DateTime.now()
+      imagename = 'print-logo-${DateTime.now()
               .toString()
               .replaceAll(':', '')
               .replaceAll('-', '')
               .replaceAll('.', '')
-              .replaceAll(' ', '') +
-          '.png';
+              .replaceAll(' ', '')}.png';
       await Webservice().callHttpMultiPart(
           'picture', apiUploadPrintLogoUrl, uploadPrintLogoUrl!, imagename);
     }
 
     String organImageName = '';
     if (isPhoto) {
-      organImageName = 'organs-' +
-          DateTime.now()
+      organImageName = 'organs-${DateTime.now()
               .toString()
               .replaceAll(':', '')
               .replaceAll('-', '')
               .replaceAll('.', '')
-              .replaceAll(' ', '') +
-          '.jpg';
+              .replaceAll(' ', '')}.jpg';
       await Webservice().callHttpMultiPart(
           'picture', apiUploadOrganPhoto, _photoFile.path, organImageName);
     }
@@ -243,7 +239,7 @@ class _OrganSetting extends State<OrganSetting> {
 
     await Webservice().loadHttp(context, apiSaveSettingUrl, {
       'organ_id': selOrganId,
-      'table_count': selTableCount == null ? '' : selTableCount,
+      'table_count': selTableCount ?? '',
       'set_number': selSetNumber,
       'is_use_set': isUseSet ? '1' : '0',
       'is_no_reserve': checkInType,
@@ -311,10 +307,10 @@ class _OrganSetting extends State<OrganSetting> {
   }
 
   Future<void> updateTitle(
-      String organId, String companyId, String _title) async {
+      String organId, String companyId, String title) async {
     Navigator.of(context).pop();
     if (organId == '' && companyId == '') return;
-    if (_title == '') return;
+    if (title == '') return;
 
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
@@ -322,7 +318,7 @@ class _OrganSetting extends State<OrganSetting> {
     await Webservice().loadHttp(context, apiUpdateOrganTitleUrl, {
       'organ_id': organId,
       'company_id': companyId,
-      'update_title': _title
+      'update_title': title
     }).then((v) => {results = v});
     if (results['isUpdate']) {
       selOrganId = results['organ_id'].toString();
@@ -370,33 +366,34 @@ class _OrganSetting extends State<OrganSetting> {
 
   void titleChangeDialog(String organId, String txtInputTitle) {
     String companyId = globals.companyId;
-    final _controller = TextEditingController();
+    final controller = TextEditingController();
 
-    _controller.text = txtInputTitle;
-    _controller.selection =
+    controller.text = txtInputTitle;
+    controller.selection =
         TextSelection(baseOffset: 0, extentOffset: txtInputTitle.length);
 
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(organId == '' ? '店舗の追加' : qChangeTitle),
-        content: Container(
+        content: SizedBox(
             height: 130,
             child: Column(
               children: [
                 if (globals.auth == constAuthSystem && organId == '')
                   DropDownModelSelect(items: [
                     ...companies.map((e) => DropdownMenuItem(
-                        child: Text(e.companyName), value: e.companyId))
+                        value: e.companyId,
+                        child: Text(e.companyName)))
                   ], tapFunc: (v) => companyId = v),
                 SizedBox(height: 16),
-                TextInputNormal(controller: _controller)
+                TextInputNormal(controller: controller)
               ],
             )),
         actions: [
           TextButton(
             child: const Text('変更'),
-            onPressed: () => updateTitle(organId, companyId, _controller.text),
+            onPressed: () => updateTitle(organId, companyId, controller.text),
           ),
           TextButton(
             child: const Text('キャンセル'),
@@ -532,8 +529,8 @@ class _OrganSetting extends State<OrganSetting> {
                   child: Text("カメラ撮る"),
                 ),
                 DropdownMenuItem(
-                  child: Text("アルバム"),
                   value: 2,
+                  child: Text("アルバム"),
                 )
               ],
               onChanged: (int? v) {
@@ -549,10 +546,10 @@ class _OrganSetting extends State<OrganSetting> {
     );
   }
 
-  _getFromPhoto(int _libType) async {
+  _getFromPhoto(int libType) async {
     XFile? image;
 
-    if (_libType == 1) {
+    if (libType == 1) {
       image = await ImagePicker().pickImage(source: ImageSource.camera);
     } else {
       image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -577,7 +574,8 @@ class _OrganSetting extends State<OrganSetting> {
               value: selOrganId,
               items: [
                 ...organList.map((e) => DropdownMenuItem(
-                    child: Text(e.organName), value: e.organId))
+                    value: e.organId,
+                    child: Text(e.organName)))
               ],
               tapFunc: (v) => onSelectOrgan(v.toString()),
             ),
@@ -714,7 +712,7 @@ class _OrganSetting extends State<OrganSetting> {
         child: Column(
       children: [
         for (int i = 1; i <= 7; i++)
-          _getWeekDayTime(weekAry[i - 1].toString() + '曜日',
+          _getWeekDayTime('${weekAry[i - 1]}曜日',
               times.where((element) => element.weekday == i.toString())),
         SizedBox(height: 12),
         if (typeString == 'bussiness')
@@ -1049,13 +1047,13 @@ class _OrganSetting extends State<OrganSetting> {
         inputType: TextInputType.number,
       ));
 
-  Widget _rowLabelInputItem(label, _controller, inputType) {
+  Widget _rowLabelInputItem(label, controller, inputType) {
     return RowLabelInput(
         label: label,
         labelPadding: 4,
         renderWidget: TextInputNormal(
           contentPadding: 12,
-          controller: _controller,
+          controller: controller,
           inputType: inputType,
         ));
   }
@@ -1099,7 +1097,7 @@ class _OrganSetting extends State<OrganSetting> {
                       : Image(
                           image: NetworkImage(apiPrintLogoUrl + printLogoUrl!)))
                   : Image.file(File(uploadPrintLogoUrl!))),
-          Container(
+          SizedBox(
             width: 150,
             child: WhiteButton(
               label: 'ロゴ画像変更',

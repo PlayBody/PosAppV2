@@ -23,8 +23,8 @@ class DlgShiftApply extends StatefulWidget {
     required this.toTime,
     required this.shiftId,
     required this.updateType,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _DlgShiftApply createState() => _DlgShiftApply();
@@ -84,12 +84,12 @@ class _DlgShiftApply extends State<DlgShiftApply> {
   }
 
   Future<void> applyRequestShift() async {
-    DateTime updateFrom = DateTime.parse(widget.selectDate + ' ' + _from);
-    DateTime updateTo = DateTime.parse(widget.selectDate + ' ' + _to);
+    DateTime updateFrom = DateTime.parse('${widget.selectDate} $_from');
+    DateTime updateTo = DateTime.parse('${widget.selectDate} $_to');
     DateTime requestFrom =
-        DateTime.parse(widget.selectDate + ' ' + widget.fromTime);
+        DateTime.parse('${widget.selectDate} ${widget.fromTime}');
     DateTime requestTo =
-        DateTime.parse(widget.selectDate + ' ' + widget.toTime);
+        DateTime.parse('${widget.selectDate} ${widget.toTime}');
 
     if (updateFrom.isBefore(requestFrom) || updateTo.isAfter(requestTo)) {
       Dialogs().infoDialog(context, '申請された時間範囲で入力してください。');
@@ -104,8 +104,8 @@ class _DlgShiftApply extends State<DlgShiftApply> {
     bool isUpdate = await ClShift().applyOrRejectRequestShift(
         context,
         widget.shiftId,
-        widget.selectDate + ' ' + _from,
-        widget.selectDate + ' ' + _to,
+        '${widget.selectDate} $_from',
+        '${widget.selectDate} $_to',
         widget.updateType);
 
     Navigator.pop(context);

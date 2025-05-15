@@ -25,6 +25,6 @@ class ShiftFrameModel {
         toTime: DateTime.parse(json['to_time']),
         count: int.parse(json['count'].toString()),
         comment: json['comment'],
-        staffId: json['staff_id'] == null ? null : json['staff_id'].toString());
+        staffId: json['staff_id']?.toString());
   }
 }

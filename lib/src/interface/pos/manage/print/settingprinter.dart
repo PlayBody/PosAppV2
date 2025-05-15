@@ -17,7 +17,7 @@ var txtSetAmountController = TextEditingController();
 var txtTableAmountController = TextEditingController();
 
 class SettingPrinter extends StatefulWidget {
-  const SettingPrinter({Key? key}) : super(key: key);
+  const SettingPrinter({super.key});
 
   @override
   _SettingPrinter createState() => _SettingPrinter();

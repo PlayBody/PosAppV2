@@ -18,8 +18,7 @@ class DlgStamp extends StatefulWidget {
   final String companyId;
   final String? rankId;
 
-  const DlgStamp({required this.companyId, this.rankId, Key? key})
-      : super(key: key);
+  const DlgStamp({required this.companyId, this.rankId, super.key});
 
   @override
   State<DlgStamp> createState() => _DlgStamp();

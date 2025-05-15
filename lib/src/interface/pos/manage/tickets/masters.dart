@@ -23,7 +23,7 @@ var txtSetAmountController = TextEditingController();
 var txtTableAmountController = TextEditingController();
 
 class Masters extends StatefulWidget {
-  const Masters({Key? key}) : super(key: key);
+  const Masters({super.key});
 
   @override
   _Masters createState() => _Masters();
@@ -78,7 +78,7 @@ class _Masters extends State<Masters> {
   Future<bool> deleteTicket(id) async {
     bool isconf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!isconf) return false;
-    String apiUrl = apiBase + '/apitickets/deleteMaster';
+    String apiUrl = '$apiBase/apitickets/deleteMaster';
     await Webservice().loadHttp(context, apiUrl, {'master_id': id});
     loadTicketData();
     return true;
@@ -127,7 +127,8 @@ class _Masters extends State<Masters> {
                             value: selCompanyId,
                             items: [
                               ...companyList.map((e) => DropdownMenuItem(
-                                  child: Text(e.companyName), value: e.companyId))
+                                  value: e.companyId,
+                                  child: Text(e.companyName)))
                             ],
                             tapFunc: (v) => onSelectCompany(v.toString()),
                           ),

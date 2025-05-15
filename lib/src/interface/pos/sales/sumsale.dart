@@ -16,7 +16,7 @@ import 'package:staff_pos_app/src/common/globals.dart' as globals;
 import 'package:staff_pos_app/src/http/webservice.dart';
 
 class SumSale extends StatefulWidget {
-  const SumSale({Key? key}) : super(key: key);
+  const SumSale({super.key});
 
   @override
   _SumSale createState() => _SumSale();
@@ -24,7 +24,7 @@ class SumSale extends StatefulWidget {
 
 class _SumSale extends State<SumSale> {
   late Future<List> loadData;
-  DateRangePickerController _datePickerController = DateRangePickerController();
+  final DateRangePickerController _datePickerController = DateRangePickerController();
   String orderAmount = '';
   // String dateYearValue = '2020';
   // String dateMonthValue = '5';
@@ -48,10 +48,10 @@ class _SumSale extends State<SumSale> {
 
   Future<List> loadSumData() async {
     organs = await ClOrgan().loadOrganList(context, '', globals.staffId);
-    if (organId == null) organId = organs.first.organId;
+    organId ??= organs.first.organId;
     if (organId == null) Navigator.pop(context);
 
-    final now = new DateTime.now();
+    final now = DateTime.now();
     _selectYear = int.parse(DateFormat('yyyy').format(now));
     _selectMonth = int.parse(DateFormat('M').format(now));
     _fromDay = 1;
@@ -186,12 +186,12 @@ class _SumSale extends State<SumSale> {
   }
 
   Future<void> pushSaleDetail(e) async {
-    String _dYear = _selectYear.toString();
-    String _dMonth = _selectMonth < 10
-        ? '0' + _selectMonth.toString()
+    String dYear = _selectYear.toString();
+    String dMonth = _selectMonth < 10
+        ? '0$_selectMonth'
         : _selectMonth.toString();
-    String _dDay = int.parse(e.day) < 10 ? '0' + e.day : e.day;
-    DateTime selectDate = DateTime.parse(_dYear + '-' + _dMonth + '-' + _dDay);
+    String dDay = int.parse(e.day) < 10 ? '0' + e.day : e.day;
+    DateTime selectDate = DateTime.parse(dYear + '-' + dMonth + '-' + dDay);
     await Navigator.push(context, MaterialPageRoute(builder: (_) {
       return SumSaleDetail(
         organId: organId,
@@ -211,7 +211,7 @@ class _SumSale extends State<SumSale> {
         value: organId,
         items: [
           ...organs.map((e) =>
-              DropdownMenuItem(child: Text(e.organName), value: e.organId))
+              DropdownMenuItem(value: e.organId, child: Text(e.organName)))
         ],
         tapFunc: (v) {
           organId = v.toString();
@@ -227,10 +227,10 @@ class _SumSale extends State<SumSale> {
       padding: EdgeInsets.only(bottom: 20),
       child: Row(children: [
         TextButton(onPressed: () => dateMove('prev'), child: Text('≪')),
-        Container(
+        SizedBox(
           width: 150,
           child: Text(
-              _selectYear.toString() + '年' + _selectMonth.toString() + '月',
+              '$_selectYear年$_selectMonth月',
               style: TextStyle(fontSize: 26),
               textAlign: TextAlign.center),
         ),
@@ -240,7 +240,7 @@ class _SumSale extends State<SumSale> {
   }
 
   Widget _getMothCalander() {
-    return Container(
+    return SizedBox(
       width: 320,
       child: SfDateRangePicker(
         selectionMode: DateRangePickerSelectionMode.range,
@@ -322,22 +322,19 @@ class _SumSale extends State<SumSale> {
           ...tableSaleData.map(
             (e) => DataRow(
               cells: [
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         2, //SET width
-                    child: Text(_selectMonth.toString() +
-                        '月' +
-                        e.day.toString() +
-                        '日'))),
-                DataCell(Container(
+                    child: Text('$_selectMonth月${e.day}日'))),
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) * 2,
                     child: Text(e.sales.toString()))),
-                DataCell(Container(
+                DataCell(SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         1.5, //SET width
                     child: Text(e.cnt.toString()))),
                 DataCell(
-                  Container(
+                  SizedBox(
                     width: ((MediaQuery.of(context).size.width - 60) / 10) *
                         2, //SET width
                     child: WhiteButton(

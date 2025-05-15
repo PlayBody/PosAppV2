@@ -17,7 +17,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 
 class ShiftImport extends StatefulWidget {
-  const ShiftImport({Key? key}) : super(key: key);
+  const ShiftImport({super.key});
 
   @override
   _ShiftImport createState() => _ShiftImport();
@@ -28,7 +28,7 @@ class _ShiftImport extends State<ShiftImport> {
 
   String selYear = DateTime.now().year.toString();
   String? selMonth = DateTime.now().month < 10
-      ? '0' + DateTime.now().month.toString()
+      ? '0${DateTime.now().month}'
       : DateTime.now().month.toString();
   String? selOrganId;
   String? fileName;
@@ -52,7 +52,7 @@ class _ShiftImport extends State<ShiftImport> {
 
   Future<List> loadSettingData() async {
     organList = await ClOrgan().loadOrganList(context, '', globals.staffId);
-    if (selOrganId == null) selOrganId = organList.first.organId;
+    selOrganId ??= organList.first.organId;
     return [];
   }
 
@@ -78,7 +78,9 @@ class _ShiftImport extends State<ShiftImport> {
     for (var table in excel.tables.keys) {
       if (table == 'コマ数原本') {
         if (excel.tables[table]!.row(0)[0] == null ||
-            excel.tables[table]!.row(0)[1] == null) continue;
+            excel.tables[table]!.row(0)[1] == null) {
+          continue;
+        }
         isShiftCountTable = true;
         isCountImport = await importCountData(excel, table);
         // for (var row in excel.tables[table]!.rows) {}
@@ -117,8 +119,8 @@ class _ShiftImport extends State<ShiftImport> {
     selYear = sheet.row(0)[0]!.value.toString();
     selMonth = sheet.row(0)[1]!.value.toString();
 
-    if (int.parse(selMonth!) < 10) selMonth = '0' + selMonth!;
-    dateMonth = selYear + '-' + selMonth!;
+    if (int.parse(selMonth!) < 10) selMonth = '0${selMonth!}';
+    dateMonth = '$selYear-${selMonth!}';
     maxDay = Funcs().getMaxDay(selYear, selMonth);
 
     int maxCol = excel.tables[table]!.row(1).length;
@@ -130,7 +132,7 @@ class _ShiftImport extends State<ShiftImport> {
       String countValue = '';
       String fromTime = '';
       String toTime = '';
-      String shiftDate = dateMonth! + '-' + dayStr;
+      String shiftDate = '${dateMonth!}-$dayStr';
 
       for (int j = 1; j < maxCol; j++) {
         String item =
@@ -138,11 +140,11 @@ class _ShiftImport extends State<ShiftImport> {
 
         if (item != countValue) {
           String hour = sheet.row(1)[j].value.toString();
-          if (int.parse(hour) < 10) hour = '0' + hour;
+          if (int.parse(hour) < 10) hour = '0$hour';
 
           if (fromTime != '') {
             toTime = DateFormat('yyyy-MM-dd HH:mm:ss')
-                .format(DateTime.parse(shiftDate + ' ' + hour + ':00:00'));
+                .format(DateTime.parse('$shiftDate $hour:00:00'));
 
             shiftCounts.add({
               'from_time': fromTime,
@@ -155,7 +157,7 @@ class _ShiftImport extends State<ShiftImport> {
             fromTime = '';
           } else {
             fromTime = DateFormat('yyyy-MM-dd HH:mm:ss')
-                .format(DateTime.parse(shiftDate + ' ' + hour + ':00:00'));
+                .format(DateTime.parse('$shiftDate $hour:00:00'));
           }
         }
       }
@@ -168,20 +170,20 @@ class _ShiftImport extends State<ShiftImport> {
           lastHourStr = '23:59:59';
         } else {
           lastHourStr =
-              (lastHour < 10 ? '0' : '') + lastHourStr.toString() + ':00:00';
+              '${lastHour < 10 ? '0' : ''}$lastHourStr:00:00';
         }
 
         shiftCounts.add({
           'from_time': fromTime,
           'to_time': DateFormat('yyyy-MM-dd HH:mm:ss')
-              .format(DateTime.parse(shiftDate + ' ' + lastHourStr)),
+              .format(DateTime.parse('$shiftDate $lastHourStr')),
           'count': countValue
         });
       }
     }
 
     bool isImport = await ClSettingShift().importShiftCount(
-        context, selYear + '-' + selMonth!, selOrganId!, shiftCounts);
+        context, '$selYear-${selMonth!}', selOrganId!, shiftCounts);
 
     return isImport;
   }
@@ -256,13 +258,14 @@ class _ShiftImport extends State<ShiftImport> {
       child: Row(
         children: [
           Expanded(child: Container()),
-          Container(
+          SizedBox(
             width: 250,
             child: DropDownModelSelect(
               value: selOrganId,
               items: [
                 ...organList.map((e) => DropdownMenuItem(
-                    child: Text(e.organName), value: e.organId))
+                    value: e.organId,
+                    child: Text(e.organName)))
               ],
               tapFunc:
                   isImportLoading ? null : (v) => selOrganId = v!.toString(),

@@ -32,7 +32,7 @@ class RankPreferModel {
     // ignore: prefer_null_aware_operators
     model.menuId = json['menu_id'] == null ? null : json['menu_id'].toString();
     model.couponId =
-        json['coupon_id'] == null ? null : json['coupon_id'].toString();
+        json['coupon_id']?.toString();
     model.prefType = json['type'];
     model.isDelete = false;
     return model;

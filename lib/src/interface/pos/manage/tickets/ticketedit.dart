@@ -35,8 +35,7 @@ import 'package:staff_pos_app/src/common/globals.dart' as globals;
 class TicketEdit extends StatefulWidget {
   final String? id;
   final String companyId;
-  const TicketEdit({this.id, required this.companyId, Key? key})
-      : super(key: key);
+  const TicketEdit({this.id, required this.companyId, super.key});
 
   @override
   _TicketEdit createState() => _TicketEdit();
@@ -96,8 +95,10 @@ class _TicketEdit extends State<TicketEdit> {
     ticket = await ClTicket().loadTicket(context, widget.id);
     if (ticket != null) {
       BuildContext cx = context;
-      List<TicketMasterModel> ts =
-          await ClTicket().loadMasterTicketById(cx, ticket!.ticketId);
+      List<TicketMasterModel> ts = await ClTicket().loadMasterTicketById(
+        cx,
+        ticket!.ticketId,
+      );
       for (TicketMasterModel tm in ts) {
         int i;
         for (i = 0; i < ticketMaster.length; i++) {
@@ -128,8 +129,10 @@ class _TicketEdit extends State<TicketEdit> {
       return [];
     }
 
-    resetPushSettings = await ClTicket()
-        .loadResetPushSettings(context, widget.id == null ? '' : widget.id);
+    resetPushSettings = await ClTicket().loadResetPushSettings(
+      context,
+      widget.id ?? '',
+    );
 
     setState(() {});
 
@@ -144,9 +147,10 @@ class _TicketEdit extends State<TicketEdit> {
       isCheck = false;
     } else {
       if (txtTitleController.text == '') {
-        txtTitleController.text = ticketMaster
-            .firstWhere((element) => element.id == ticketMasterId)
-            .ticketName;
+        txtTitleController.text =
+            ticketMaster
+                .firstWhere((element) => element.id == ticketMasterId)
+                .ticketName;
       }
       errTitle = null;
     }
@@ -195,12 +199,13 @@ class _TicketEdit extends State<TicketEdit> {
       imagename = await ClTicket().uploadTicketImage(context, _uploadFile);
     }
     bool isSave = await ClTicket().saveTicket(context, {
-      'id': widget.id == null ? '' : widget.id,
-      'company_id': widget.companyId == ''
-          ? ticketMaster
-              .firstWhere((element) => element.id == ticketMasterId)
-              .companyId
-          : widget.companyId,
+      'id': widget.id ?? '',
+      'company_id':
+          widget.companyId == ''
+              ? ticketMaster
+                  .firstWhere((element) => element.id == ticketMasterId)
+                  .companyId
+              : widget.companyId,
       'ticket_id': ticketMasterId,
       'ticket_title': txtTitleController.text,
       'ticket_detail': txtDetailController.text,
@@ -211,7 +216,7 @@ class _TicketEdit extends State<TicketEdit> {
       'disamount': txtDisamountController.text,
       'ticket_count': ticketCount!,
       'is_period': isPeriod ? '1' : '0',
-      'period_month': periodMonth == null ? '' : periodMonth
+      'period_month': periodMonth ?? '',
     });
 
     Navigator.pop(context);
@@ -238,21 +243,22 @@ class _TicketEdit extends State<TicketEdit> {
     }
   }
 
-  Future<void> deletePushSetting(String _delId) async {
+  Future<void> deletePushSetting(String delId) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
     Dialogs().loaderDialogNormal(context);
-    await ClTicket().deleteResetPushSettings(context, _delId);
+    await ClTicket().deleteResetPushSettings(context, delId);
     await loadTicketData();
     Navigator.pop(context);
   }
 
   void addTicketResetPushSetting() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgTicketResetPushSetting(ticketId: widget.id!);
-        }).then((_) {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgTicketResetPushSetting(ticketId: widget.id!);
+      },
+    ).then((_) {
       loadTicketData();
     });
   }
@@ -283,19 +289,20 @@ class _TicketEdit extends State<TicketEdit> {
   Widget build(BuildContext context) {
     globals.appTitle = 'チケット管理';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return _getBody();
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBody();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-        // By default, show a loading spinner.
-        return Center(child: CircularProgressIndicator());
-      },
-    ));
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   Widget _getBody() {
@@ -314,7 +321,7 @@ class _TicketEdit extends State<TicketEdit> {
               ),
             ),
           ),
-          _getBottomButton()
+          _getBottomButton(),
         ],
       ),
     );
@@ -330,9 +337,10 @@ class _TicketEdit extends State<TicketEdit> {
             renderWidget: Container(
               alignment: Alignment.centerLeft,
               height: 120,
-              child: (isUpload)
-                  ? Image.file(_uploadFile)
-                  : (ticket == null || ticket!.image == null)
+              child:
+                  (isUpload)
+                      ? Image.file(_uploadFile)
+                      : (ticket == null || ticket!.image == null)
                       ? Text('設定なし')
                       : Image.network(ticketImageUrl + ticket!.image!),
             ),
@@ -350,48 +358,59 @@ class _TicketEdit extends State<TicketEdit> {
           ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: 'チケット種別名', // Ticekt type name
-              renderWidget: DropDownModelSelect(
-                value: ticketMasterId,
-                items: [
-                  ...ticketMaster.map((e) => DropdownMenuItem(
-                        child: Text(e.ticketName),
-                        value: e.id,
-                      ))
-                ],
-                tapFunc: (v) {
-                  ticketMasterId = v;
-                  if (txtTitleController.text == '' ||
+            label: 'チケット種別名', // Ticekt type name
+            renderWidget: DropDownModelSelect(
+              value: ticketMasterId,
+              items: [
+                ...ticketMaster.map(
+                  (e) =>
+                      DropdownMenuItem(value: e.id, child: Text(e.ticketName)),
+                ),
+              ],
+              tapFunc: (v) {
+                ticketMasterId = v;
+                if (txtTitleController.text == '' ||
+                    ticketMaster
+                        .where(
+                          (element) =>
+                              element.ticketName == txtTitleController.text,
+                        )
+                        .isNotEmpty) {
+                  txtTitleController.text =
                       ticketMaster
-                              .where((element) =>
-                                  element.ticketName == txtTitleController.text)
-                              .length >
-                          0)
-                    txtTitleController.text = ticketMaster
-                        .firstWhere((element) => element.id == v)
-                        .ticketName;
-                  setState(() {});
-                },
-              )),
+                          .firstWhere((element) => element.id == v)
+                          .ticketName;
+                }
+                setState(() {});
+              },
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: 'チケット名',
-              renderWidget: TextInputNormal(
-                  controller: txtTitleController, errorText: errTitle)),
+            label: 'チケット名',
+            renderWidget: TextInputNormal(
+              controller: txtTitleController,
+              errorText: errTitle,
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: '説明',
-              renderWidget: TextInputNormal(
-                  multiLine: 3,
-                  controller: txtDetailController,
-                  errorText: errDetail)),
+            label: '説明',
+            renderWidget: TextInputNormal(
+              multiLine: 3,
+              controller: txtDetailController,
+              errorText: errDetail,
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: '税抜価格',
-              renderWidget: TextInputNormal(
-                  controller: txtPriceController,
-                  errorText: errPrice,
-                  inputType: TextInputType.number)),
+            label: '税抜価格',
+            renderWidget: TextInputNormal(
+              controller: txtPriceController,
+              errorText: errPrice,
+              inputType: TextInputType.number,
+            ),
+          ),
           // SizedBox(height: 8),
           // RowLabelInput(
           //     label: '原価',
@@ -408,15 +427,18 @@ class _TicketEdit extends State<TicketEdit> {
           //         inputType: TextInputType.number)),
           SizedBox(height: 8),
           RowLabelInput(
-              label: '割引金額 ',
-              renderWidget: TextInputNormal(
-                  controller: txtDisamountController,
-                  errorText: errDisAmount,
-                  inputType: TextInputType.number)),
+            label: '割引金額 ',
+            renderWidget: TextInputNormal(
+              controller: txtDisamountController,
+              errorText: errDisAmount,
+              inputType: TextInputType.number,
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: '追加枚数',
-              renderWidget: Row(children: [
+            label: '追加枚数',
+            renderWidget: Row(
+              children: [
                 Flexible(
                   child: DropDownNumberSelect(
                     value: ticketCount,
@@ -431,77 +453,87 @@ class _TicketEdit extends State<TicketEdit> {
                 SizedBox(width: 12),
                 Text('数', style: bodyTextStyle),
                 SizedBox(width: 32),
-              ])),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _getTicketSettingAdd() {
-    return Container(
-      // padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
-      child: Column(
-        children: [
-          PageSubHeader(label: 'チケット期限設定'),
-          Container(
-              padding: EdgeInsets.only(left: 40),
-              child: RowLabelInput(
-                  labelWidth: 120,
-                  label: '有効期限設定',
-                  renderWidget: Switch(
-                      value: isPeriod,
-                      onChanged: (v) {
-                        isPeriod = v;
-                        setState(() {});
-                      }))),
-          Container(
-              padding: EdgeInsets.only(left: 40),
-              child: Row(
-                children: [
-                  Text('購入月から'),
-                  Container(
-                      width: 80,
-                      child: DropDownNumberSelect(
-                          value: periodMonth,
-                          max: 25,
-                          tapFunc: isPeriod
-                              ? (v) {
-                                  periodMonth = v;
-                                  setState(() {});
-                                }
-                              : null)),
-                  Text('カ月後の月末まで'),
-                ],
-              )),
-          SizedBox(height: 12)
-        ],
-      ),
+    return Column(
+      children: [
+        PageSubHeader(label: 'チケット期限設定'),
+        Container(
+          padding: EdgeInsets.only(left: 40),
+          child: RowLabelInput(
+            labelWidth: 120,
+            label: '有効期限設定',
+            renderWidget: Switch(
+              value: isPeriod,
+              onChanged: (v) {
+                isPeriod = v;
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.only(left: 40),
+          child: Row(
+            children: [
+              Text('購入月から'),
+              SizedBox(
+                width: 80,
+                child: DropDownNumberSelect(
+                  value: periodMonth,
+                  max: 25,
+                  tapFunc:
+                      isPeriod
+                          ? (v) {
+                            periodMonth = v;
+                            setState(() {});
+                          }
+                          : null,
+                ),
+              ),
+              Text('カ月後の月末まで'),
+            ],
+          ),
+        ),
+        SizedBox(height: 12),
+      ],
     );
   }
 
   Widget _setTicketPushSettings() {
-    return Container(
-      child: Column(
-        children: [
-          PageSubHeader(label: '回数券リミット通知設定'),
-          ...resetPushSettings.map((e) => Container(
-              padding: EdgeInsets.only(left: 30, top: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.mark_as_unread),
-                  SizedBox(width: 16),
-                  Text(e.beforeDay + '日前の' + e.pushTime + '時に通知'),
-                  IconButton(
-                      splashRadius: 16,
-                      onPressed: () => deletePushSetting(e.id),
-                      icon: Icon(Icons.delete, size: 22))
-                ],
-              ))),
-          SizedBox(height: 16),
-          WhiteButton(
-              label: '通知設定の追加', tapFunc: () => addTicketResetPushSetting())
-        ],
-      ),
+    return Column(
+      children: [
+        PageSubHeader(label: '回数券リミット通知設定'),
+        ...resetPushSettings.map(
+          (e) => Container(
+            padding: EdgeInsets.only(left: 30, top: 12),
+            child: Row(
+              children: [
+                Icon(Icons.mark_as_unread),
+                SizedBox(width: 16),
+                Text('${e.beforeDay}日前の${e.pushTime}時に通知'),
+                IconButton(
+                  splashRadius: 16,
+                  onPressed: () => deletePushSetting(e.id),
+                  icon: Icon(Icons.delete, size: 22),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 16),
+        WhiteButton(
+          label: '通知設定の追加',
+          tapFunc: () => addTicketResetPushSetting(),
+        ),
+      ],
     );
   }
 
@@ -510,14 +542,12 @@ class _TicketEdit extends State<TicketEdit> {
       widgets: [
         PrimaryButton(label: '保存', tapFunc: () => saveTicketData()),
         SizedBox(width: 8),
-        CancelButton(
-          label: '戻る',
-          tapFunc: () => Navigator.pop(context),
-        ),
+        CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
         SizedBox(width: 8),
         DeleteButton(
-            label: '削除',
-            tapFunc: widget.id == null ? null : () => deleteTicket()),
+          label: '削除',
+          tapFunc: widget.id == null ? null : () => deleteTicket(),
+        ),
       ],
     );
   }

@@ -17,8 +17,7 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 
 class StaffPointSubmit extends StatefulWidget {
   final String selectStaffId;
-  const StaffPointSubmit({required this.selectStaffId, Key? key})
-      : super(key: key);
+  const StaffPointSubmit({required this.selectStaffId, super.key});
 
   @override
   State<StaffPointSubmit> createState() => _StaffPointSubmit();
@@ -49,7 +48,7 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
     if (selOrgan == null) {
       organs = await ClOrgan().loadOrganList(context, '', widget.selectStaffId);
 
-      if (organs.length > 0) {
+      if (organs.isNotEmpty) {
         selOrgan = organs.first.organId;
       }
     }
@@ -148,7 +147,7 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
     }
 
     selMonth =
-        tmpMonth < 10 ? ('0' + tmpMonth.toString()) : tmpMonth.toString();
+        tmpMonth < 10 ? ('0$tmpMonth') : tmpMonth.toString();
     selYear = tmpYear.toString();
 
     setState(() {});

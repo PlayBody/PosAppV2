@@ -27,8 +27,7 @@ class DlgSpecialTime extends StatefulWidget {
       required this.endTime,
       this.timeId,
       required this.type,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _DlgSpecialTime createState() => _DlgSpecialTime();
@@ -54,31 +53,27 @@ class _DlgSpecialTime extends State<DlgSpecialTime> {
   }
 
   void setStringTime() {
-    _startTime = (_start.toInt() < 10
+    _startTime = '${_start.toInt() < 10
             ? '0' + _start.toInt().toString()
-            : _start.toInt().toString()) +
-        ':' +
-        (((_start - _start.toInt()) * 60).toInt() < 10
+            : _start.toInt().toString()}:${((_start - _start.toInt()) * 60).toInt() < 10
             ? '0' + ((_start - _start.toInt()) * 60).toInt().toString()
-            : ((_start - _start.toInt()) * 60).toInt().toString());
+            : ((_start - _start.toInt()) * 60).toInt().toString()}';
 
-    _endTime = (_end.toInt() < 10
+    _endTime = '${_end.toInt() < 10
             ? '0' + _end.toInt().toString()
-            : _end.toInt().toString()) +
-        ':' +
-        (((_end - _end.toInt()) * 60).toInt() < 10
+            : _end.toInt().toString()}:${((_end - _end.toInt()) * 60).toInt() < 10
             ? '0' + ((_end - _end.toInt()) * 60).toInt().toString()
-            : ((_end - _end.toInt()) * 60).toInt().toString());
+            : ((_end - _end.toInt()) * 60).toInt().toString()}';
   }
 
   Future<void> saveOrganTime() async {
-    String apiUrl = apiBase + '/apiorgans/saveOrganSpecialTime';
+    String apiUrl = '$apiBase/apiorgans/saveOrganSpecialTime';
 
     if (_startTime == '24:00') _startTime = '23:59:59';
     if (_endTime == '24:00') _endTime = '23:59:59';
     String from =
-        DateFormat('yyyy-MM-dd').format(selectedDate) + ' ' + _startTime;
-    String to = DateFormat('yyyy-MM-dd').format(selectedDate) + ' ' + _endTime;
+        '${DateFormat('yyyy-MM-dd').format(selectedDate)} $_startTime';
+    String to = '${DateFormat('yyyy-MM-dd').format(selectedDate)} $_endTime';
 
     if (DateTime.parse(to).isBefore(DateTime.parse(from))) {
       Dialogs().infoDialog(context, '時間を正確に入力してください。');
@@ -99,11 +94,11 @@ class _DlgSpecialTime extends State<DlgSpecialTime> {
   }
 
   Future<void> saveShiftTime() async {
-    String apiUrl = apiBase + '/apiorgans/saveOrganSpecialShiftTime';
+    String apiUrl = '$apiBase/apiorgans/saveOrganSpecialShiftTime';
 
     String from =
-        DateFormat('yyyy-MM-dd').format(selectedDate) + ' ' + _startTime;
-    String to = DateFormat('yyyy-MM-dd').format(selectedDate) + ' ' + _endTime;
+        '${DateFormat('yyyy-MM-dd').format(selectedDate)} $_startTime';
+    String to = '${DateFormat('yyyy-MM-dd').format(selectedDate)} $_endTime';
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiUrl, {

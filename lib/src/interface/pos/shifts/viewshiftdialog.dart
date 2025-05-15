@@ -6,11 +6,11 @@ class ViewShiftDialog extends StatefulWidget {
   final dynamic param;
 
   const ViewShiftDialog({
-    Key? key,
+    super.key,
     required this.param,
     required this.txtStatus,
     required this.selectDate,
-  }) : super(key: key);
+  });
 
   @override
   _ViewShiftDialog createState() => _ViewShiftDialog();

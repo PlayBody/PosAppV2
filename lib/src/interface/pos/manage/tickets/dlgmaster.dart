@@ -20,8 +20,7 @@ class DlgMaster extends StatefulWidget {
   final String title;
   final List<CompanyModel> companyList;
   final String selCompanyId;
-  const DlgMaster({required this.masterId, required this.title, required this.companyList, required this.selCompanyId, Key? key})
-      : super(key: key);
+  const DlgMaster({required this.masterId, required this.title, required this.companyList, required this.selCompanyId, super.key});
 
   @override
   _DlgMaster createState() => _DlgMaster();
@@ -46,7 +45,7 @@ class _DlgMaster extends State<DlgMaster> {
     if (globals.auth < constAuthSystem) {
       selectedCompanyId = globals.companyId;
     }
-    String apiUrl = apiBase + '/apitickets/updateMaster';
+    String apiUrl = '$apiBase/apitickets/updateMaster';
     await Webservice().loadHttp(context, apiUrl, {
       'master_id': widget.masterId,
       'title': txtTitleController.text,
@@ -85,7 +84,8 @@ class _DlgMaster extends State<DlgMaster> {
                 value: selectedCompanyId,
                 items: [
                   ...widget.companyList.map((e) => DropdownMenuItem(
-                      child: Text(e.companyName), value: e.companyId))
+                      value: e.companyId,
+                      child: Text(e.companyName)))
                 ],
                 tapFunc: (v) => onSelectCompany(v.toString()),
               ),

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:staff_pos_app/src/common/apiendpoint.dart';
@@ -16,11 +14,10 @@ import 'package:staff_pos_app/src/model/organmodel.dart';
 
 import '../common/globals.dart' as globals;
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 class DlgAttendance extends StatefulWidget {
   final List<OrganModel> organList;
-  const DlgAttendance({required this.organList, Key? key}) : super(key: key);
+  const DlgAttendance({required this.organList, super.key});
 
   @override
   State<DlgAttendance> createState() => _DlgAttendance();
@@ -52,36 +49,36 @@ class _DlgAttendance extends State<DlgAttendance> {
     // }
   }
 
-  Future<bool?> _showAlertDialog(BuildContext context) {
-    return showCupertinoModalPopup<bool>(
-      context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-        title: const Text('このアプリは、出勤操作時に従業員の位置を確認するために位置測定権限を使用します。'),
-        actions: <CupertinoDialogAction>[
-          CupertinoDialogAction(
-            /// This parameter indicates this action is the default,
-            /// and turns the action's text to bold text.
-            isDefaultAction: true,
-            onPressed: () async {
-              Navigator.pop(context, false);
-//              await checkLocaionAndAttendance();
-            },
-            child: const Text('Deny'),
-          ),
-          CupertinoDialogAction(
-            /// This parameter indicates the action would perform
-            /// a destructive action such as deletion, and turns
-            /// the action's text color to red.
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            child: const Text('Accept'),
-          ),
-        ],
-      ),
-    );
-  }
+//   Future<bool?> _showAlertDialog(BuildContext context) {
+//     return showCupertinoModalPopup<bool>(
+//       context: context,
+//       builder: (BuildContext context) => CupertinoAlertDialog(
+//         title: const Text('このアプリは、出勤操作時に従業員の位置を確認するために位置測定権限を使用します。'),
+//         actions: <CupertinoDialogAction>[
+//           CupertinoDialogAction(
+//             /// This parameter indicates this action is the default,
+//             /// and turns the action's text to bold text.
+//             isDefaultAction: true,
+//             onPressed: () async {
+//               Navigator.pop(context, false);
+// //              await checkLocaionAndAttendance();
+//             },
+//             child: const Text('Deny'),
+//           ),
+//           CupertinoDialogAction(
+//             /// This parameter indicates the action would perform
+//             /// a destructive action such as deletion, and turns
+//             /// the action's text color to red.
+//             isDestructiveAction: true,
+//             onPressed: () {
+//               Navigator.pop(context, true);
+//             },
+//             child: const Text('Accept'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
   Future<void> checkLocaionAndAttendance() async {
     LocationPermission permission = await Geolocator.requestPermission();

@@ -22,8 +22,7 @@ class DlgAddEvent extends StatefulWidget {
   final DateTime selection;
   final String? eventId;
 
-  const DlgAddEvent({Key? key, required this.selection, this.eventId})
-    : super(key: key);
+  const DlgAddEvent({super.key, required this.selection, this.eventId});
 
   @override
   _DlgAddEvent createState() => _DlgAddEvent();
@@ -89,8 +88,8 @@ class _DlgAddEvent extends State<DlgAddEvent> {
       context,
       widget.eventId,
       organId,
-      selectDate + ' ' + fromTime,
-      selectDate + ' ' + toTime,
+      '$selectDate $fromTime',
+      '$selectDate $toTime',
       txtCommentController.text,
       txtUrlController.text,
     );
@@ -121,11 +120,11 @@ class _DlgAddEvent extends State<DlgAddEvent> {
             renderWidget: DropDownModelSelect(
               value: organId,
               items: [
-                DropdownMenuItem(child: Text('全店舗'), value: '0'),
+                DropdownMenuItem(value: '0', child: Text('全店舗')),
                 ...organs.map(
                   (e) => DropdownMenuItem(
-                    child: Text(e.organName),
                     value: e.organId,
+                    child: Text(e.organName),
                   ),
                 ),
               ],

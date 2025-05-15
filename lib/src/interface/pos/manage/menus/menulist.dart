@@ -23,7 +23,7 @@ var txtTableAmountController = TextEditingController();
 
 class MenuList extends StatefulWidget {
   final String? organId;
-  const MenuList({this.organId, Key? key}) : super(key: key);
+  const MenuList({this.organId, super.key});
 
   @override
   _MenuList createState() => _MenuList();
@@ -48,17 +48,17 @@ class _MenuList extends State<MenuList> {
 
   Future<List<MenuModel>> loadInitData() async {
     companyList = await ClCompany().loadCompanyList(context);
-    if (selCompanyId == null) selCompanyId = companyList.first.companyId;
+    selCompanyId ??= companyList.first.companyId;
 
     if (globals.auth < constAuthSystem) selCompanyId = globals.companyId;
 
     organList = await ClOrgan().loadOrganList(context, selCompanyId!, '');
-    organList.forEach((element) {
+    for (var element in organList) {
       print(element.organId);
-    });
+    }
     menuList = await ClMenu().loadMenuList(context, {
       'company_id': selCompanyId,
-      'organ_id': selOrganId == null ? '' : selOrganId
+      'organ_id': selOrganId ?? ''
     });
     setState(() {});
     return menuList;
@@ -78,24 +78,24 @@ class _MenuList extends State<MenuList> {
     Navigator.pop(context);
   }
 
-  Future<void> onMenuEdit(String? _menuId) async {
+  Future<void> onMenuEdit(String? menuId) async {
     // globals.editMenuId = _menuId;
     await Navigator.push(context, MaterialPageRoute(builder: (_) {
       return MenuEdit(
-        menuId: _menuId,
+        menuId: menuId,
         companyId: selCompanyId!,
       );
     }));
     refreshLoad();
   }
 
-  void onOrganChange(String? _organId) {
-    selOrganId = _organId;
+  void onOrganChange(String? organId) {
+    selOrganId = organId;
     refreshLoad();
   }
 
-  void onCompanyChange(String _companyId) {
-    selCompanyId = _companyId;
+  void onCompanyChange(String companyId) {
+    selCompanyId = companyId;
     selOrganId = null;
     refreshLoad();
   }
@@ -141,7 +141,8 @@ class _MenuList extends State<MenuList> {
           value: selCompanyId,
           items: [
             ...companyList.map((e) => DropdownMenuItem(
-                child: Text(e.companyName), value: e.companyId))
+                value: e.companyId,
+                child: Text(e.companyName)))
           ],
           tapFunc: (v) => onCompanyChange(v.toString())),
     );
@@ -153,9 +154,9 @@ class _MenuList extends State<MenuList> {
       child: DropDownModelSelect(
           value: selOrganId,
           items: [
-            DropdownMenuItem(child: Text('すべて'), value: null),
+            DropdownMenuItem(value: null, child: Text('すべて')),
             ...organList.map((e) =>
-                DropdownMenuItem(child: Text(e.organName), value: e.organId))
+                DropdownMenuItem(value: e.organId, child: Text(e.organName)))
           ],
           tapFunc: (v) => onOrganChange(v)),
     );
@@ -164,15 +165,15 @@ class _MenuList extends State<MenuList> {
   Widget _getMenuRow(e) {
     return LongPressDraggable(
       data: e.menuId,
-      child: DragTarget(
-          builder: (context, candidateData, rejectedData) =>
-              _getMenuRowContent(e),
-          onAccept: (menuId) => exchangeMenuSort(menuId, e.menuId)),
       feedback: Container(
         color: Colors.grey.withOpacity(0.3),
         child: Text(e.menuTitle,
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
       ),
+      child: DragTarget(
+          builder: (context, candidateData, rejectedData) =>
+              _getMenuRowContent(e),
+          onAccept: (menuId) => exchangeMenuSort(menuId, e.menuId)),
     );
   }
 

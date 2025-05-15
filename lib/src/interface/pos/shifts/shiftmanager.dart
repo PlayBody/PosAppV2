@@ -24,9 +24,11 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 class ShiftManager extends StatefulWidget {
   final String initOrgan;
   final DateTime initDate;
-  const ShiftManager(
-      {required this.initOrgan, required this.initDate, Key? key})
-      : super(key: key);
+  const ShiftManager({
+    required this.initOrgan,
+    required this.initDate,
+    super.key,
+  });
 
   @override
   _ShiftManager createState() => _ShiftManager();
@@ -76,18 +78,24 @@ class _ShiftManager extends State<ShiftManager> {
 
   Future<List> loadShiftData() async {
     loadStatus = true;
-    _fromDate = DateFormat('yyyy-MM-dd').format(getDate(
-        selectedDate.subtract(Duration(days: selectedDate.weekday - 1))));
-    _toDate = DateFormat('yyyy-MM-dd').format(selectedDate
-        .add(Duration(days: DateTime.daysPerWeek - selectedDate.weekday)));
+    _fromDate = DateFormat('yyyy-MM-dd').format(
+      getDate(selectedDate.subtract(Duration(days: selectedDate.weekday - 1))),
+    );
+    _toDate = DateFormat('yyyy-MM-dd').format(
+      selectedDate.add(
+        Duration(days: DateTime.daysPerWeek - selectedDate.weekday),
+      ),
+    );
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadShiftManage, {
-      'staff_id': globals.staffId,
-      'organ_id': selOrganId == null ? globals.organId : selOrganId,
-      'from_date': _fromDate,
-      'to_date': _toDate
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadShiftManage, {
+          'staff_id': globals.staffId,
+          'organ_id': selOrganId ?? globals.organId,
+          'from_date': _fromDate,
+          'to_date': _toDate,
+        })
+        .then((v) => {results = v});
 
     organList = [];
     regions = [];
@@ -103,64 +111,77 @@ class _ShiftManager extends State<ShiftManager> {
       //setApppointment(results);
     }
     regions = [];
-    if (!DateTime.parse(_toDate + ' 23:59:59').isBefore(DateTime.now())) {
-      regions = await ClShift()
-          .loadActiveShiftRegions(context, selOrganId!, _fromDate);
+    if (!DateTime.parse('$_toDate 23:59:59').isBefore(DateTime.now())) {
+      regions = await ClShift().loadActiveShiftRegions(
+        context,
+        selOrganId!,
+        _fromDate,
+      );
     }
 
-    if (regions.length > 0) {
+    if (regions.isNotEmpty) {
       viewFromHour = 23;
       viewToHour = 0;
-      regions.forEach((element) {
-        if (viewFromHour > element.startTime.hour)
+      for (var element in regions) {
+        if (viewFromHour > element.startTime.hour) {
           viewFromHour = element.startTime.hour;
-        if (viewToHour < element.endTime.hour)
+        }
+        if (viewToHour < element.endTime.hour) {
           viewToHour = element.endTime.hour;
-      });
+        }
+      }
       viewToHour++;
     }
-    isLock =
-        await ClShift().loadShiftLock(context, selOrganId!, _fromDate, _toDate);
+    isLock = await ClShift().loadShiftLock(
+      context,
+      selOrganId!,
+      _fromDate,
+      _toDate,
+    );
 
     setState(() {});
     return regions;
   }
 
-  Future<void> viewShift(_date) async {
-    var _start;
-    var _end;
+  Future<void> viewShift(date) async {
+    dynamic start;
+    dynamic end;
     for (var item in shiftSums) {
-      if (_date.isBefore(DateTime.parse(item.fromTime)) ||
-          _date.isAfter(DateTime.parse(item.toTime))) continue;
+      if (date.isBefore(DateTime.parse(item.fromTime)) ||
+          date.isAfter(DateTime.parse(item.toTime))) {
+        continue;
+      }
 
-      _start = DateTime.parse(item.fromTime);
-      _end = DateTime.parse(item.toTime);
+      start = DateTime.parse(item.fromTime);
+      end = DateTime.parse(item.toTime);
     }
-    if (_start == null || _end == null) return;
+    if (start == null || end == null) return;
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftManager(
-            organId: selOrganId!,
-            selection: _date,
-            selectionFrom: _start,
-            selectionTo: _end,
-            // shiftSums: shiftSums,
-          );
-        }).then((_) {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftManager(
+          organId: selOrganId!,
+          selection: date,
+          selectionFrom: start,
+          selectionTo: end,
+          // shiftSums: shiftSums,
+        );
+      },
+    ).then((_) {
       clacCountingShift();
       setState(() {});
     });
   }
 
-  void changeViewCalander(_date) {
-    String _cFromDate = DateFormat('yyyy-MM-dd')
-        .format(getDate(_date.subtract(Duration(days: _date.weekday - 1))));
+  void changeViewCalander(date) {
+    String cFromDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(getDate(date.subtract(Duration(days: date.weekday - 1))));
 
-    if (_cFromDate == _fromDate) return;
+    if (cFromDate == _fromDate) return;
 
-    selectedDate = _date;
+    selectedDate = date;
 
     refreshLoad();
   }
@@ -172,23 +193,29 @@ class _ShiftManager extends State<ShiftManager> {
   }
 
   void setRegions(results) {
-    if (DateTime.parse(_toDate + ' 23:59:59').isBefore(DateTime.now())) return;
+    if (DateTime.parse('$_toDate 23:59:59').isBefore(DateTime.now())) return;
 
-    var firstDate = DateFormat('yyyy-MM-dd').format(getDate(
-        selectedDate.subtract(Duration(days: selectedDate.weekday - 1))));
+    var firstDate = DateFormat('yyyy-MM-dd').format(
+      getDate(selectedDate.subtract(Duration(days: selectedDate.weekday - 1))),
+    );
 
     for (var item in results['shift_times']) {
-      var _startDate = DateTime.parse(firstDate + ' ' + item['from_time'])
-          .add(Duration(days: int.parse(item['weekday']) - 1));
-      var _endDate = DateTime.parse(firstDate + ' ' + item['to_time'])
-          .add(Duration(days: int.parse(item['weekday']) - 1));
-      regions.add(TimeRegion(
-          startTime: _startDate,
-          endTime: _endDate,
+      var startDate = DateTime.parse(
+        '$firstDate ' + item['from_time'],
+      ).add(Duration(days: int.parse(item['weekday']) - 1));
+      var endDate = DateTime.parse(
+        '$firstDate ' + item['to_time'],
+      ).add(Duration(days: int.parse(item['weekday']) - 1));
+      regions.add(
+        TimeRegion(
+          startTime: startDate,
+          endTime: endDate,
           enablePointerInteraction: true,
           // recurrenceRule: 'FREQ=DAILY;INTERVAL=1',
           color: Color(0xffffc3bf), //shiftOrganDisableColor,
-          text: ''));
+          text: '',
+        ),
+      );
     }
   }
 
@@ -196,17 +223,19 @@ class _ShiftManager extends State<ShiftManager> {
     if (results['divide_shift'] == null) return;
     for (var item in results['divide_shift']) {
       var shiftColor = Colors.blue;
-      if (item['exist_count'].toString() != item['count'].toString())
+      if (item['exist_count'].toString() != item['count'].toString()) {
         shiftColor = Colors.yellow;
-      appointments.add(Appointment(
-        startTime: DateTime.parse(item['from']),
-        endTime: DateTime.parse(item['to']),
-        subject:
-            item['exist_count'].toString() + '/' + item['count'].toString(),
-        color: shiftColor,
-        startTimeZone: '',
-        endTimeZone: '',
-      ));
+      }
+      appointments.add(
+        Appointment(
+          startTime: DateTime.parse(item['from']),
+          endTime: DateTime.parse(item['to']),
+          subject: '${item['exist_count']}/${item['count']}',
+          color: shiftColor,
+          startTimeZone: '',
+          endTimeZone: '',
+        ),
+      );
     }
   }
 
@@ -216,8 +245,12 @@ class _ShiftManager extends State<ShiftManager> {
     if (!conf) return;
 
     Dialogs().loaderDialogNormal(context);
-    bool isSend = await ClShift()
-        .sendRequestInput(context, selOrganId!, _fromDate, _toDate);
+    bool isSend = await ClShift().sendRequestInput(
+      context,
+      selOrganId!,
+      _fromDate,
+      _toDate,
+    );
 
     Navigator.pop(context);
 
@@ -248,29 +281,36 @@ class _ShiftManager extends State<ShiftManager> {
     for (var item in globals.organShifts) {
       if (int.parse(item['shift_type']) < 1) continue;
       Map<dynamic, dynamic> resultsStaff = {};
-      await Webservice().loadHttp(context, apiLoadStaffInfoUrl,
-          {'staff_id': item['staff_id']}).then((value) => resultsStaff = value);
-      int hopeShiftTime = resultsStaff['staff_shift'] == null
-          ? 0
-          : int.parse(resultsStaff['staff_shift']);
+      await Webservice()
+          .loadHttp(context, apiLoadStaffInfoUrl, {
+            'staff_id': item['staff_id'],
+          })
+          .then((value) => resultsStaff = value);
+      int hopeShiftTime =
+          resultsStaff['staff_shift'] == null
+              ? 0
+              : int.parse(resultsStaff['staff_shift']);
 
       var sumTimes = 0;
 
       Map<dynamic, dynamic> resultOther = {};
-      await Webservice().loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
-        'staff_id': item['staff_id'],
-        'cur_organ_id': selOrganId,
-        'from_time': element.fromTime,
-        'to_time': element.toTime
-      }).then((value) => resultOther = value);
+      await Webservice()
+          .loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
+            'staff_id': item['staff_id'],
+            'cur_organ_id': selOrganId,
+            'from_time': element.fromTime,
+            'to_time': element.toTime,
+          })
+          .then((value) => resultOther = value);
       sumTimes = sumTimes + int.parse(resultOther['all_time'].toString());
 
       for (var eshift in globals.organShifts) {
         if (eshift['staff_id'] != item['staff_id']) continue;
-        var _to = DateTime.parse(eshift['to_time']);
-        if (_to.second == 59) _to = _to.add(Duration(seconds: 1));
-        sumTimes = sumTimes +
-            (_to.difference(DateTime.parse(eshift['from_time'])).inMinutes);
+        var to = DateTime.parse(eshift['to_time']);
+        if (to.second == 59) to = to.add(Duration(seconds: 1));
+        sumTimes =
+            sumTimes +
+            (to.difference(DateTime.parse(eshift['from_time'])).inMinutes);
       }
       item['diff'] = sumTimes - hopeShiftTime * 60;
     }
@@ -280,16 +320,21 @@ class _ShiftManager extends State<ShiftManager> {
       return b['diff'].compareTo(a['diff']);
     });
     for (var item in globals.organShifts) {
-      if (DateTime.parse(element.fromTime)
-              .isBefore(DateTime.parse(item['from_time'])) ||
-          DateTime.parse(element.toTime)
-              .isAfter(DateTime.parse(item['to_time']))) continue;
+      if (DateTime.parse(
+            element.fromTime,
+          ).isBefore(DateTime.parse(item['from_time'])) ||
+          DateTime.parse(
+            element.toTime,
+          ).isAfter(DateTime.parse(item['to_time']))) {
+        continue;
+      }
       if (item['diff'] > 0) {
         ctlCnt--;
-        if (item['shift_type'] == '5')
+        if (item['shift_type'] == '5') {
           item['shift_type'] = '-5';
-        else
+        } else {
           item['shift_type'] = '-4';
+        }
       }
       if (ctlCnt == 0) break;
     }
@@ -308,28 +353,32 @@ class _ShiftManager extends State<ShiftManager> {
     var tmp = [];
     //reserve staff
     Map<dynamic, dynamic> resultsReserveStaff = {};
-    await Webservice().loadHttp(context, apiLoadReserveStaffsUrl, {
-      'from_time': element.fromTime,
-      'to_time': element.toTime,
-      'organ_id': selOrganId
-    }).then((value) => resultsReserveStaff = value);
+    await Webservice()
+        .loadHttp(context, apiLoadReserveStaffsUrl, {
+          'from_time': element.fromTime,
+          'to_time': element.toTime,
+          'organ_id': selOrganId,
+        })
+        .then((value) => resultsReserveStaff = value);
     if (resultsReserveStaff['isLoad']) {
       for (var item in resultsReserveStaff['staffs']) {
         if (ctlCnt < 1) continue;
-        bool isReject =
-            await isStaffReject(item, element.fromTime, element.toTime);
+        bool isReject = await isStaffReject(
+          item,
+          element.fromTime,
+          element.toTime,
+        );
         if (isReject) continue;
         bool isExist = false;
         for (var tmpShift in globals.organShifts) {
           if (tmpShift['staff_id'] != item) continue;
-          var _iFrom = DateTime.parse(element.fromTime);
-          var _iTo = DateTime.parse(element.toTime);
-          var _tFrom = DateTime.parse(tmpShift['from_time']);
-          var _tTo = DateTime.parse(tmpShift['to_time']);
-          if (((_tFrom == _iFrom || _tFrom.isAfter(_iFrom)) &&
-                  (_tFrom.isBefore(_iTo))) ||
-              ((_tTo.isAfter(_iFrom)) &&
-                  (_tTo == _iTo || _tTo.isBefore(_iTo)))) {
+          var iFrom = DateTime.parse(element.fromTime);
+          var iTo = DateTime.parse(element.toTime);
+          var tFrom = DateTime.parse(tmpShift['from_time']);
+          var tTo = DateTime.parse(tmpShift['to_time']);
+          if (((tFrom == iFrom || tFrom.isAfter(iFrom)) &&
+                  (tFrom.isBefore(iTo))) ||
+              ((tTo.isAfter(iFrom)) && (tTo == iTo || tTo.isBefore(iTo)))) {
             isExist = true;
             break;
           }
@@ -340,7 +389,7 @@ class _ShiftManager extends State<ShiftManager> {
           'staff_id': item,
           'from_time': element.fromTime,
           'to_time': element.toTime,
-          'shift_type': '5'
+          'shift_type': '5',
         });
       }
     }
@@ -358,42 +407,46 @@ class _ShiftManager extends State<ShiftManager> {
       if (ctlCnt < 1) continue;
       if (int.parse(item['shift_type']) < 1) continue;
       bool isReject = await isStaffReject(
-          item['staff_id'], element.fromTime, element.toTime);
+        item['staff_id'],
+        element.fromTime,
+        element.toTime,
+      );
       if (isReject) continue;
 
-      var _to = DateTime.parse(item['to_time']);
-      if (_to.second == 59) _to = _to.add(Duration(seconds: 1));
-      if (_to == DateTime.parse(element.fromTime)) {
+      var to = DateTime.parse(item['to_time']);
+      if (to.second == 59) to = to.add(Duration(seconds: 1));
+      if (to == DateTime.parse(element.fromTime)) {
         bool isExist = false;
         for (var tmpShift in globals.organShifts) {
           if (tmpShift['staff_id'] != item['staff_id']) continue;
-          var _iFrom = DateTime.parse(element.fromTime);
-          var _iTo = DateTime.parse(element.toTime);
-          var _tFrom = DateTime.parse(tmpShift['from_time']);
-          var _tTo = DateTime.parse(tmpShift['to_time']);
-          if (((_tFrom == _iFrom || _tFrom.isAfter(_iFrom)) &&
-                  (_tFrom.isBefore(_iTo))) ||
-              ((_tTo.isAfter(_iFrom)) &&
-                  (_tTo == _iTo || _tTo.isBefore(_iTo)))) {
+          var iFrom = DateTime.parse(element.fromTime);
+          var iTo = DateTime.parse(element.toTime);
+          var tFrom = DateTime.parse(tmpShift['from_time']);
+          var tTo = DateTime.parse(tmpShift['to_time']);
+          if (((tFrom == iFrom || tFrom.isAfter(iFrom)) &&
+                  (tFrom.isBefore(iTo))) ||
+              ((tTo.isAfter(iFrom)) && (tTo == iTo || tTo.isBefore(iTo)))) {
             isExist = true;
             break;
           }
         }
         if (isExist) continue;
         Map<dynamic, dynamic> resultOther = {};
-        await Webservice().loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
-          'staff_id': item['staff_id'],
-          'cur_organ_id': selOrganId,
-          'from_time': element.fromTime,
-          'to_time': element.toTime
-        }).then((value) => resultOther = value);
+        await Webservice()
+            .loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
+              'staff_id': item['staff_id'],
+              'cur_organ_id': selOrganId,
+              'from_time': element.fromTime,
+              'to_time': element.toTime,
+            })
+            .then((value) => resultOther = value);
         if (int.parse(resultOther['all_time'].toString()) > 0) continue;
         ctlCnt--;
         tmp.add({
           'staff_id': item['staff_id'],
           'from_time': element.fromTime,
           'to_time': element.toTime,
-          'shift_type': '5'
+          'shift_type': '5',
         });
       }
     }
@@ -407,41 +460,45 @@ class _ShiftManager extends State<ShiftManager> {
       if (ctlCnt < 1) continue;
       if (int.parse(item['shift_type']) < 1) continue;
       bool isReject = await isStaffReject(
-          item['staff_id'], element.fromTime, element.toTime);
+        item['staff_id'],
+        element.fromTime,
+        element.toTime,
+      );
       if (isReject) continue;
-      var _to = DateTime.parse(element.toTime);
-      if (_to.second == 59) _to = _to.add(Duration(seconds: 1));
-      if (_to == DateTime.parse(item['from_time'])) {
+      var to = DateTime.parse(element.toTime);
+      if (to.second == 59) to = to.add(Duration(seconds: 1));
+      if (to == DateTime.parse(item['from_time'])) {
         bool isExist = false;
         for (var tmpShift in globals.organShifts) {
           if (tmpShift['staff_id'] != item['staff_id']) continue;
-          var _iFrom = DateTime.parse(element.fromTime);
-          var _iTo = DateTime.parse(element.toTime);
-          var _tFrom = DateTime.parse(tmpShift['from_time']);
-          var _tTo = DateTime.parse(tmpShift['to_time']);
-          if (((_tFrom == _iFrom || _tFrom.isAfter(_iFrom)) &&
-                  (_tFrom.isBefore(_iTo))) ||
-              ((_tTo.isAfter(_iFrom)) &&
-                  (_tTo == _iTo || _tTo.isBefore(_iTo)))) {
+          var iFrom = DateTime.parse(element.fromTime);
+          var iTo = DateTime.parse(element.toTime);
+          var tFrom = DateTime.parse(tmpShift['from_time']);
+          var tTo = DateTime.parse(tmpShift['to_time']);
+          if (((tFrom == iFrom || tFrom.isAfter(iFrom)) &&
+                  (tFrom.isBefore(iTo))) ||
+              ((tTo.isAfter(iFrom)) && (tTo == iTo || tTo.isBefore(iTo)))) {
             isExist = true;
             break;
           }
         }
         if (isExist) continue;
         Map<dynamic, dynamic> resultOther = {};
-        await Webservice().loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
-          'staff_id': item['staff_id'],
-          'cur_organ_id': selOrganId,
-          'from_time': element.fromTime,
-          'to_time': element.toTime
-        }).then((value) => resultOther = value);
+        await Webservice()
+            .loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
+              'staff_id': item['staff_id'],
+              'cur_organ_id': selOrganId,
+              'from_time': element.fromTime,
+              'to_time': element.toTime,
+            })
+            .then((value) => resultOther = value);
         if (int.parse(resultOther['all_time'].toString()) > 0) continue;
         ctlCnt--;
         tmp.add({
           'staff_id': item['staff_id'],
           'from_time': element.fromTime,
           'to_time': element.toTime,
-          'shift_type': '5'
+          'shift_type': '5',
         });
       }
     }
@@ -449,27 +506,30 @@ class _ShiftManager extends State<ShiftManager> {
     if (ctlCnt < 1) return;
     //getStaffList
     Map<dynamic, dynamic> resultstaff = {};
-    await Webservice().loadHttp(context, apiLoadShiftStatusManage, {
-      'organ_id': selOrganId,
-    }).then((v) => {resultstaff = v});
+    await Webservice()
+        .loadHttp(context, apiLoadShiftStatusManage, {'organ_id': selOrganId})
+        .then((v) => {resultstaff = v});
 
     tmp = [];
     for (var item in resultstaff['staffs']) {
       if (ctlCnt < 1) continue;
       bool isReject = await isStaffReject(
-          item['staff_id'], element.fromTime, element.toTime);
+        item['staff_id'],
+        element.fromTime,
+        element.toTime,
+      );
       if (isReject) continue;
       bool isExist = false;
       // same Time Exist
       for (var tmpShift in globals.organShifts) {
         if (tmpShift['staff_id'] != item['staff_id']) continue;
-        var _iFrom = DateTime.parse(element.fromTime);
-        var _iTo = DateTime.parse(element.toTime);
-        var _tFrom = DateTime.parse(tmpShift['from_time']);
-        var _tTo = DateTime.parse(tmpShift['to_time']);
-        if (((_tFrom == _iFrom || _tFrom.isAfter(_iFrom)) &&
-                (_tFrom.isBefore(_iTo))) ||
-            ((_tTo.isAfter(_iFrom)) && (_tTo == _iTo || _tTo.isBefore(_iTo)))) {
+        var iFrom = DateTime.parse(element.fromTime);
+        var iTo = DateTime.parse(element.toTime);
+        var tFrom = DateTime.parse(tmpShift['from_time']);
+        var tTo = DateTime.parse(tmpShift['to_time']);
+        if (((tFrom == iFrom || tFrom.isAfter(iFrom)) &&
+                (tFrom.isBefore(iTo))) ||
+            ((tTo.isAfter(iFrom)) && (tTo == iTo || tTo.isBefore(iTo)))) {
           isExist = true;
           break;
         }
@@ -479,40 +539,48 @@ class _ShiftManager extends State<ShiftManager> {
 
       //otherOrgan same Time exist
       Map<dynamic, dynamic> resultOther = {};
-      await Webservice().loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
-        'staff_id': item['staff_id'],
-        'cur_organ_id': selOrganId,
-        'from_time': element.fromTime,
-        'to_time': element.toTime
-      }).then((value) => resultOther = value);
+      await Webservice()
+          .loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
+            'staff_id': item['staff_id'],
+            'cur_organ_id': selOrganId,
+            'from_time': element.fromTime,
+            'to_time': element.toTime,
+          })
+          .then((value) => resultOther = value);
       if (int.parse(resultOther['all_time'].toString()) > 0) continue;
 
       //getHopeTime
       Map<dynamic, dynamic> resultstaffinfo = {};
-      await Webservice().loadHttp(context, apiLoadStaffInfoUrl, {
-        'staff_id': item['staff_id']
-      }).then((value) => resultstaffinfo = value);
-      int hopeShiftTime = resultstaffinfo['staff_shift'] == null
-          ? 0
-          : int.parse(resultstaffinfo['staff_shift']);
+      await Webservice()
+          .loadHttp(context, apiLoadStaffInfoUrl, {
+            'staff_id': item['staff_id'],
+          })
+          .then((value) => resultstaffinfo = value);
+      int hopeShiftTime =
+          resultstaffinfo['staff_shift'] == null
+              ? 0
+              : int.parse(resultstaffinfo['staff_shift']);
 
       //getAllTime;
       var sumTimes = 0;
 
-      await Webservice().loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
-        'staff_id': item['staff_id'],
-        'cur_organ_id': selOrganId,
-        'from_time': _fromDate + ' 00:00:00',
-        'to_time': _toDate + ' 23:59:59'
-      }).then((value) => resultOther = value);
+      await Webservice()
+          .loadHttp(context, apiLoadShiftOtherOrganExistUrl, {
+            'staff_id': item['staff_id'],
+            'cur_organ_id': selOrganId,
+            'from_time': '$_fromDate 00:00:00',
+            'to_time': '$_toDate 23:59:59',
+          })
+          .then((value) => resultOther = value);
       sumTimes = sumTimes + int.parse(resultOther['all_time'].toString());
 
       for (var eshift in globals.organShifts) {
         if (eshift['staff_id'] != item['staff_id']) continue;
-        var _to = DateTime.parse(eshift['to_time']);
-        if (_to.second == 59) _to = _to.add(Duration(seconds: 1));
-        sumTimes = sumTimes +
-            (_to.difference(DateTime.parse(eshift['from_time'])).inMinutes);
+        var to = DateTime.parse(eshift['to_time']);
+        if (to.second == 59) to = to.add(Duration(seconds: 1));
+        sumTimes =
+            sumTimes +
+            (to.difference(DateTime.parse(eshift['from_time'])).inMinutes);
       }
 
       if (sumTimes >= hopeShiftTime) continue;
@@ -521,7 +589,7 @@ class _ShiftManager extends State<ShiftManager> {
         'staff_id': item['staff_id'],
         'from_time': element.fromTime,
         'to_time': element.toTime,
-        'shift_type': '5'
+        'shift_type': '5',
       });
     }
     for (var item in tmp) {
@@ -535,9 +603,9 @@ class _ShiftManager extends State<ShiftManager> {
       'staff_id': staffId,
       'from_time': fromTime,
       'to_time': toTime,
-      'shift_type': '-3'
+      'shift_type': '-3',
     });
-    return shifts.length > 0;
+    return shifts.isNotEmpty;
   }
 
   void clacCountingShift() {
@@ -548,10 +616,14 @@ class _ShiftManager extends State<ShiftManager> {
       timeList.add(DateTime.parse(item['from_time']));
       timeList.add(DateTime.parse(item['to_time']));
       for (var shift in globals.organShifts) {
-        if (DateTime.parse(shift['from_time'])
-                .isBefore(DateTime.parse(item['from_time'])) ||
-            DateTime.parse(shift['to_time'])
-                .isAfter(DateTime.parse(item['to_time']))) continue;
+        if (DateTime.parse(
+              shift['from_time'],
+            ).isBefore(DateTime.parse(item['from_time'])) ||
+            DateTime.parse(
+              shift['to_time'],
+            ).isAfter(DateTime.parse(item['to_time']))) {
+          continue;
+        }
         if (!timeList.contains(DateTime.parse(shift['from_time']))) {
           timeList.add(DateTime.parse(shift['from_time']));
         }
@@ -560,47 +632,56 @@ class _ShiftManager extends State<ShiftManager> {
         }
       }
       timeList.sort((a, b) => a.compareTo(b));
-      var _start;
+      dynamic start;
       for (var timeItem in timeList) {
-        if (_start != null) {
+        if (start != null) {
           int n = 0;
           int m = 0;
           for (var shift in globals.organShifts) {
-            if (DateTime.parse(shift['from_time']).isAfter(_start) ||
-                DateTime.parse(shift['to_time']).isBefore(timeItem)) continue;
+            if (DateTime.parse(shift['from_time']).isAfter(start) ||
+                DateTime.parse(shift['to_time']).isBefore(timeItem)) {
+              continue;
+            }
             if (int.parse(shift['shift_type']) > 0) n++;
             if (int.parse(shift['shift_type']) == 2) m++;
           }
-          setApppointments(_start, timeItem, item['count'].toString(),
-              n.toString(), m.toString());
+          setApppointments(
+            start,
+            timeItem,
+            item['count'].toString(),
+            n.toString(),
+            m.toString(),
+          );
           shiftSums.add(
             ShiftSumModel(
-              fromTime: DateFormat('yyyy-MM-dd HH:mm:ss').format(_start),
+              fromTime: DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
               toTime: DateFormat('yyyy-MM-dd HH:mm:ss').format(timeItem),
               count: item['count'].toString(),
               shiftCount: n.toString(),
             ),
           );
         }
-        _start = timeItem;
+        start = timeItem;
       }
     }
   }
 
-  void setApppointments(_start, _end, count, shiftCount, applyCount) {
+  void setApppointments(start, end, count, shiftCount, applyCount) {
     var shiftColor = Colors.blue;
     if (count != applyCount) shiftColor = Colors.yellow;
     // regions
     //     .add(TimeRegion(startTime: _start, endTime: _end, color: shiftColor));
 
-    appointments.add(Appointment(
-      startTime: _start,
-      endTime: _end,
-      subject: shiftCount.toString() + '/' + count.toString(),
-      color: shiftColor.withOpacity(.5),
-      startTimeZone: '',
-      endTimeZone: '',
-    ));
+    appointments.add(
+      Appointment(
+        startTime: start,
+        endTime: end,
+        subject: '$shiftCount/$count',
+        color: shiftColor.withValues(alpha: 0.5),
+        startTimeZone: '',
+        endTimeZone: '',
+      ),
+    );
   }
 
   Future<void> saveShiftComplete() async {
@@ -611,15 +692,17 @@ class _ShiftManager extends State<ShiftManager> {
       if (item['shift_type'] == '4') continue;
       if (item['shift_type'] == '-3') continue;
       results = {};
-      await Webservice().loadHttp(context, apiSaveShiftCompleteUrl, {
-        'cur_staff_id': globals.staffId,
-        'organ_id': selOrganId,
-        'staff_id': item['staff_id'],
-        'shift_id': item['shift_id'] == null ? '' : item['shift_id'],
-        'shift_type': item['shift_type'],
-        'from_time': item['from_time'],
-        'to_time': item['to_time']
-      }).then((value) => results = value);
+      await Webservice()
+          .loadHttp(context, apiSaveShiftCompleteUrl, {
+            'cur_staff_id': globals.staffId,
+            'organ_id': selOrganId,
+            'staff_id': item['staff_id'],
+            'shift_id': item['shift_id'] ?? '',
+            'shift_type': item['shift_type'],
+            'from_time': item['from_time'],
+            'to_time': item['to_time'],
+          })
+          .then((value) => results = value);
 
       if (!results['isSave']) {
         await Dialogs().waitDialog(context, errServerActionFail);
@@ -630,10 +713,15 @@ class _ShiftManager extends State<ShiftManager> {
     Navigator.pop(context);
   }
 
-  Future<void> lockUpdate(bool _isLock) async {
+  Future<void> lockUpdate(bool isLock) async {
     Dialogs().loaderDialogNormal(context);
-    bool isUpdate = await ClShift()
-        .updateShiftLock(context, selOrganId!, _fromDate, _toDate, _isLock);
+    bool isUpdate = await ClShift().updateShiftLock(
+      context,
+      selOrganId!,
+      _fromDate,
+      _toDate,
+      isLock,
+    );
     Navigator.pop(context);
 
     if (!isUpdate) {
@@ -645,75 +733,92 @@ class _ShiftManager extends State<ShiftManager> {
   }
 
   void pushShiftDay() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return ShiftDay(
-          isEdit: true,
-          initOrgan: this.selOrganId!,
-          initDate: DateTime.parse(_fromDate));
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return ShiftDay(
+            isEdit: true,
+            initOrgan: selOrganId!,
+            initDate: DateTime.parse(_fromDate),
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     globals.appTitle = 'シフト管理';
     return MainBodyWdiget(
-        fullScreenButton: _fullScreenContent(),
-        fullscreenTop: 60,
-        isFullScreen: isHideBannerBar,
-        render: LoadBodyWdiget(
-          loadData: loadData,
-          render: Container(
-            color: bodyColor,
-            child: Column(
-              children: [
-                _getTopContent(),
-                Expanded(child: _getCalendar()),
-                _getLockContent(),
-                _getBottomButtons()
-              ],
-            ),
+      fullScreenButton: _fullScreenContent(),
+      fullscreenTop: 60,
+      isFullScreen: isHideBannerBar,
+      render: LoadBodyWdiget(
+        loadData: loadData,
+        render: Container(
+          color: bodyColor,
+          child: Column(
+            children: [
+              _getTopContent(),
+              Expanded(child: _getCalendar()),
+              _getLockContent(),
+              _getBottomButtons(),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _fullScreenContent() {
-    return Column(children: [
-      FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
-      FullScreenButton(
-        icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
-        tapFunc: () {
-          isHideBannerBar = !isHideBannerBar;
-          setState(() {});
-        },
-      )
-    ]);
+    return Column(
+      children: [
+        FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
+        FullScreenButton(
+          icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
+          tapFunc: () {
+            isHideBannerBar = !isHideBannerBar;
+            setState(() {});
+          },
+        ),
+      ],
+    );
   }
 
   Widget _getTopContent() {
     return Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
-        child: Row(children: [
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
+      child: Row(
+        children: [
           Expanded(
-              child: SubHeaderText(
-                  label: DateTimes().convertJPYMFromDateTime(selectedDate))),
+            child: SubHeaderText(
+              label: DateTimes().convertJPYMFromDateTime(selectedDate),
+            ),
+          ),
           InputLeftText(label: '店名', rPadding: 8, width: 60),
           Flexible(
-              child: DropDownModelSelect(
-            value: selOrganId,
-            items: [
-              ...organList.map((e) => DropdownMenuItem(
-                    child: Text(e.organName),
+            child: DropDownModelSelect(
+              value: selOrganId,
+              items: [
+                ...organList.map(
+                  (e) => DropdownMenuItem(
                     value: e.organId,
-                  ))
-            ],
-            tapFunc: (v) {
-              setState(() {
-                selOrganId = v!.toString();
-                refreshLoad();
-              });
-            },
-          )),
-        ]));
+                    child: Text(e.organName),
+                  ),
+                ),
+              ],
+              tapFunc: (v) {
+                setState(() {
+                  selOrganId = v!.toString();
+                  refreshLoad();
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getCalendar() {
@@ -725,17 +830,18 @@ class _ShiftManager extends State<ShiftManager> {
       headerHeight: 0,
       selectionDecoration: timeSlotSelectDecoration,
       timeSlotViewSettings: TimeSlotViewSettings(
-          startHour: viewFromHour.toDouble(),
-          endHour: viewToHour.toDouble(),
-          timeIntervalHeight: timeSlotCellHeight.toDouble(),
-          dayFormat: 'EEE',
-          timeInterval: Duration(minutes: 15),
-          timeFormat: 'H:mm',
-          timeTextStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black.withOpacity(0.5),
-          )),
+        startHour: viewFromHour.toDouble(),
+        endHour: viewToHour.toDouble(),
+        timeIntervalHeight: timeSlotCellHeight.toDouble(),
+        dayFormat: 'EEE',
+        timeInterval: Duration(minutes: 15),
+        timeFormat: 'H:mm',
+        timeTextStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
+          color: Colors.black.withOpacity(0.5),
+        ),
+      ),
       appointmentTextStyle: apppointmentsTextStyle,
       specialRegions: regions,
       onLongPress: (d) => viewShift(d.date),
@@ -755,32 +861,35 @@ class _ShiftManager extends State<ShiftManager> {
           Expanded(child: Container()),
           Text('ロック', style: btnTxtStyle),
           Container(
-              child: Switch(
-            value: isLock,
-            onChanged: (v) => lockUpdate(v),
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-          )),
-          SizedBox(width: 20)
+            child: Switch(
+              value: isLock,
+              onChanged: (v) => lockUpdate(v),
+              activeTrackColor: Colors.lightGreenAccent,
+              activeColor: Colors.green,
+            ),
+          ),
+          SizedBox(width: 20),
         ],
       ),
     );
   }
 
   Widget _getBottomButtons() {
-    return RowButtonGroup(widgets: [
-      PrimaryButton(label: '保存', tapFunc: () => saveShiftComplete()),
-      SizedBox(width: 8),
-      // PrimaryButton(
-      //     label: '自動調整',
-      //     tapFunc: () async {
-      //       await autoControl();
-      //       clacCountingShift();
-      //       setState(() {});
-      //     }),
-      SizedBox(width: 8),
-      CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
-    ]);
+    return RowButtonGroup(
+      widgets: [
+        PrimaryButton(label: '保存', tapFunc: () => saveShiftComplete()),
+        SizedBox(width: 8),
+        // PrimaryButton(
+        //     label: '自動調整',
+        //     tapFunc: () async {
+        //       await autoControl();
+        //       clacCountingShift();
+        //       setState(() {});
+        //     }),
+        SizedBox(width: 8),
+        CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
+      ],
+    );
   }
 }
 
@@ -796,11 +905,12 @@ class ShiftSumModel {
   final String count;
   final String shiftCount;
 
-  const ShiftSumModel(
-      {required this.fromTime,
-      required this.toTime,
-      required this.count,
-      required this.shiftCount});
+  const ShiftSumModel({
+    required this.fromTime,
+    required this.toTime,
+    required this.count,
+    required this.shiftCount,
+  });
 
   // factory ShiftSumModel.fromJson(Map<String, dynamic> json) {
   //   return ShiftSumModel(

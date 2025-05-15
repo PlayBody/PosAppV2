@@ -37,8 +37,7 @@ import 'package:staff_pos_app/src/http/webservice.dart';
 class MenuEdit extends StatefulWidget {
   final String companyId;
   final String? menuId;
-  const MenuEdit({required this.companyId, this.menuId, Key? key})
-      : super(key: key);
+  const MenuEdit({required this.companyId, this.menuId, super.key});
 
   @override
   _MenuEdit createState() => _MenuEdit();
@@ -146,7 +145,7 @@ class _MenuEdit extends State<MenuEdit> {
   }
 
   Future<void> saveMenuData() async {
-    FocusScope.of(context).requestFocus(new FocusNode());
+    FocusScope.of(context).requestFocus(FocusNode());
 
     bool isCheck = true;
     String? errTxtTitle;
@@ -185,14 +184,12 @@ class _MenuEdit extends State<MenuEdit> {
     String imagename = '';
     if (isphoto) {
       if (isphoto) {
-        imagename = 'menus-' +
-            DateTime.now()
+        imagename = 'menus-${DateTime.now()
                 .toString()
                 .replaceAll(':', '')
                 .replaceAll('-', '')
                 .replaceAll('.', '')
-                .replaceAll(' ', '') +
-            '.jpg';
+                .replaceAll(' ', '')}.jpg';
         await Webservice().callHttpMultiPart(
             'picture', apiUploadMenuPhoto, _photoFile.path, imagename);
       }
@@ -201,7 +198,7 @@ class _MenuEdit extends State<MenuEdit> {
 
     String saveMenuId = await ClMenu().saveMenu(context, {
       'company_id': widget.companyId,
-      'menu_id': editMenuId == null ? '' : editMenuId,
+      'menu_id': editMenuId ?? '',
       'title': txtTitleController.text,
       'detail': txtDetailController.text,
       'category_id' : selCategory,
@@ -243,7 +240,7 @@ class _MenuEdit extends State<MenuEdit> {
     }
   }
 
-  Future<void> deleteVariation(String _id) async {
+  Future<void> deleteVariation(String id) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
@@ -251,7 +248,7 @@ class _MenuEdit extends State<MenuEdit> {
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiDeleteMenuVariationUrl,
-        {'variation_id': _id}).then((v) => results = v);
+        {'variation_id': id}).then((v) => results = v);
 
     Navigator.pop(context);
     if (results['isDelete']) {
@@ -279,7 +276,7 @@ class _MenuEdit extends State<MenuEdit> {
           variationPrice: item.variationPrice,
           variationStaff: item.backs,
           variationAmount:
-              item.variationAmount == null ? '' : item.variationAmount,
+              item.variationAmount ?? '',
         );
       }));
     }
@@ -290,32 +287,32 @@ class _MenuEdit extends State<MenuEdit> {
     menuOrgans = [];
     isAllOrgan = !isAllOrgan;
     if (isAllOrgan) {
-      organList.forEach((element) {
+      for (var element in organList) {
         menuOrgans.add(element.organId);
-      });
+      }
     }
     setState(() {});
   }
 
-  void onChangeMenuOrgan(v, _organId) {
-    if (menuOrgans.contains(_organId)) {
-      menuOrgans.remove(_organId);
+  void onChangeMenuOrgan(v, organId) {
+    if (menuOrgans.contains(organId)) {
+      menuOrgans.remove(organId);
     } else {
-      menuOrgans.add(_organId);
+      menuOrgans.add(organId);
     }
     isAllOrgan = true;
-    organList.forEach((element) {
+    for (var element in organList) {
       if (!menuOrgans.contains(element.organId)) {
         isAllOrgan = false;
       }
-    });
+    }
     setState(() {});
   }
 
-  _getFromPhoto(int _libType) async {
+  _getFromPhoto(int libType) async {
     XFile? image;
 
-    if (_libType == 1) {
+    if (libType == 1) {
       image = await ImagePicker().pickImage(source: ImageSource.camera);
     } else {
       image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -565,7 +562,7 @@ class _MenuEdit extends State<MenuEdit> {
   Widget _getAvatarContent() {
     return Container(
         child: Column(children: [
-      Container(
+      SizedBox(
         height: 120,
         child: isphoto
             ? Image.file(_photoFile)
@@ -578,8 +575,8 @@ class _MenuEdit extends State<MenuEdit> {
           alignment: Alignment.topRight,
           child: DropdownButton(
               items: [
-                DropdownMenuItem(child: Text("カメラ撮る"), value: 1),
-                DropdownMenuItem(child: Text("アルバム"), value: 2)
+                DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
+                DropdownMenuItem(value: 2, child: Text("アルバム"))
               ],
               onChanged: (int? v) {
                 if (v == 1 || v == 2) {
@@ -630,8 +627,7 @@ class MenuEditVariationTile extends StatelessWidget {
       {required this.item,
       required this.editFunc,
       required this.delFunc,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -646,7 +642,7 @@ class MenuEditVariationTile extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 15),
                 child: Row(
                   children: <Widget>[
-                    Container(
+                    SizedBox(
                       width: 100,
                       child: Text('バリエーション名', style: TextStyle(fontSize: 12)),
                     ),
@@ -660,7 +656,7 @@ class MenuEditVariationTile extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 15),
                 child: Row(
                   children: <Widget>[
-                    Container(
+                    SizedBox(
                       width: 100,
                       child: Text('税抜価格', style: TextStyle(fontSize: 12)),
                     ),
@@ -674,7 +670,7 @@ class MenuEditVariationTile extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 15),
                 child: Row(
                   children: <Widget>[
-                    Container(
+                    SizedBox(
                       width: 100,
                       child: Text('バックスタッフ', style: TextStyle(fontSize: 12)),
                     ),
@@ -693,7 +689,7 @@ class MenuEditVariationTile extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 15),
                 child: Row(
                   children: <Widget>[
-                    Container(
+                    SizedBox(
                       width: 100,
                       child: Text('バック金額', style: TextStyle(fontSize: 12)),
                     ),

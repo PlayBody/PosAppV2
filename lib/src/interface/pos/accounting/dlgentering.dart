@@ -27,8 +27,7 @@ class DlgEntering extends StatefulWidget {
       this.orderId,
       required this.tablePosition,
       this.isReject,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _DlgEntering createState() => _DlgEntering();
@@ -219,7 +218,7 @@ class _DlgEntering extends State<DlgEntering> {
   }
 
   Future<bool> createOrder(userId) async {
-    String _orderId = await ClOrder().addOrder(context, {
+    String orderId = await ClOrder().addOrder(context, {
       'organ_id': globals.organId,
       'table_position': widget.tablePosition,
       'user_id': userId,
@@ -228,10 +227,10 @@ class _DlgEntering extends State<DlgEntering> {
       'set_number': isUseSet ? setNum : '',
       'status': constOrderStatusTableStart
     });
-    if (_orderId == '') {
+    if (orderId == '') {
       Navigator.pop(context, widget.orderId);
     } else {
-      Navigator.pop(context, _orderId);
+      Navigator.pop(context, orderId);
     }
     return true;
   }
@@ -269,8 +268,8 @@ class _DlgEntering extends State<DlgEntering> {
                     renderWidget: DropDownModelSelect(
                       value: '1',
                       items: [
-                        DropdownMenuItem(child: Text('男'),value: '1',),
-                        DropdownMenuItem(child: Text('女'), value: '2'),
+                        DropdownMenuItem(value: '1',child: Text('男'),),
+                        DropdownMenuItem(value: '2', child: Text('女')),
                       ],
                       tapFunc: (v) {
                         setState(() {
@@ -313,7 +312,7 @@ class _DlgEntering extends State<DlgEntering> {
       ),
     );
 
-    return value == null ? '2' : value;
+    return value ?? '2';
   }
 }
 
@@ -325,8 +324,7 @@ class EnteringOrganBottomButton extends StatelessWidget {
       {required this.label,
       required this.tapFunc,
       required this.btnStyle,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -334,9 +332,9 @@ class EnteringOrganBottomButton extends StatelessWidget {
       width: 120,
       padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: ElevatedButton(
-        child: Text(label),
         onPressed: tapFunc,
-        style: this.btnStyle,
+        style: btnStyle,
+        child: Text(label),
       ),
     );
   }

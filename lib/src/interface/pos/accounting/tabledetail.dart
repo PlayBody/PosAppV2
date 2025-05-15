@@ -31,8 +31,7 @@ class TableDetail extends StatefulWidget {
   final String tablePosition;
 
   const TableDetail(
-      {required this.orderId, required this.tablePosition, Key? key})
-      : super(key: key);
+      {required this.orderId, required this.tablePosition, super.key});
 
   @override
   _TableDetail createState() => _TableDetail();
@@ -73,14 +72,14 @@ class _TableDetail extends State<TableDetail> {
     loadData = loadTableDetail();
   }
 
-  Future<void> updateTitle(String _title) async {
+  Future<void> updateTitle(String title) async {
     Navigator.of(context).pop();
-    if (_title == '') return;
+    if (title == '') return;
 
     bool isUpdate = await ClOrder().updateTableTitle(
-        context, globals.organId, widget.tablePosition, _title);
+        context, globals.organId, widget.tablePosition, title);
     if (isUpdate) {
-      tableTitle = _title;
+      tableTitle = title;
       setState(() {});
     } else {
       Dialogs().infoDialog(context, errServerActionFail);
@@ -106,30 +105,31 @@ class _TableDetail extends State<TableDetail> {
 
   Future<List> loadTableDetail() async {
     isEditUserName = false;
-    OrderModel? _order;
+    OrderModel? order;
 
     if (orderId != null) {
-      _order = await ClOrder().loadOrderInfo(context, orderId);
+      order = await ClOrder().loadOrderInfo(context, orderId);
     }
 
-    if (_order != null) {
-      tableTitle = _order.tableTitle;
-      inputDateTime = _order.fromTime;
-      tableStartTime = _order.fromTime;
-      int flowH = _order.flowTime ~/ 60;
-      int flowM = _order.flowTime % 60;
-      flowTime = (flowH < 10 ? '0' : '') + flowH.toString() + ' 時間  ';
-      flowTime += (flowM < 10 ? '0' : '') + flowM.toString() + ' 分';
-      amount = _order.amount.toString();
-      userCount = _order.userCount.toString();
-      tableStatus = _order.status;
-      userName = _order.userInputName;
-      userId = _order.userId;
-      menuList = _order.menus;
-      if (_order.status == constOrderStatusReserveApply)
-        reserveUserId = _order.userId;
+    if (order != null) {
+      tableTitle = order.tableTitle;
+      inputDateTime = order.fromTime;
+      tableStartTime = order.fromTime;
+      int flowH = order.flowTime ~/ 60;
+      int flowM = order.flowTime % 60;
+      flowTime = '${flowH < 10 ? '0' : ''}$flowH 時間  ';
+      flowTime += '${flowM < 10 ? '0' : ''}$flowM 分';
+      amount = order.amount.toString();
+      userCount = order.userCount.toString();
+      tableStatus = order.status;
+      userName = order.userInputName;
+      userId = order.userId;
+      menuList = order.menus;
+      if (order.status == constOrderStatusReserveApply) {
+        reserveUserId = order.userId;
+      }
 
-      payMethod = _order.payMethod;
+      payMethod = order.payMethod;
     } else {
       inputDateTime = '';
       tableStartTime = '';
@@ -142,9 +142,11 @@ class _TableDetail extends State<TableDetail> {
           .loadTableTitle(context, globals.organId, widget.tablePosition);
     }
     if (tableStatus == constOrderStatusNone ||
-        tableStatus == constOrderStatusReserveApply) this.btnActionText = '入 店';
-    if (tableStatus == constOrderStatusTableStart) this.btnActionText = '清 算';
-    if (tableStatus == constOrderStatusTableEnd) this.btnActionText = 'リセット';
+        tableStatus == constOrderStatusReserveApply) {
+      btnActionText = '入 店';
+    }
+    if (tableStatus == constOrderStatusTableStart) btnActionText = '清 算';
+    if (tableStatus == constOrderStatusTableEnd) btnActionText = 'リセット';
     if (mounted) {
       setState(() {});
     }
@@ -174,9 +176,7 @@ class _TableDetail extends State<TableDetail> {
       await PosPrinters().receiptPrint(context, printData, globals.organId);
       Navigator.pop(context);
 
-      if (payMethod == null)
-        payMethod =
-            await Dialogs().selectDialog(context, 'お支払い方法の選択', constPayMethod);
+      payMethod ??= await Dialogs().selectDialog(context, 'お支払い方法の選択', constPayMethod);
       if (payMethod == null) {
         return false;
       }
@@ -190,12 +190,12 @@ class _TableDetail extends State<TableDetail> {
     return true;
   }
 
-  Future<void> deleteTableMenu(String? _id) async {
-    if (_id == null) return;
+  Future<void> deleteTableMenu(String? id) async {
+    if (id == null) return;
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (conf) {
       Dialogs().loaderDialogNormal(context);
-      bool isDelete = await ClOrder().deleteOrderMenu(context, _id);
+      bool isDelete = await ClOrder().deleteOrderMenu(context, id);
       Navigator.pop(context);
 
       if (isDelete) {
@@ -208,18 +208,18 @@ class _TableDetail extends State<TableDetail> {
     }
   }
 
-  Future<void> changeQuantityOrderMenu(String? _id, String? _quantity) async {
-    if (_id == null || _quantity == null) return;
+  Future<void> changeQuantityOrderMenu(String? id, String? quantity) async {
+    if (id == null || quantity == null) return;
     bool isUpdate =
-        await ClOrder().changeQuantityOrderMenu(context, _id, _quantity);
+        await ClOrder().changeQuantityOrderMenu(context, id, quantity);
     if (isUpdate) refreshLoad();
   }
 
   void titleChangeDialog(String txtInputTitle) {
-    final _controller = TextEditingController();
+    final controller = TextEditingController();
 
-    _controller.text = txtInputTitle;
-    _controller.selection = TextSelection(
+    controller.text = txtInputTitle;
+    controller.selection = TextSelection(
       baseOffset: 0,
       extentOffset: txtInputTitle.length,
     );
@@ -233,7 +233,7 @@ class _TableDetail extends State<TableDetail> {
           // onChanged: (v) {
           //   titleNew = v;
           // },
-          controller: _controller,
+          controller: controller,
           decoration: InputDecoration(
             hintText: hintInputTitle,
           ),
@@ -241,7 +241,7 @@ class _TableDetail extends State<TableDetail> {
         actions: [
           TextButton(
             child: const Text('変更'),
-            onPressed: () => {updateTitle(_controller.text)},
+            onPressed: () => {updateTitle(controller.text)},
           ),
           TextButton(
             child: const Text('キャンセル'),
@@ -253,13 +253,13 @@ class _TableDetail extends State<TableDetail> {
   }
 
   void timeChangeDialog() {
-    DateTime _date = DateTime.parse(inputDateTime.toString());
+    DateTime date = DateTime.parse(inputDateTime.toString());
 
     var txthourController = TextEditingController();
     var txtminController = TextEditingController();
 
-    txthourController.text = _date.hour.toString();
-    txtminController.text = _date.minute.toString();
+    txthourController.text = date.hour.toString();
+    txtminController.text = date.minute.toString();
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -329,8 +329,8 @@ class _TableDetail extends State<TableDetail> {
                     renderWidget: DropDownModelSelect(
                       value: '1',
                       items: [
-                        DropdownMenuItem(child: Text('男'),value: '1',),
-                        DropdownMenuItem(child: Text('女'), value: '2'),
+                        DropdownMenuItem(value: '1',child: Text('男'),),
+                        DropdownMenuItem(value: '2', child: Text('女')),
                       ],
                       tapFunc: (v) {
                         setState(() {
@@ -366,11 +366,11 @@ class _TableDetail extends State<TableDetail> {
       ),
     );
 
-    return value == null ? '2' : value;
+    return value ?? '2';
   }
 
   Future<bool> createOrder(userId) async {
-    String _orderId = await ClOrder().addOrder(context, {
+    String orderId = await ClOrder().addOrder(context, {
       'organ_id': globals.organId,
       'table_position': widget.tablePosition,
       'user_id': userId,
@@ -379,8 +379,8 @@ class _TableDetail extends State<TableDetail> {
       'set_number': isUseSet ? setNum : '',
       'status': constOrderStatusTableStart
     });
-    if (_orderId != '') {
-      orderId = _orderId;
+    if (orderId != '') {
+      orderId = orderId;
       return true;
     }
     return false;
@@ -415,6 +415,12 @@ class _TableDetail extends State<TableDetail> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('images/background.jpg'),
+          fit: BoxFit.cover,
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
@@ -658,12 +664,6 @@ class _TableDetail extends State<TableDetail> {
         drawer: MyDrawer(),
         bottomNavigationBar: SubBottomNavi(),
       ),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('images/background.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
     );
   }
 
@@ -675,6 +675,8 @@ class _TableDetail extends State<TableDetail> {
       padding: globals.isWideScreen
           ? EdgeInsets.only(left: 40, right: 40, bottom: 12)
           : EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(10)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         GestureDetector(
           child: Container(
@@ -886,8 +888,6 @@ class _TableDetail extends State<TableDetail> {
                 },
               )),
       ]),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10)),
     );
   }
 
@@ -907,7 +907,7 @@ class _TableDetail extends State<TableDetail> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('人数を変更'),
-          content: Container(
+          content: SizedBox(
             width: 280,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -964,8 +964,7 @@ class TableDetailItemList extends StatelessWidget {
       required this.rowNm,
       this.onTap,
       this.onQuantityChanged,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1016,6 +1015,7 @@ class TableDetailItemList extends StatelessWidget {
             )),
             Container(width: 25),
             GestureDetector(
+              onTap: onTap,
               child: Container(
                   margin: EdgeInsets.only(top: 10),
                   alignment: Alignment.center,
@@ -1029,7 +1029,6 @@ class TableDetailItemList extends StatelessWidget {
                         color: Color.fromRGBO(70, 88, 134, 1),
                         fontWeight: FontWeight.bold),
                   )),
-              onTap: onTap,
             ),
           ],
         ));
@@ -1043,7 +1042,7 @@ class TableDetailItemList extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('数量変更'),
-          content: Container(
+          content: SizedBox(
             width: 280,
             child: Column(
               mainAxisSize: MainAxisSize.min,

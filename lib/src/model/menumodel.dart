@@ -59,8 +59,6 @@ class MenuModel {
         menuInterval: json['menu_interval'],
         image: json['menu_image'],
         categoryId : json['category_id'] == null ? "0" : json['category_id'].toString(),
-        variations: json['variation_titles'] == null
-            ? null
-            : json['variation_titles'].split(','));
+        variations: json['variation_titles']?.split(','));
   }
 }

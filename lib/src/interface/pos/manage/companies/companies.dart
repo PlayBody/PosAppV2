@@ -17,7 +17,7 @@ var txtSetAmountController = TextEditingController();
 var txtTableAmountController = TextEditingController();
 
 class Companies extends StatefulWidget {
-  const Companies({Key? key}) : super(key: key);
+  const Companies({super.key});
 
   @override
   _Companies createState() => _Companies();
@@ -48,14 +48,14 @@ class _Companies extends State<Companies> {
     return companyList;
   }
 
-  Future<void> deleteOrgan(_id) async {
+  Future<void> deleteOrgan(id) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
 
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiDeleteOrganUrl,
-        {'organ_id': _id}).then((v) => {results = v});
+        {'organ_id': id}).then((v) => {results = v});
     if (!results['isDelete']) {
       Dialogs().infoDialog(context, errServerActionFail);
     }

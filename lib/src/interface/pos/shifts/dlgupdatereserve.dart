@@ -21,8 +21,8 @@ class DlgUpdateReserve extends StatefulWidget {
     required this.reserveTime,
     required this.organStaffs,
     required this.reserveId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _DlgUpdateReserve createState() => _DlgUpdateReserve();
@@ -59,10 +59,10 @@ class _DlgUpdateReserve extends State<DlgUpdateReserve> {
                 value: selStaffId,
                 items: [
                   ...widget.organStaffs.map((e) => DropdownMenuItem(
+                        value: e.staffId,
                         child: Text(e.staffNick == ''
                             ? (e.staffFirstName! + ' ' + e.staffLastName!)
                             : e.staffNick),
-                        value: e.staffId,
                       ))
                 ],
                 tapFunc: (v) {
@@ -74,10 +74,8 @@ class _DlgUpdateReserve extends State<DlgUpdateReserve> {
                 date: selTime,
                 confFunc: (v) {
                   selTime = Funcs().getDurationTime(v);
-                  reserveTime = DateFormat('yyyy-MM-dd')
-                          .format(DateTime.parse(widget.reserveTime)) +
-                      ' ' +
-                      Funcs().getDurationTime(v);
+                  reserveTime = '${DateFormat('yyyy-MM-dd')
+                          .format(DateTime.parse(widget.reserveTime))} ${Funcs().getDurationTime(v)}';
                   setState(() {});
                 })),
         RowButtonGroup(widgets: [

@@ -26,7 +26,7 @@ import '../../../common/business/notification.dart';
 import 'dlg_shift_edit.dart';
 
 class ShiftMake extends StatefulWidget {
-  const ShiftMake({Key? key}) : super(key: key);
+  const ShiftMake({super.key});
 
   @override
   State<ShiftMake> createState() => _ShiftMake();
@@ -161,14 +161,14 @@ class _ShiftMake extends State<ShiftMake> {
     }));
   }
 
-  Future<void> onChangeCalander(DateTime _date) async {
-    String _from = DateFormat('yyyy-MM-dd')
-        .format(_date.subtract(Duration(days: _date.weekday - 1)));
-    String _to = DateFormat('yyyy-MM-dd').format(
-        _date.add(Duration(days: DateTime.daysPerWeek - _date.weekday)));
-    if (_from == showFromDate) return;
-    showFromDate = _from;
-    showToDate = _to;
+  Future<void> onChangeCalander(DateTime date) async {
+    String from = DateFormat('yyyy-MM-dd')
+        .format(date.subtract(Duration(days: date.weekday - 1)));
+    String to = DateFormat('yyyy-MM-dd').format(
+        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+    if (from == showFromDate) return;
+    showFromDate = from;
+    showToDate = to;
 
     refreshLoad();
   }
@@ -179,14 +179,14 @@ class _ShiftMake extends State<ShiftMake> {
     refreshLoad();
   }
 
-  void onLongTapCalander(_date) {
+  void onLongTapCalander(date) {
     if (!isOldDate()) return;
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgShiftEdit(
             organId: selOrganId!,
-            selection: _date,
+            selection: date,
             isLock: isLock,
           );
         }).then((_) => refreshLoad());
@@ -199,8 +199,8 @@ class _ShiftMake extends State<ShiftMake> {
   }
 
   bool isOldDate() {
-    DateTime _showEndDate = DateTime.parse(showToDate + ' 23:59:59');
-    if (_showEndDate.isBefore(DateTime.now())) {
+    DateTime showEndDate = DateTime.parse('$showToDate 23:59:59');
+    if (showEndDate.isBefore(DateTime.now())) {
       Dialogs().infoDialog(context, '使用できません。'); 
       return false;
     }
@@ -217,14 +217,14 @@ class _ShiftMake extends State<ShiftMake> {
     setState(() {});
 
     if (calendarTapDetails.targetElement != CalendarElement.appointment) return;
-    Appointment? _selappoint = calendarTapDetails.appointments![0];
-    if (_selappoint == null || _selappoint.notes == null) return;
-    String _note = _selappoint.notes!;
-    if (!_note.contains('reserve_1') || !_note.contains(':')) return;
+    Appointment? selappoint = calendarTapDetails.appointments![0];
+    if (selappoint == null || selappoint.notes == null) return;
+    String note = selappoint.notes!;
+    if (!note.contains('reserve_1') || !note.contains(':')) return;
 
-    reserveId = _note.split(':')[1];
-    reserveFrom = _selappoint.startTime;
-    reserveTo = _selappoint.endTime;
+    reserveId = note.split(':')[1];
+    reserveFrom = selappoint.startTime;
+    reserveTo = selappoint.endTime;
     isShowReservePan = true;
 
     setState(() {});
@@ -359,7 +359,7 @@ class _ShiftMake extends State<ShiftMake> {
         value: selOrganId,
         items: [
           ...organList.map((e) =>
-              DropdownMenuItem(child: Text(e.organName), value: e.organId))
+              DropdownMenuItem(value: e.organId, child: Text(e.organName)))
         ],
         tapFunc: (v) => onChangeOrgan(v),
       )),

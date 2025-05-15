@@ -15,8 +15,7 @@ class SumSaleItemView extends StatefulWidget {
   final String orderId;
   final String position;
   const SumSaleItemView(
-      {required this.orderId, required this.position, Key? key})
-      : super(key: key);
+      {required this.orderId, required this.position, super.key});
 
   @override
   _SumSaleItemView createState() => _SumSaleItemView();
@@ -67,15 +66,13 @@ class _SumSaleItemView extends State<SumSaleItemView> {
                                       label: '席No.', val: tablePosition),
                                   SumSaleItemViewContentRow(
                                       label: '入店時間',
-                                      val: (startTime == ''
+                                      val: '${startTime == ''
                                               ? ''
                                               : Funcs().getTimeFormatHHMM(
-                                                  DateTime.parse(startTime))) +
-                                          ' ~ ' +
-                                          (endTime == ''
+                                                  DateTime.parse(startTime))} ~ ${endTime == ''
                                               ? ''
                                               : Funcs().getTimeFormatHHMM(
-                                                  DateTime.parse(endTime)))),
+                                                  DateTime.parse(endTime))}'),
                                   SumSaleItemViewContentRow(
                                       label: '人数',
                                       val: userCnt),
@@ -83,7 +80,7 @@ class _SumSaleItemView extends State<SumSaleItemView> {
                                     padding: EdgeInsets.only(bottom: 15),
                                     child: Row(
                                       children: [
-                                        Container(
+                                        SizedBox(
                                           width: 180,
                                           child: Text('代表者様名',
                                               style: TextStyle(fontSize: 22)),
@@ -129,13 +126,12 @@ class _SumSaleItemView extends State<SumSaleItemView> {
                                   if (serviceAmount !=null)
                                     SumSaleItemViewListRow(
                                       label: 'サービス料',
-                                      val: '￥' +
-                                            Funcs().currencyFormat(serviceAmount!),
+                                      val: '￥${Funcs().currencyFormat(serviceAmount!)}',
                                     ),
                                   ...menuList.map((e) => SumSaleItemViewListRow(
                                         label: e.menuTitle,
                                         quantity: e.quantity,
-                                        val: '￥' + Funcs().currencyFormat(calculateMenuPrice(e)),
+                                        val: '￥${Funcs().currencyFormat(calculateMenuPrice(e))}',
                                       ))
                                 ],
                               )))),
@@ -190,7 +186,7 @@ class _SumSaleItemView extends State<SumSaleItemView> {
 
       double orderAmount = order['amount'] == null ? 0 : double.tryParse(order['amount'].toString()) ?? 0;
       tableAmount = orderAmount > 0
-          ? '￥' + Funcs().currencyFormat(orderAmount.toInt().toString())
+          ? '￥${Funcs().currencyFormat(orderAmount.toInt().toString())}'
           : '';
           
       double chargeAmount = 0;
@@ -199,7 +195,7 @@ class _SumSaleItemView extends State<SumSaleItemView> {
       }
       tableChargeAmount = chargeAmount == 0
           ? ''
-          : '￥' + Funcs().currencyFormat(chargeAmount.toInt().toString());
+          : '￥${Funcs().currencyFormat(chargeAmount.toInt().toString())}';
           
       double setAmountValue = 0;
       if (order['set_amount'] != null) {
@@ -207,7 +203,7 @@ class _SumSaleItemView extends State<SumSaleItemView> {
       }
       setAmount = setAmountValue == 0
           ? ''
-          : '￥' + Funcs().currencyFormat(setAmountValue.toInt().toString());
+          : '￥${Funcs().currencyFormat(setAmountValue.toInt().toString())}';
           
       if (order['service_amount'] != null) serviceAmount = order['service_amount'].toString();
 
@@ -227,8 +223,7 @@ class SumSaleItemViewContentRow extends StatelessWidget {
   final String label;
   final String val;
   const SumSaleItemViewContentRow(
-      {required this.label, required this.val, Key? key})
-      : super(key: key);
+      {required this.label, required this.val, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +231,7 @@ class SumSaleItemViewContentRow extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 15),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 180,
             child: Text(label, style: TextStyle(fontSize: 22)),
           ),
@@ -254,8 +249,7 @@ class SumSaleItemViewListRow extends StatelessWidget {
   final String? quantity;
   final String val;
   const SumSaleItemViewListRow(
-      {required this.label, required this.val, this.quantity, Key? key})
-      : super(key: key);
+      {required this.label, required this.val, this.quantity, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +257,7 @@ class SumSaleItemViewListRow extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 15),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: quantity == null ? 200 : 150,
             child: Text(label, style: TextStyle(fontSize: 22)),
           ),
@@ -271,7 +265,7 @@ class SumSaleItemViewListRow extends StatelessWidget {
             Container(
               alignment: Alignment.centerRight,
               width: 50,
-              child: Text('× ' + quantity!, style: TextStyle(fontSize: 22)),
+              child: Text('× ${quantity!}', style: TextStyle(fontSize: 22)),
             ),
           Expanded(
               child: Container(

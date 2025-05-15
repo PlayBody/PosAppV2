@@ -1,7 +1,7 @@
-String apiBase = 'https://silverfeathers.net';
-String apiNewBase = 'https://silverfeathers.net/apis';
-// String apiBase = 'http://192.168.132.64:8081';
-// String apiNewBase = 'http://192.168.132.64:8081/apis';
+// String apiBase = 'https://silverfeathers.net';
+// String apiNewBase = 'https://silverfeathers.net/apis';
+String apiBase = 'http://192.168.132.64:8081';
+String apiNewBase = 'http://192.168.132.64:8081/apis';
 
 String apiMaster = '$apiBase/apis/master';
 

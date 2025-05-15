@@ -12,7 +12,7 @@ import 'package:staff_pos_app/src/common/apiendpoint.dart';
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 
 class StaffList extends StatefulWidget {
-  const StaffList({Key? key}) : super(key: key);
+  const StaffList({super.key});
 
   @override
   _StaffList createState() => _StaffList();
@@ -116,11 +116,6 @@ class _StaffList extends State<StaffList> {
           _getOrganTitleBar(),
           ...organ.staffs.map((ee) => LongPressDraggable(
                 data: ee.staffId,
-                child: DragTarget(
-                  builder: (context, candidateData, rejectedData) =>
-                      _getStaffItem(ee),
-                  onAccept: (staffId) => exchangeMenuSort(staffId, ee.staffId),
-                ),
                 feedback: Container(
                   color: Colors.grey.withOpacity(0.3),
                   child: Text(
@@ -128,6 +123,11 @@ class _StaffList extends State<StaffList> {
                         ? ee.staffFirstName + '　' + ee.staffLastName
                         : ee.staffNick,
                   ),
+                ),
+                child: DragTarget(
+                  builder: (context, candidateData, rejectedData) =>
+                      _getStaffItem(ee),
+                  onAccept: (staffId) => exchangeMenuSort(staffId, ee.staffId),
                 ),
               )),
         ],
