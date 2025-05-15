@@ -12,7 +12,7 @@ import 'package:staff_pos_app/src/common/messages.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
 import 'package:staff_pos_app/src/interface/components/dropdowns.dart';
 import 'package:staff_pos_app/src/interface/components/form_widgets.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 import '../../../http/webservice.dart';
 import '../../../common/globals.dart' as globals;
@@ -187,7 +187,8 @@ class _DlgEntering extends State<DlgEntering> {
 
   @override
   void dispose() {
-    controller?.dispose();
+    // QRViewController now self-disposes when the QRView is unmounted
+    // No need to call controller?.dispose() anymore
     super.dispose();
   }
 

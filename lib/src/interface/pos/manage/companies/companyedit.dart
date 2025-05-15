@@ -102,7 +102,7 @@ class _CompanyEdit extends State<CompanyEdit> {
     Map<dynamic, dynamic> results = {};
     await Webservice()
         .loadHttp(context, apiSaveCompanyData, {
-          'company_id': this.editComapnyId ?? '',
+          'company_id': editComapnyId ?? '',
           'company_name': txtTitleController.text,
           'company_domain': txtDomainController.text,
           'ec_site_url': txtUrlController.text,

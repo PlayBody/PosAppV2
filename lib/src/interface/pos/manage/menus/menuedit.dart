@@ -52,7 +52,7 @@ class _MenuEdit extends State<MenuEdit> {
   List<MenuVariationModel> variationList = [];
   List<MenuModel> menuList = [];
   List<VariationBackStaffModel> vStaffList = [];
-  List<CategoryModel> categories  = [];
+  List<CategoryModel> categories = [];
 
   var txtTitleController = TextEditingController();
   var txtDetailController = TextEditingController();
@@ -123,8 +123,9 @@ class _MenuEdit extends State<MenuEdit> {
 
       menuImage = menu.image;
 
-      menuOrgans =
-          await ClMenu().loadMenuOrgans(context, {'menu_id': editMenuId});
+      menuOrgans = await ClMenu().loadMenuOrgans(context, {
+        'menu_id': editMenuId,
+      });
 
       vStaffList = await ClMenu().loadBackStaffs(context, widget.companyId);
       // for (var item in results['staffs']) {
@@ -184,14 +185,14 @@ class _MenuEdit extends State<MenuEdit> {
     String imagename = '';
     if (isphoto) {
       if (isphoto) {
-        imagename = 'menus-${DateTime.now()
-                .toString()
-                .replaceAll(':', '')
-                .replaceAll('-', '')
-                .replaceAll('.', '')
-                .replaceAll(' ', '')}.jpg';
+        imagename =
+            'menus-${DateTime.now().toString().replaceAll(':', '').replaceAll('-', '').replaceAll('.', '').replaceAll(' ', '')}.jpg';
         await Webservice().callHttpMultiPart(
-            'picture', apiUploadMenuPhoto, _photoFile.path, imagename);
+          'picture',
+          apiUploadMenuPhoto,
+          _photoFile.path,
+          imagename,
+        );
       }
       print(imagename);
     }
@@ -201,7 +202,7 @@ class _MenuEdit extends State<MenuEdit> {
       'menu_id': editMenuId ?? '',
       'title': txtTitleController.text,
       'detail': txtDetailController.text,
-      'category_id' : selCategory,
+      'category_id': selCategory,
       'price': txtPriceController.text,
       'menu_tax': menuTax,
       'stock': isStockInfinity ? '-1' : txtStockController.text,
@@ -211,7 +212,7 @@ class _MenuEdit extends State<MenuEdit> {
       'menu_time': (!isUserMenu || menuTime == null) ? '' : menuTime,
       'menu_interval': (!isUserMenu) ? '' : menuInterval,
       'image': imagename,
-      'menu_organs': jsonEncode(menuOrgans)
+      'menu_organs': jsonEncode(menuOrgans),
     });
     print(jsonEncode(menuOrgans));
     Navigator.pop(context);
@@ -224,16 +225,21 @@ class _MenuEdit extends State<MenuEdit> {
   }
 
   Future<void> deleteMenuData() async {
-    print('asdf');
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
 
-    Dialogs().loaderDialogNormal(context);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+    }
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteMenuUrl,
-        {'menu_id': widget.menuId}).then((v) => results = v);
-
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiDeleteMenuUrl, {'menu_id': widget.menuId})
+          .then((v) => results = v);
+    }
+    
+    if (!mounted) return;
     Navigator.pop(context);
     if (results['isDelete']) {
       Navigator.pop(context);
@@ -247,8 +253,9 @@ class _MenuEdit extends State<MenuEdit> {
 
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteMenuVariationUrl,
-        {'variation_id': id}).then((v) => results = v);
+    await Webservice()
+        .loadHttp(context, apiDeleteMenuVariationUrl, {'variation_id': id})
+        .then((v) => results = v);
 
     Navigator.pop(context);
     if (results['isDelete']) {
@@ -260,25 +267,31 @@ class _MenuEdit extends State<MenuEdit> {
 
   Future<void> variationEdit(MenuVariationModel? item) async {
     if (item == null) {
-      await Navigator.push(context, MaterialPageRoute(builder: (_) {
-        return MenuVariation(
-          menuId: editMenuId!,
-          vStaffList: vStaffList,
-        );
-      }));
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) {
+            return MenuVariation(menuId: editMenuId!, vStaffList: vStaffList);
+          },
+        ),
+      );
     } else {
-      await Navigator.push(context, MaterialPageRoute(builder: (_) {
-        return MenuVariation(
-          menuId: widget.menuId!,
-          vStaffList: vStaffList,
-          variationId: item.variationId,
-          variationTitle: item.variationTitle,
-          variationPrice: item.variationPrice,
-          variationStaff: item.backs,
-          variationAmount:
-              item.variationAmount ?? '',
-        );
-      }));
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) {
+            return MenuVariation(
+              menuId: widget.menuId!,
+              vStaffList: vStaffList,
+              variationId: item.variationId,
+              variationTitle: item.variationTitle,
+              variationPrice: item.variationPrice,
+              variationStaff: item.backs,
+              variationAmount: item.variationAmount ?? '',
+            );
+          },
+        ),
+      );
     }
     loadMenuData();
   }
@@ -329,19 +342,20 @@ class _MenuEdit extends State<MenuEdit> {
   Widget build(BuildContext context) {
     globals.appTitle = 'メニュー';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return _getBody();
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBody();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-        // By default, show a loading spinner.
-        return Center(child: CircularProgressIndicator());
-      },
-    ));
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   Widget _getBody() {
@@ -370,7 +384,7 @@ class _MenuEdit extends State<MenuEdit> {
               ),
             ),
           ),
-          _getBottomButton()
+          _getBottomButton(),
         ],
       ),
     );
@@ -384,69 +398,84 @@ class _MenuEdit extends State<MenuEdit> {
           _getAvatarContent(),
           SizedBox(height: 12),
           RowLabelInput(
-              label: 'メニュー名',
-              renderWidget: TextInputNormal(
-                  multiLine: 2,
-                  controller: txtTitleController,
-                  errorText: errTitle)),
+            label: 'メニュー名',
+            renderWidget: TextInputNormal(
+              multiLine: 2,
+              controller: txtTitleController,
+              errorText: errTitle,
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: 'メニュー詳細 ',
-              labelPadding: 4,
-              renderWidget: TextInputNormal(
-                  multiLine: 5,
-                  controller: txtDetailController,
-                  errorText: errDetail)),
-          SizedBox(height: 8),          
-	  RowLabelInput(
-              label: 'カテゴリー',
-              labelPadding: 4,
-              renderWidget: DropDownModelSelect(
-                value: selCategory,
-                items: [
-                  DropdownMenuItem(value: "0", child: Text('ノンカテゴリー', style: TextStyle(fontSize: 12,))),
-                  ...categories.map((c) => DropdownMenuItem(
-                          value: c.id.toString(), 
-                          child: Text(c.name, style: TextStyle(fontSize: 12,)))),
-                 
-                ],
-                tapFunc: (v) => selCategory = v.toString(),)
+            label: 'メニュー詳細 ',
+            labelPadding: 4,
+            renderWidget: TextInputNormal(
+              multiLine: 5,
+              controller: txtDetailController,
+              errorText: errDetail,
+            ),
+          ),
+          SizedBox(height: 8),
+          RowLabelInput(
+            label: 'カテゴリー',
+            labelPadding: 4,
+            renderWidget: DropDownModelSelect(
+              value: selCategory,
+              items: [
+                DropdownMenuItem(
+                  value: "0",
+                  child: Text('ノンカテゴリー', style: TextStyle(fontSize: 12)),
+                ),
+                ...categories.map(
+                  (c) => DropdownMenuItem(
+                    value: c.id.toString(),
+                    child: Text(c.name, style: TextStyle(fontSize: 12)),
+                  ),
+                ),
+              ],
+              tapFunc: (v) => selCategory = v.toString(),
+            ),
           ),
           const SizedBox(height: 8),
           RowLabelInput(
-              label: '税抜価格',
-              renderWidget: Row(children: [
+            label: '税抜価格',
+            renderWidget: Row(
+              children: [
                 Flexible(
-                    child: TextInputNormal(
-                  controller: txtPriceController,
-                  errorText: errPrice,
-                  inputType: TextInputType.number)),
+                  child: TextInputNormal(
+                    controller: txtPriceController,
+                    errorText: errPrice,
+                    inputType: TextInputType.number,
+                  ),
+                ),
                 SizedBox(width: 24),
                 InputLeftText(label: '消費税率', rPadding: 4, width: 50),
                 Flexible(
-                    child: DropDownModelSelect(
-                      value: menuTax,
-                      items: const [
-                        DropdownMenuItem(value: '10', child: Text('10%')),
-                        DropdownMenuItem(value: '8', child: Text('8%')),
-                        DropdownMenuItem(value: '0', child: Text('0%')),
-                      ],
-                      tapFunc: (v) => {menuTax = v},
-
-
-                    )),
-              
-              ],)),
+                  child: DropDownModelSelect(
+                    value: menuTax,
+                    items: const [
+                      DropdownMenuItem(value: '10', child: Text('10%')),
+                      DropdownMenuItem(value: '8', child: Text('8%')),
+                      DropdownMenuItem(value: '0', child: Text('0%')),
+                    ],
+                    tapFunc: (v) => {menuTax = v},
+                  ),
+                ),
+              ],
+            ),
+          ),
           RowLabelInput(
-              label: '在庫',
-              renderWidget: Row(children: [
+            label: '在庫',
+            renderWidget: Row(
+              children: [
                 Flexible(
-                    child: TextInputNormal(
-                  controller: txtStockController,
-                  errorText: errStock,
-                  inputType: TextInputType.number,
-                  isEnable: !isStockInfinity,
-                )),
+                  child: TextInputNormal(
+                    controller: txtStockController,
+                    errorText: errStock,
+                    inputType: TextInputType.number,
+                    isEnable: !isStockInfinity,
+                  ),
+                ),
                 SizedBox(width: 24),
                 InputLeftText(label: '無限大', rPadding: 4, width: 50),
                 CheckNomal(
@@ -458,11 +487,14 @@ class _MenuEdit extends State<MenuEdit> {
                     setState(() {});
                   },
                 ),
-              ])),
+              ],
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
-              label: 'ユーザーメニュー',
-              renderWidget: Row(children: [
+            label: 'ユーザーメニュー',
+            renderWidget: Row(
+              children: [
                 CheckNomal(
                   label: '',
                   value: isUserMenu,
@@ -476,41 +508,52 @@ class _MenuEdit extends State<MenuEdit> {
                 SizedBox(width: 24),
                 InputLeftText(label: '時間', rPadding: 4, width: 50),
                 Flexible(
-                    child: DropDownNumberSelect(
-                        value: menuTime,
-                        min: 0,
-                        max: 360,
-                        diff: 5,
-                        tapFunc: isUserMenu
+                  child: DropDownNumberSelect(
+                    value: menuTime,
+                    min: 0,
+                    max: 360,
+                    diff: 5,
+                    tapFunc:
+                        isUserMenu
                             ? (v) {
-                                menuTime = v;
-                                setState(() {});
-                              }
-                            : null)),
+                              menuTime = v;
+                              setState(() {});
+                            }
+                            : null,
+                  ),
+                ),
                 SizedBox(width: 4),
-                Text('分', style: bodyTextStyle)
-              ])),
+                Text('分', style: bodyTextStyle),
+              ],
+            ),
+          ),
           SizedBox(height: 12),
           RowLabelInput(
-              label: '',
-              renderWidget: Row(children: [
+            label: '',
+            renderWidget: Row(
+              children: [
                 Expanded(child: Container()),
                 InputLeftText(label: 'インターバル', rPadding: 4, width: 50),
                 Flexible(
-                    child: DropDownNumberSelect(
-                        value: menuInterval,
-                        min: 0,
-                        max: 360,
-                        diff: 5,
-                        tapFunc: isUserMenu
+                  child: DropDownNumberSelect(
+                    value: menuInterval,
+                    min: 0,
+                    max: 360,
+                    diff: 5,
+                    tapFunc:
+                        isUserMenu
                             ? (v) {
-                                menuInterval = v;
-                                setState(() {});
-                              }
-                            : null)),
+                              menuInterval = v;
+                              setState(() {});
+                            }
+                            : null,
+                  ),
+                ),
                 SizedBox(width: 4),
-                Text('分', style: bodyTextStyle)
-              ])),
+                Text('分', style: bodyTextStyle),
+              ],
+            ),
+          ),
           SizedBox(height: 8),
           RowLabelInput(
             label: '物販',
@@ -527,11 +570,12 @@ class _MenuEdit extends State<MenuEdit> {
           ),
           SizedBox(height: 8),
           RowLabelInput(
-              labelWidth: 60,
-              isLabelTop: true,
-              label: '\n対象店舗',
-              labelPadding: 4,
-              renderWidget: _getMenuOrgans()),
+            labelWidth: 60,
+            isLabelTop: true,
+            label: '\n対象店舗',
+            labelPadding: 4,
+            renderWidget: _getMenuOrgans(),
+          ),
         ],
       ),
     );
@@ -539,52 +583,62 @@ class _MenuEdit extends State<MenuEdit> {
 
   Widget _getMenuOrgans() {
     return Container(
-        child: Column(
-      children: [
-        CheckNomal(
-          label: '全店舗選択',
-          value: isAllOrgan,
-          scale: 1.0,
-          tapFunc: (v) => onChangeOrganAll(),
-        ),
-        ...organList.map((e) => Container(
-            margin: EdgeInsets.only(left: 20),
-            child: CheckNomal(
-              label: e.organName,
-              value: menuOrgans.contains(e.organId),
-              scale: 1.0,
-              tapFunc: (v) => onChangeMenuOrgan(v.toString(), e.organId),
-            )))
-      ],
-    ));
+      child: Column(
+        children: [
+          CheckNomal(
+            label: '全店舗選択',
+            value: isAllOrgan,
+            scale: 1.0,
+            tapFunc: (v) => onChangeOrganAll(),
+          ),
+          ...organList.map(
+            (e) => Container(
+              margin: EdgeInsets.only(left: 20),
+              child: CheckNomal(
+                label: e.organName,
+                value: menuOrgans.contains(e.organId),
+                scale: 1.0,
+                tapFunc: (v) => onChangeMenuOrgan(v.toString(), e.organId),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getAvatarContent() {
     return Container(
-        child: Column(children: [
-      SizedBox(
-        height: 120,
-        child: isphoto
-            ? Image.file(_photoFile)
-            : menuImage == null
-                ? Image.asset('images/no_image.jpg')
-                : Image.network(menuImageUrl + menuImage!),
-      ),
-      Container(
-          padding: EdgeInsets.only(right: 30),
-          alignment: Alignment.topRight,
-          child: DropdownButton(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 120,
+            child:
+                isphoto
+                    ? Image.file(_photoFile)
+                    : menuImage == null
+                    ? Image.asset('images/no_image.jpg')
+                    : Image.network(menuImageUrl + menuImage!),
+          ),
+          Container(
+            padding: EdgeInsets.only(right: 30),
+            alignment: Alignment.topRight,
+            child: DropdownButton(
               items: [
                 DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
-                DropdownMenuItem(value: 2, child: Text("アルバム"))
+                DropdownMenuItem(value: 2, child: Text("アルバム")),
               ],
               onChanged: (int? v) {
                 if (v == 1 || v == 2) {
                   _getFromPhoto(v!);
                 }
               },
-              hint: Text("画像変更")))
-    ]));
+              hint: Text("画像変更"),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getVariationHeader() {
@@ -595,9 +649,10 @@ class _MenuEdit extends State<MenuEdit> {
         child: Row(
           children: [
             Container(
-                padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                child: Text('バリエーション')),
-            WhiteButton(tapFunc: () => variationEdit(null), label: '追加')
+              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+              child: Text('バリエーション'),
+            ),
+            WhiteButton(tapFunc: () => variationEdit(null), label: '追加'),
           ],
         ),
       );
@@ -612,8 +667,9 @@ class _MenuEdit extends State<MenuEdit> {
         CancelButton(label: '戻る', tapFunc: () => Navigator.pop(context)),
         SizedBox(width: 8),
         DeleteButton(
-            label: '削除',
-            tapFunc: editMenuId == null ? null : () => deleteMenuData()),
+          label: '削除',
+          tapFunc: editMenuId == null ? null : () => deleteMenuData(),
+        ),
       ],
     );
   }
@@ -623,11 +679,12 @@ class MenuEditVariationTile extends StatelessWidget {
   final MenuVariationModel item;
   final editFunc;
   final delFunc;
-  const MenuEditVariationTile(
-      {required this.item,
-      required this.editFunc,
-      required this.delFunc,
-      super.key});
+  const MenuEditVariationTile({
+    required this.item,
+    required this.editFunc,
+    required this.delFunc,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -639,78 +696,81 @@ class MenuEditVariationTile extends StatelessWidget {
         child: Column(
           children: [
             Container(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 100,
-                      child: Text('バリエーション名', style: TextStyle(fontSize: 12)),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(left: 30),
-                      child: Text(item.variationTitle),
-                    ),
-                  ],
-                )),
+              padding: EdgeInsets.only(bottom: 15),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    child: Text('バリエーション名', style: TextStyle(fontSize: 12)),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 30),
+                    child: Text(item.variationTitle),
+                  ),
+                ],
+              ),
+            ),
             Container(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 100,
-                      child: Text('税抜価格', style: TextStyle(fontSize: 12)),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(left: 30),
-                      child: Text(item.variationPrice),
-                    ),
-                  ],
-                )),
+              padding: EdgeInsets.only(bottom: 15),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    child: Text('税抜価格', style: TextStyle(fontSize: 12)),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 30),
+                    child: Text(item.variationPrice),
+                  ),
+                ],
+              ),
+            ),
             Container(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 100,
-                      child: Text('バックスタッフ', style: TextStyle(fontSize: 12)),
-                    ),
-                    SizedBox(width: 30),
-                    Flexible(
-                      // padding: EdgeInsets.only(left: 30),
-                      child: Column(children: [
+              padding: EdgeInsets.only(bottom: 15),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    child: Text('バックスタッフ', style: TextStyle(fontSize: 12)),
+                  ),
+                  SizedBox(width: 30),
+                  Flexible(
+                    // padding: EdgeInsets.only(left: 30),
+                    child: Column(
+                      children: [
                         item.staffName == null
                             ? Text('')
-                            : Text(item.staffName!)
-                      ]),
+                            : Text(item.staffName!),
+                      ],
                     ),
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 100,
-                      child: Text('バック金額', style: TextStyle(fontSize: 12)),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(left: 30),
-                      child: Text(item.variationAmount!),
-                    ),
-                  ],
-                )),
-            RowButtonGroup(bgColor: Colors.transparent, widgets: [
-              Expanded(child: Container()),
-              PrimaryButton(
-                label: '変更',
-                tapFunc: editFunc,
+                  ),
+                ],
               ),
-              SizedBox(width: 8),
-              DeleteButton(
-                label: '削除',
-                tapFunc: delFunc,
-              )
-            ])
+            ),
+            Container(
+              padding: EdgeInsets.only(bottom: 15),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    child: Text('バック金額', style: TextStyle(fontSize: 12)),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 30),
+                    child: Text(item.variationAmount!),
+                  ),
+                ],
+              ),
+            ),
+            RowButtonGroup(
+              bgColor: Colors.transparent,
+              widgets: [
+                Expanded(child: Container()),
+                PrimaryButton(label: '変更', tapFunc: editFunc),
+                SizedBox(width: 8),
+                DeleteButton(label: '削除', tapFunc: delFunc),
+              ],
+            ),
           ],
         ),
       ),

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:staff_pos_app/src/model/order_menu_model.dart';

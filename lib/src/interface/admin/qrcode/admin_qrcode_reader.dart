@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:staff_pos_app/src/common/messages.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
 import '../../../common/globals.dart' as globals;
 

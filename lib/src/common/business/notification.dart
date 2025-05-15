@@ -1,4 +1,4 @@
-import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:staff_pos_app/src/common/business/message.dart';
 import 'package:staff_pos_app/src/http/webservice.dart';
 
@@ -34,10 +34,12 @@ class ClNotification {
     String apiUrl = '$apiBase/apimessages/getStaffUnreadCount';
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiUrl, {
-      'receiver_id': staffId,
-      'receiver_type': '1',
-    }).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiUrl, {
+          'receiver_id': staffId,
+          'receiver_type': '1',
+        })
+        .then((value) => results = value);
 
     return results['count'].toString();
   }
@@ -55,12 +57,12 @@ class ClNotification {
       'receiver_id': receiverId,
       'receiver_type': '1',
       'notification_type': notificationType,
-      'badge_count': badgeCount
+      'badge_count': badgeCount,
     });
 
     String badge = await getBageCount(context, receiverId);
 
-    FlutterAppBadger.updateBadgeCount(int.parse(badge == 'null' ? '0' : badge));
+    AppBadgePlus.updateBadge(int.parse(badge == 'null' ? '0' : badge));
   }
 
   Future<int> getBageCountDetail(context, param) async {
@@ -79,7 +81,7 @@ class ClNotification {
         .then((value) => results = value);
 
     List<String> temp = [];
-    for(var el in results['userIds']) {
+    for (var el in results['userIds']) {
       temp.add(el.toString());
     }
     return temp;

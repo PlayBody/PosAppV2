@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_beep/flutter_beep.dart';
+import 'package:flutter_beep_plus/flutter_beep_plus.dart';
 // ignore: depend_on_referenced_packages
 import 'package:image/image.dart';
 import 'package:staff_pos_app/src/common/business/company.dart';
@@ -92,7 +92,9 @@ class PosPrinters {
   }
 
   Future<void> runPrintTicket(printData) async {
-    FlutterBeep.playSysSound(49);
+    FlutterBeepPlus().playSysSound(
+      AndroidSoundID.TONE_CDMA_CALL_SIGNAL_ISDN_PING_RING,
+    );
 
     _socket.add(
       generator.textEncoded(

@@ -1,5 +1,5 @@
 name: staff_pos_app
-description: "A new Flutter project."
+description: "VISIT POS Application."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -52,12 +52,12 @@ dependencies:
   time_range: ^1.1.1
   image_picker: ^1.1.2
   # date_time_picker: ^2.1.0
-  flutter_datetime_picker: ^1.5.1
+  flutter_datetime_picker_plus: ^2.2.0
   package_info_plus: ^8.3.0
   shared_preferences: ^2.5.3
   flutter_html: ^3.0.0
   url_launcher: ^6.3.1
-  qr_code_scanner: ^1.0.1
+  qr_code_scanner_plus: ^2.0.10+1
   flutter_screenutil: ^5.9.3
   firebase_core: ^3.13.0
   firebase_database: ^11.3.5
@@ -74,7 +74,7 @@ dependencies:
   external_path: ^2.2.0
   flutter_dialogs: ^3.0.0
   euc: ^1.0.6+8
-  flutter_beep: ^1.0.0
+  flutter_beep_plus: ^0.0.3
   open_file_safe_plus: ^0.0.6
   syncfusion_flutter_pdf: ^29.1.41
   file_picker: ^10.1.9
@@ -82,9 +82,9 @@ dependencies:
   flutter_local_notifications: ^19.2.0
   flutter_downloader: ^1.12.0
   gallery_saver_plus: ^3.2.4
-  flutter_app_badger: ^1.5.0
+  app_badge_plus: ^1.2.3
   flutter_linkify: ^6.0.0
-  video_thumbnail: ^0.5.5
+  flutter_video_thumbnail_plus: ^1.0.5
   stream_transform: ^2.1.1
   modal_bottom_sheet: ^3.0.0
   local_auth: ^2.3.0

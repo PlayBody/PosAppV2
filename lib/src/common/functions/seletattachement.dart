@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 // ignore: depend_on_referenced_packages
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:flutter_video_thumbnail_plus/flutter_video_thumbnail_plus.dart';
 
 class SelectAttachments {
   Future<String> selectMovie() async {
@@ -71,10 +71,10 @@ class SelectAttachments {
 
     String? thumbPath;
     if (filePath != null) {
-      thumbPath = await VideoThumbnail.thumbnailFile(
+      thumbPath = await FlutterVideoThumbnailPlus.thumbnailFile(
         video: filePath,
         thumbnailPath: (await getTemporaryDirectory()).path,
-        imageFormat: ImageFormat.JPEG,
+        imageFormat: ImageFormat.jpeg,
         maxHeight: 100,
         maxWidth: 170,
         quality: 25,

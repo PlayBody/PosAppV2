@@ -7,7 +7,7 @@ import 'package:staff_pos_app/src/common/business/company.dart';
 import 'package:staff_pos_app/src/common/business/organ.dart';
 import 'package:staff_pos_app/src/common/const.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:staff_pos_app/src/common/functions.dart';
 import 'package:staff_pos_app/src/common/functions/seletattachement.dart';
 import 'package:staff_pos_app/src/common/messages.dart';

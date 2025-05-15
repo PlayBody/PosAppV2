@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart'
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
     as custom_picker;
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class PosTimePicker extends StatelessWidget {
   final String date;
@@ -22,7 +22,7 @@ class PosTimePicker extends StatelessWidget {
               side: BorderSide(color: Colors.grey.withValues(alpha: 0.4)),
             ),
             onPressed: () {
-              custom_picker.DatePicker.showTimePicker(
+              DatePicker.showTimePicker(
                 context,
                 theme: custom_picker.DatePickerTheme(
                   backgroundColor: Colors.black,
