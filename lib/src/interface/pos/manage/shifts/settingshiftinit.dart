@@ -159,7 +159,7 @@ class _SettingShiftInit extends State<SettingShiftInit> {
 
   Widget _getCalendar() {
     return SfCalendar(
-      cellBorderColor: Colors.grey.withOpacity(0.8),
+      cellBorderColor: Colors.grey.withValues(alpha: 0.8),
       firstDayOfWeek: 1,
       view: CalendarView.week,
       headerHeight: 0,
@@ -178,7 +178,7 @@ class _SettingShiftInit extends State<SettingShiftInit> {
           timeTextStyle: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 15,
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           )),
       specialRegions: regions,
       dataSource: _AppointmentDataSource(appointments),

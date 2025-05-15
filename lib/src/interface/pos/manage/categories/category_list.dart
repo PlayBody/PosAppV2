@@ -10,7 +10,6 @@ import 'package:staff_pos_app/src/interface/components/dropdowns.dart';
 import 'package:staff_pos_app/src/interface/components/form_widgets.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
 import 'package:staff_pos_app/src/interface/pos/manage/categories/category_edit.dart';
-import 'package:staff_pos_app/src/interface/pos/manage/menus/menuedit.dart';
 import 'package:staff_pos_app/src/model/category_model.dart';
 import 'package:staff_pos_app/src/model/companymodel.dart';
 import 'package:staff_pos_app/src/model/menumodel.dart';
@@ -29,7 +28,7 @@ class CategoryList extends StatefulWidget {
   const CategoryList({this.organId, super.key});
 
   @override
-  _CategoryList createState() => _CategoryList();
+  State<CategoryList> createState() => _CategoryList();
 }
 
 class _CategoryList extends State<CategoryList> {
@@ -55,9 +54,12 @@ class _CategoryList extends State<CategoryList> {
     selCompanyId ??= companyList.first.companyId;
 
     if (globals.auth < constAuthSystem) selCompanyId = globals.companyId;
-
-    organList = await ClOrgan().loadOrganList(context, selCompanyId!, '');
-    categories = await ClCategory().getCategoryList(context, selCompanyId);
+    if (mounted) {
+      organList = await ClOrgan().loadOrganList(context, selCompanyId!, '');
+      if (mounted) {
+        categories = await ClCategory().getCategoryList(context, selCompanyId);
+      }
+    }
     print(categories);
     setState(() {});
     return categories;
@@ -79,12 +81,14 @@ class _CategoryList extends State<CategoryList> {
 
   Future<void> onCategoryEdit(String? catId) async {
     // globals.editMenuId = _menuId;
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return CategoryEdit(
-        catId: catId,
-        companyId: selCompanyId!,
-      );
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return CategoryEdit(catId: catId, companyId: selCompanyId!);
+        },
+      ),
+    );
     refreshLoad();
   }
 
@@ -104,31 +108,39 @@ class _CategoryList extends State<CategoryList> {
     globals.appTitle = 'カテゴリー管理';
     return MainBodyWdiget(
       render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return _getBodyContents();
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return Center(child: CircularProgressIndicator());
-          }),
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBodyContents();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 
   Widget _getBodyContents() {
     return Container(
       color: bodyColor,
-      child: Column(children: [
-        if (globals.auth == constAuthSystem) _getTopCompanies(),
-        Expanded(
+      child: Column(
+        children: [
+          if (globals.auth == constAuthSystem) _getTopCompanies(),
+          Expanded(
             child: SingleChildScrollView(
-                child: Column(
-                    children: [...categories.map((e) => _getCategoryContent(e))]))),
-        RowButtonGroup(widgets: [
-          PrimaryButton(label: '新規登録', tapFunc: () => onCategoryEdit(null))
-        ])
-      ]),
+              child: Column(
+                children: [...categories.map((e) => _getCategoryContent(e))],
+              ),
+            ),
+          ),
+          RowButtonGroup(
+            widgets: [
+              PrimaryButton(label: '新規登録', tapFunc: () => onCategoryEdit(null)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -136,13 +148,17 @@ class _CategoryList extends State<CategoryList> {
     return Container(
       padding: EdgeInsets.all(20),
       child: DropDownModelSelect(
-          value: selCompanyId,
-          items: [
-            ...companyList.map((e) => DropdownMenuItem(
-                value: e.companyId,
-                child: Text(e.companyName)))
-          ],
-          tapFunc: (v) => onCompanyChange(v.toString())),
+        value: selCompanyId,
+        items: [
+          ...companyList.map(
+            (e) => DropdownMenuItem(
+              value: e.companyId,
+              child: Text(e.companyName),
+            ),
+          ),
+        ],
+        tapFunc: (v) => onCompanyChange(v.toString()),
+      ),
     );
   }
 
@@ -154,7 +170,7 @@ class _CategoryList extends State<CategoryList> {
   //             _getCategoryContent(e),
   //         onAccept: (menuId) => exchangeMenuSort(menuId, e.menuId)),
   //     feedback: Container(
-  //       color: Colors.grey.withOpacity(0.3),
+  //       color: Colors.grey.withValues(alpha: 0.3),
   //       child: Text(e.menuTitle,
   //           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
   //     ),
@@ -163,12 +179,18 @@ class _CategoryList extends State<CategoryList> {
 
   Widget _getCategoryContent(CategoryModel e) {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-        child: Row(children: [
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+      child: Row(
+        children: [
           Expanded(
-              child: Text(e.name,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))),
-          WhiteButton(tapFunc: () => onCategoryEdit(e.id), label: '変更')
-        ]));
+            child: Text(
+              e.name,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ),
+          WhiteButton(tapFunc: () => onCategoryEdit(e.id), label: '変更'),
+        ],
+      ),
+    );
   }
 }

@@ -22,15 +22,16 @@ class DlgEntering extends StatefulWidget {
   final String? orderId;
   final bool? isReject;
   final String tablePosition;
-  const DlgEntering(
-      {this.userId,
-      this.orderId,
-      required this.tablePosition,
-      this.isReject,
-      super.key});
+  const DlgEntering({
+    this.userId,
+    this.orderId,
+    required this.tablePosition,
+    this.isReject,
+    super.key,
+  });
 
   @override
-  _DlgEntering createState() => _DlgEntering();
+  State<DlgEntering> createState() => _DlgEntering();
 }
 
 class _DlgEntering extends State<DlgEntering> {
@@ -73,26 +74,21 @@ class _DlgEntering extends State<DlgEntering> {
       body: Column(
         children: <Widget>[
           Expanded(child: _buildQrView(context)),
-          Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Container(
-                  child: Row(
-                    children: [
-                      // if (widget.userId == null)
-                        WhiteButton(
-                            label: '一見', tapFunc: () => selectUnknownUser()),
-                      Expanded(
-                        child: Container(),
-                      ),
-                      CancelColButton(
-                          label: '戻る', tapFunc: () => Navigator.pop(context, widget.orderId))
-                    ],
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Row(
+                children: [
+                  // if (widget.userId == null)
+                  WhiteButton(label: '一見', tapFunc: () => selectUnknownUser()),
+                  Expanded(child: Container()),
+                  CancelColButton(
+                    label: '戻る',
+                    tapFunc: () => Navigator.pop(context, widget.orderId),
                   ),
-                )
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -101,21 +97,23 @@ class _DlgEntering extends State<DlgEntering> {
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
-            MediaQuery.of(context).size.height < 400)
-        ? 150.0
-        : 300.0;
+    var scanArea =
+        (MediaQuery.of(context).size.width < 400 ||
+                MediaQuery.of(context).size.height < 400)
+            ? 150.0
+            : 300.0;
     // To ensure the Scanner view is properly sizes after rotation
     // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: scanArea),
+        borderColor: Colors.red,
+        borderRadius: 10,
+        borderLength: 30,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
   }
@@ -130,32 +128,47 @@ class _DlgEntering extends State<DlgEntering> {
       if (checkQRMessage == "QROK") {
         String userId = await isLoadUser(scanData);
         if (userId == '') {
-          await Dialogs().waitDialog(context, errUnknownQRCode);
+          if (mounted) {
+            await Dialogs().waitDialog(context, errUnknownQRCode);
+          }
         } else {
           if (widget.userId != null) {
             if (widget.userId == userId) {
               await updateOrder(widget.orderId);
             } else {
-              await Dialogs().waitDialog(context, '予約されたユーザーではありません。');
+              if (mounted) {
+                await Dialogs().waitDialog(context, '予約されたユーザーではありません。');
+              }
             }
-            Navigator.pop(context);
+            if (mounted) {
+              Navigator.pop(context);
+            }
           } else {
             String confString = await enteringDialog(
-                (widget.isReject != null && widget.isReject!)
-                    ? qRejectOrgan
-                    : qEnteringOrgan);
+              (widget.isReject != null && widget.isReject!)
+                  ? qRejectOrgan
+                  : qEnteringOrgan,
+            );
             if (confString == '1') {
               await createOrder(userId);
             } else if (confString == '3') {
-              await ClOrder().rejectOrder(context, globals.organId, userId);
-              Navigator.pop(context);
+              if (mounted) {
+                await ClOrder().rejectOrder(context, globals.organId, userId);
+                if (mounted) {
+                  Navigator.pop(context);
+                }
+              }
             } else {
-              Navigator.pop(context);
+              if (mounted) {
+                Navigator.pop(context);
+              }
             }
           }
         }
       } else {
-        await Dialogs().waitDialog(context, checkQRMessage);
+        if (mounted) {
+          await Dialogs().waitDialog(context, checkQRMessage);
+        }
       }
       controller.resumeCamera();
       result = scanData;
@@ -166,9 +179,9 @@ class _DlgEntering extends State<DlgEntering> {
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('no Permission')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('no Permission')));
     }
   }
 
@@ -182,8 +195,9 @@ class _DlgEntering extends State<DlgEntering> {
     String userNo = scanData.code!.split('!')[1];
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadUserFromQrCodeUrl,
-        {'user_no': userNo}).then((v) => results = v);
+    await Webservice()
+        .loadHttp(context, apiLoadUserFromQrCodeUrl, {'user_no': userNo})
+        .then((v) => results = v);
 
     String userId = '';
     if (results['isLoad']) {
@@ -197,23 +211,29 @@ class _DlgEntering extends State<DlgEntering> {
       controller?.pauseCamera();
     });
     String confString = await enteringDialog(
-        (widget.isReject != null && widget.isReject!)
-            ? qRejectOrgan
-            : qEnteringOrgan);
+      (widget.isReject != null && widget.isReject!)
+          ? qRejectOrgan
+          : qEnteringOrgan,
+    );
     if (confString == '1') {
       await createOrder('1');
     } else if (confString == '3') {
+      if (!mounted) return;
       await ClOrder().rejectOrder(context, globals.organId, '1');
+      if (!mounted) return;
       Navigator.pop(context);
     } else {
+      if (!mounted) return;
       Navigator.pop(context, widget.orderId);
     }
   }
 
   Future<bool> updateOrder(orderId) async {
     if (orderId == null) return false;
-    await ClOrder().updateOrder(
-        context, {'id': orderId, 'status': constOrderStatusTableEnd});
+    await ClOrder().updateOrder(context, {
+      'id': orderId,
+      'status': constOrderStatusTableEnd,
+    });
     return true;
   }
 
@@ -225,106 +245,113 @@ class _DlgEntering extends State<DlgEntering> {
       'staff_id': globals.staffId,
       'user_count': quantitiy,
       'set_number': isUseSet ? setNum : '',
-      'status': constOrderStatusTableStart
+      'status': constOrderStatusTableStart,
     });
-    if (orderId == '') {
-      Navigator.pop(context, widget.orderId);
-    } else {
-      Navigator.pop(context, orderId);
+    if (mounted) {
+      if (orderId == '') {
+        Navigator.pop(context, widget.orderId);
+      } else {
+        Navigator.pop(context, orderId);
+      }
     }
     return true;
   }
 
   Future<String> enteringDialog(String message) async {
     isUseSet = await ClOrgan().isUseSetInTable(context, globals.organId);
-    final value = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Container(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.only(bottom: 10),
-                child: Text(message),
+    if (mounted) {
+      final value = await showDialog<String>(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(message),
+                  ),
+                  if (isUseSet &&
+                      (widget.isReject == null || widget.isReject == false))
+                    RowLabelInput(
+                      label: 'セット設定',
+                      renderWidget: DropDownNumberSelect(
+                        value: setNum,
+                        max: 5,
+                        tapFunc: (v) {
+                          setState(() {
+                            setNum = v;
+                          });
+                        },
+                      ),
+                    ),
+                  SizedBox(height: 8),
+                  if (isUseSet &&
+                      (widget.isReject == null || widget.isReject == false))
+                    RowLabelInput(
+                      label: '性別',
+                      renderWidget: DropDownModelSelect(
+                        value: '1',
+                        items: [
+                          DropdownMenuItem(value: '1', child: Text('男')),
+                          DropdownMenuItem(value: '2', child: Text('女')),
+                        ],
+                        tapFunc: (v) {
+                          setState(() {
+                            setNum = v;
+                          });
+                        },
+                      ),
+                    ),
+                  SizedBox(height: 8),
+                  if (widget.isReject == null || widget.isReject == false)
+                    RowLabelInput(
+                      label: '人数',
+                      renderWidget: DropDownNumberSelect(
+                        value: quantitiy,
+                        max: 99,
+                        tapFunc: (v) {
+                          setState(() {
+                            quantitiy = v.toString();
+                          });
+                        },
+                      ),
+                    ),
+                ],
               ),
-              if (isUseSet &&
-                  (widget.isReject == null || widget.isReject == false))
-                RowLabelInput(
-                    label: 'セット設定',
-                    renderWidget: DropDownNumberSelect(
-                      value: setNum,
-                      max: 5,
-                      tapFunc: (v) {
-                        setState(() {
-                          setNum = v;
-                        });
-                      },
-                    )),
-              SizedBox(height: 8),
-              if (isUseSet &&
-                  (widget.isReject == null || widget.isReject == false))
-                RowLabelInput(
-                    label: '性別',
-                    renderWidget: DropDownModelSelect(
-                      value: '1',
-                      items: [
-                        DropdownMenuItem(value: '1',child: Text('男'),),
-                        DropdownMenuItem(value: '2', child: Text('女')),
-                      ],
-                      tapFunc: (v) {
-                        setState(() {
-                          setNum = v;
-                        });
-                      },
-                    )),
-              SizedBox(height: 8),
-              if (widget.isReject == null || widget.isReject == false)
-                RowLabelInput(
-                    label: '人数',
-                    renderWidget: DropDownNumberSelect(
-                      value: quantitiy,
-                      max: 99,
-                      tapFunc: (v) {
-                        setState(() {
-                          quantitiy = v.toString();
-                        });
-                      },
-                    )),
-            ],
-          ),
-        ),
-        actions: [
-          if (widget.isReject == null || widget.isReject == false)
-            TextButton(
-              child: const Text('はい'),
-              onPressed: () => Navigator.of(context).pop('1'),
+              actions: [
+                if (widget.isReject == null || widget.isReject == false)
+                  TextButton(
+                    child: const Text('はい'),
+                    onPressed: () => Navigator.of(context).pop('1'),
+                  ),
+                if (widget.isReject != null && widget.isReject == true)
+                  TextButton(
+                    child: const Text('はい'),
+                    onPressed: () => Navigator.of(context).pop('3'),
+                  ),
+                TextButton(
+                  child: const Text('いいえ'),
+                  onPressed: () => Navigator.of(context).pop('2'),
+                ),
+              ],
             ),
-          if (widget.isReject != null && widget.isReject == true)
-            TextButton(
-              child: const Text('はい'),
-              onPressed: () => Navigator.of(context).pop('3'),
-            ),
-          TextButton(
-            child: const Text('いいえ'),
-            onPressed: () => Navigator.of(context).pop('2'),
-          ),
-        ],
-      ),
-    );
-
-    return value ?? '2';
+      );
+      return value ?? '2';
+    }
+    return '2';
   }
 }
 
 class EnteringOrganBottomButton extends StatelessWidget {
   final String label;
-  final tapFunc;
-  final btnStyle;
-  const EnteringOrganBottomButton(
-      {required this.label,
-      required this.tapFunc,
-      required this.btnStyle,
-      super.key});
+  final Function()? tapFunc;
+  final ButtonStyle? btnStyle;
+  const EnteringOrganBottomButton({
+    required this.label,
+    required this.tapFunc,
+    required this.btnStyle,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

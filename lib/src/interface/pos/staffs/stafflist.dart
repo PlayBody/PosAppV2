@@ -117,7 +117,7 @@ class _StaffList extends State<StaffList> {
           ...organ.staffs.map((ee) => LongPressDraggable(
                 data: ee.staffId,
                 feedback: Container(
-                  color: Colors.grey.withOpacity(0.3),
+                  color: Colors.grey.withValues(alpha: 0.3),
                   child: Text(
                     ee.staffNick == ''
                         ? ee.staffFirstName + '　' + ee.staffLastName

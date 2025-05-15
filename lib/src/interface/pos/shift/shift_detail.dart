@@ -203,7 +203,7 @@ class _ShiftDetail extends State<ShiftDetail> {
         Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.5)),
             ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -260,7 +260,7 @@ class _ShiftDetail extends State<ShiftDetail> {
   Widget _getRowContent(e) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5))),
+        border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.5))),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
       child: Row(
@@ -269,7 +269,7 @@ class _ShiftDetail extends State<ShiftDetail> {
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
               border: Border(
-                right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                right: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
               ),
             ),
             width: MediaQuery.of(context).size.width * 0.3,
@@ -311,7 +311,7 @@ class _ShiftDetail extends State<ShiftDetail> {
           Container(
             decoration: BoxDecoration(
               border: Border(
-                right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                right: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
               ),
             ),
             alignment: Alignment.center,
@@ -328,7 +328,7 @@ class _ShiftDetail extends State<ShiftDetail> {
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
-                  right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  right: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
               ),
               alignment: Alignment.center,

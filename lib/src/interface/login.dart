@@ -523,7 +523,7 @@ class _Login extends State<Login> {
                 loginProcess(emailController.text, passController.text, false),
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: Colors.white.withOpacity(0.7),
+          backgroundColor: Colors.white.withValues(alpha: 0.7),
           foregroundColor: Colors.blue,
           padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
           shape: RoundedRectangleBorder(
@@ -577,7 +577,7 @@ class _Login extends State<Login> {
         filled: true,
         hintText: 'メールアドレスまたはログインID',
         hintStyle: const TextStyle(color: Colors.grey),
-        fillColor: Colors.white.withOpacity(0.5),
+        fillColor: Colors.white.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6.0),
           borderSide: BorderSide.none,

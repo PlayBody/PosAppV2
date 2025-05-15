@@ -3,7 +3,6 @@ import 'package:staff_pos_app/src/common/business/menu.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:staff_pos_app/src/common/messages.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
-import 'package:staff_pos_app/src/interface/components/dialog_widgets.dart';
 import 'package:staff_pos_app/src/interface/components/dropdowns.dart';
 import 'package:staff_pos_app/src/interface/components/form_widgets.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';

@@ -31,8 +31,12 @@ class ShiftDay extends StatefulWidget {
   final bool isEdit;
   final String? initOrgan;
   final DateTime initDate;
-  const ShiftDay(
-      {required this.isEdit, this.initOrgan, required this.initDate, super.key});
+  const ShiftDay({
+    required this.isEdit,
+    this.initOrgan,
+    required this.initDate,
+    super.key,
+  });
 
   @override
   _ShiftDay createState() => _ShiftDay();
@@ -79,16 +83,26 @@ class _ShiftDay extends State<ShiftDay> {
 
   Future<List> loadShiftData() async {
     isDetail = false;
-    organList = await ClOrgan()
-        .loadOrganList(context, globals.companyId, globals.staffId);
+    organList = await ClOrgan().loadOrganList(
+      context,
+      globals.companyId,
+      globals.staffId,
+    );
     selOrganId ??= organList.first.organId;
-    organStaffs = await ClStaff()
-        .loadStaffs(context, {'organ_id': selOrganId.toString()});
+    organStaffs = await ClStaff().loadStaffs(context, {
+      'organ_id': selOrganId.toString(),
+    });
     times = await ClOrgan().loadOrganShiftTime(
-        context, selOrganId!, DateFormat('yyyy-MM-dd').format(selectedDate));
+      context,
+      selOrganId!,
+      DateFormat('yyyy-MM-dd').format(selectedDate),
+    );
 
     shifts = await ClShift().loadDayDetail(
-        context, selOrganId!, DateFormat('yyyy-MM-dd').format(selectedDate));
+      context,
+      selOrganId!,
+      DateFormat('yyyy-MM-dd').format(selectedDate),
+    );
 
     showSorts = await ClCommon().loadStaffShiftSort(context, globals.staffId);
 
@@ -108,16 +122,20 @@ class _ShiftDay extends State<ShiftDay> {
       if (addStaffs.contains(e.staffId)) {
         staffs.add(e.staffId.toString());
 
-        staffNames[e.staffId] = (e.staffNick == ''
-            ? ('${e.staffFirstName!} ${e.staffLastName!}')
-            : e.staffNick);
+        staffNames[e.staffId] =
+            (e.staffNick == ''
+                ? ('${e.staffFirstName!} ${e.staffLastName!}')
+                : e.staffNick);
 
         if (!showSorts.contains(e.staffId)) showSorts.add(e.staffId.toString());
       }
     }
 
     reserves = await ClShift().loadDayReserve(
-        context, selOrganId!, DateFormat('yyyy-MM-dd').format(selectedDate));
+      context,
+      selOrganId!,
+      DateFormat('yyyy-MM-dd').format(selectedDate),
+    );
     for (var element in reserves) {
       if (!staffs.contains(element.staffId)) {
         staffs.add(element.staffId);
@@ -193,12 +211,17 @@ class _ShiftDay extends State<ShiftDay> {
       showSorts.insert(showSorts.indexOf(staffId) + 1, key.toString());
       showSorts.remove(staffId);
       showSorts.insert(itemIndex, staffId);
-      staffs
-          .sort((a, b) => showSorts.indexOf(a).compareTo(showSorts.indexOf(b)));
+      staffs.sort(
+        (a, b) => showSorts.indexOf(a).compareTo(showSorts.indexOf(b)),
+      );
 
       Dialogs().loaderDialogNormal(context);
-      await ClCommon()
-          .exchangeStaffShiftSort(context, globals.staffId, key, staffId);
+      await ClCommon().exchangeStaffShiftSort(
+        context,
+        globals.staffId,
+        key,
+        staffId,
+      );
       Navigator.pop(context);
       setState(() {});
     }
@@ -243,12 +266,15 @@ class _ShiftDay extends State<ShiftDay> {
       isReschedule = true;
       detailData = reserve;
 
-      shiftScheduleDate = DateFormat('yyyy-MM-dd')
-          .format(DateTime.parse(detailData!.strFromTime));
-      shiftScheduleFromTime = DateFormat('HH:mm:ss')
-          .format(DateTime.parse(detailData!.strFromTime));
-      shiftScheduleToTime =
-          DateFormat('HH:mm:ss').format(DateTime.parse(detailData!.strToTime));
+      shiftScheduleDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateTime.parse(detailData!.strFromTime));
+      shiftScheduleFromTime = DateFormat(
+        'HH:mm:ss',
+      ).format(DateTime.parse(detailData!.strFromTime));
+      shiftScheduleToTime = DateFormat(
+        'HH:mm:ss',
+      ).format(DateTime.parse(detailData!.strToTime));
       setState(() {});
       return;
     }
@@ -257,14 +283,15 @@ class _ShiftDay extends State<ShiftDay> {
 
   Future<void> setSubmitShift(DateTime date) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftSubmit(
-            organId: selOrganId!,
-            selection: date,
-            isLock: true,
-          );
-        }).then((_) async {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftSubmit(
+          organId: selOrganId!,
+          selection: date,
+          isLock: true,
+        );
+      },
+    ).then((_) async {
       Dialogs().loaderDialogNormal(context);
       await loadShiftData();
       Navigator.pop(context);
@@ -274,30 +301,38 @@ class _ShiftDay extends State<ShiftDay> {
   void addStaffList() {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('スタッフの追加'),
-        content: Container(
-            child: SingleChildScrollView(
-                child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ...organStaffs.map((e) => !staffs.contains(e.staffId)
-                ? WhiteButton(
-                    label: (e.staffNick == ''
-                        ? ('${e.staffFirstName!} ${e.staffLastName!}')
-                        : e.staffNick),
-                    tapFunc: () {
-                      addStaffs.add(e.staffId.toString());
-                      Navigator.of(context).pop();
-                    })
-                : Container())
-          ],
-        ))),
-        actions: [
-          CancelColButton(
-              label: 'キャンセル', tapFunc: () => Navigator.of(context).pop()),
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text('スタッフの追加'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ...organStaffs.map(
+                    (e) =>
+                        !staffs.contains(e.staffId)
+                            ? WhiteButton(
+                              label:
+                                  (e.staffNick == ''
+                                      ? ('${e.staffFirstName!} ${e.staffLastName!}')
+                                      : e.staffNick),
+                              tapFunc: () {
+                                addStaffs.add(e.staffId.toString());
+                                Navigator.of(context).pop();
+                              },
+                            )
+                            : Container(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              CancelColButton(
+                label: 'キャンセル',
+                tapFunc: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
     ).then((value) {
       refreshLoad();
     });
@@ -306,33 +341,40 @@ class _ShiftDay extends State<ShiftDay> {
   void updateShiftStaus(shiftId, shiftType) {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('シフトの更新'),
-        content: Container(
-            child: DropDownModelSelect(
-          value: shiftType,
-          items: [
-            DropdownMenuItem(value: '1', child: Text('申請中')),
-            DropdownMenuItem(value: '2', child: Text('承認')),
-            DropdownMenuItem(value: '-3', child: Text('店外待機')),
-            DropdownMenuItem(value: '4', child: Text('出勤要請')),
-            DropdownMenuItem(value: '-2', child: Text('拒否')),
-          ],
-          tapFunc: (v) {
-            shiftType = v;
-          },
-        )),
-        actions: [
-          PrimaryColButton(
-              label: '更新',
-              tapFunc: () async {
-                await ClShift().updateShiftStatus(context, shiftId, shiftType);
-                Navigator.pop(context);
-              }),
-          CancelColButton(
-              label: 'キャンセル', tapFunc: () => Navigator.of(context).pop()),
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text('シフトの更新'),
+            content: DropDownModelSelect(
+              value: shiftType,
+              items: [
+                DropdownMenuItem(value: '1', child: Text('申請中')),
+                DropdownMenuItem(value: '2', child: Text('承認')),
+                DropdownMenuItem(value: '-3', child: Text('店外待機')),
+                DropdownMenuItem(value: '4', child: Text('出勤要請')),
+                DropdownMenuItem(value: '-2', child: Text('拒否')),
+              ],
+              tapFunc: (v) {
+                shiftType = v;
+              },
+            ),
+            actions: [
+              PrimaryColButton(
+                label: '更新',
+                tapFunc: () async {
+                  await ClShift().updateShiftStatus(
+                    context,
+                    shiftId,
+                    shiftType,
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              CancelColButton(
+                label: 'キャンセル',
+                tapFunc: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
     ).then((value) {
       refreshLoad();
     });
@@ -340,30 +382,34 @@ class _ShiftDay extends State<ShiftDay> {
 
   void updateReserveItem(ShiftDayModel data) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgUpdateReserve(
-            reserveTime: data.strFromTime,
-            organStaffs: organStaffs,
-            reserveId: data.reserveId,
-            staffId: data.staffId,
-          );
-        }).then((_) async {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgUpdateReserve(
+          reserveTime: data.strFromTime,
+          organStaffs: organStaffs,
+          reserveId: data.reserveId,
+          staffId: data.staffId,
+        );
+      },
+    ).then((_) async {
       await refreshLoad();
     });
   }
 
   Future<void> freeAutoStaff() async {
-    bool conf =
-        await Dialogs().confirmDialog(context, 'フリーの施術（予約）をスタッフ自動選択しますか？');
+    bool conf = await Dialogs().confirmDialog(
+      context,
+      'フリーの施術（予約）をスタッフ自動選択しますか？',
+    );
     if (!conf) return;
 
     Dialogs().loaderDialogNormal(context);
     await ClShift().updateFreeReserveAuto(
-        context,
-        DateFormat('yyyy-MM-dd').format(selectedDate),
-        selOrganId!,
-        globals.staffId);
+      context,
+      DateFormat('yyyy-MM-dd').format(selectedDate),
+      selOrganId!,
+      globals.staffId,
+    );
     await refreshLoad();
     Navigator.pop(context);
   }
@@ -384,11 +430,16 @@ class _ShiftDay extends State<ShiftDay> {
               _getTopContent(),
               _getDetailViewPanel(),
               if (widget.isEdit)
-                RowButtonGroup(widgets: [
-                  WhiteButton(label: 'スタッフの追加', tapFunc: () => addStaffList()),
-                  SizedBox(width: 12),
-                  WhiteButton(label: 'フリー自動', tapFunc: () => freeAutoStaff())
-                ]),
+                RowButtonGroup(
+                  widgets: [
+                    WhiteButton(
+                      label: 'スタッフの追加',
+                      tapFunc: () => addStaffList(),
+                    ),
+                    SizedBox(width: 12),
+                    WhiteButton(label: 'フリー自動', tapFunc: () => freeAutoStaff()),
+                  ],
+                ),
               if (isDetail) _getDetailContent(),
               if (isApply) _getApplyContent(),
               if (isReschedule) _getReScheduleContent(),
@@ -400,45 +451,59 @@ class _ShiftDay extends State<ShiftDay> {
   }
 
   Widget _fullScreenButtons() {
-    return Column(children: [
-      FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
-      FullScreenButton(
+    return Column(
+      children: [
+        FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
+        FullScreenButton(
           icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
-          tapFunc: () => setFullScreenMode())
-    ]);
+          tapFunc: () => setFullScreenMode(),
+        ),
+      ],
+    );
   }
 
   Widget _getTopContent() {
     return Container(
-        padding: EdgeInsets.all(5),
-        child: MediaQuery.of(context).size.width > 600
-            ? Row(children: [
-                _getTopSelectDate(),
-                Expanded(child: Container()),
-                SizedBox(width: 450, child: _getTopOrganSelect()),
-              ])
-            : Column(children: [
-                _getTopSelectDate(),
-                SizedBox(height: 12),
-                Container(child: _getTopOrganSelect()),
-              ]));
+      padding: EdgeInsets.all(5),
+      child:
+          MediaQuery.of(context).size.width > 600
+              ? Row(
+                children: [
+                  _getTopSelectDate(),
+                  Expanded(child: Container()),
+                  SizedBox(width: 450, child: _getTopOrganSelect()),
+                ],
+              )
+              : Column(
+                children: [
+                  _getTopSelectDate(),
+                  SizedBox(height: 12),
+                  Container(child: _getTopOrganSelect()),
+                ],
+              ),
+    );
   }
 
   Widget _getTopSelectDate() {
     return Row(
       children: [
         IconButton(
-            onPressed: () => pushMoveDate(-1),
-            icon: Icon(Icons.arrow_back_ios)),
+          onPressed: () => pushMoveDate(-1),
+          icon: Icon(Icons.arrow_back_ios),
+        ),
         Container(
-            child: SubHeaderText(
-                label: DateTimes().convertJPYMDFromDateTime(selectedDate))),
+          child: SubHeaderText(
+            label: DateTimes().convertJPYMDFromDateTime(selectedDate),
+          ),
+        ),
         IconButton(
-            onPressed: () => pushMoveDate(1),
-            icon: Icon(Icons.arrow_forward_ios)),
+          onPressed: () => pushMoveDate(1),
+          icon: Icon(Icons.arrow_forward_ios),
+        ),
         IconButton(
-            onPressed: () => selectDateMove(),
-            icon: Icon(Icons.calendar_today, color: Colors.blue))
+          onPressed: () => selectDateMove(),
+          icon: Icon(Icons.calendar_today, color: Colors.blue),
+        ),
       ],
     );
   }
@@ -449,40 +514,47 @@ class _ShiftDay extends State<ShiftDay> {
         SizedBox(width: 60),
         InputLeftText(label: '店名', width: 60, rPadding: 8),
         Flexible(
-            child: DropDownModelSelect(
-          value: selOrganId,
-          items: [
-            ...organList.map((e) => DropdownMenuItem(
+          child: DropDownModelSelect(
+            value: selOrganId,
+            items: [
+              ...organList.map(
+                (e) => DropdownMenuItem(
                   value: e.organId,
                   child: Text(e.organName),
-                ))
-          ],
-          tapFunc: (v) {
-            addStaffs = [];
-            selOrganId = v!.toString();
-            refreshLoad();
-          },
-        )),
+                ),
+              ),
+            ],
+            tapFunc: (v) {
+              addStaffs = [];
+              selOrganId = v!.toString();
+              refreshLoad();
+            },
+          ),
+        ),
         SizedBox(width: 8),
         if (widget.isEdit)
           Container(
-              child: WhiteButton(
-                  label: 'シフト申請 ', tapFunc: () => setSubmitShift(selectedDate)))
+            child: WhiteButton(
+              label: 'シフト申請 ',
+              tapFunc: () => setSubmitShift(selectedDate),
+            ),
+          ),
       ],
     );
   }
 
   Widget _getDetailViewPanel() {
     return Expanded(
-        child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Column(
-        children: [
-          _getTimeRow(),
-          Expanded(child: SingleChildScrollView(child: _getShiftView()))
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          children: [
+            _getTimeRow(),
+            Expanded(child: SingleChildScrollView(child: _getShiftView())),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   /* detail grid style start */
@@ -496,7 +568,8 @@ class _ShiftDay extends State<ShiftDay> {
   Widget _getTimeRow() {
     return Container(
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: 1, color: gridColor))),
+        border: Border(bottom: BorderSide(width: 1, color: gridColor)),
+      ),
       child: Row(
         children: [
           Container(alignment: Alignment.center, width: staffWidth),
@@ -508,7 +581,7 @@ class _ShiftDay extends State<ShiftDay> {
               height: timeHeight,
               child: _getTimeContent(e.toString()),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -520,94 +593,96 @@ class _ShiftDay extends State<ShiftDay> {
       height: 25,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-          color: Color(0xff666666), borderRadius: BorderRadius.circular(20)),
+        color: Color(0xff666666),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Text(h, style: TextStyle(color: Colors.white, fontSize: 14)),
     );
   }
 
   Widget _getShiftView() {
     return SafeArea(
-        // child: SingleChildScrollView(
-        //     scrollDirection: Axis.horizontal,
-        child: Stack(
-      children: [
-        SizedBox(height: timeHeight),
-        Column(
-          children: [
-            ...staffs.map(
-              (e) => LongPressDraggable(
-                data: {'mode': 'staff_sort', 'key': e},
-                feedback: Container(
-                    child: Text(
-                  staffNames[e],
-                  style: TextStyle(color: Colors.grey),
-                )),
-                child: DragTarget(
-                  builder: (context, candidateData, rejectedData) =>
-                      _getGridRow(e),
-                  onAccept: (item) => dragComplete(item, e),
+      // child: SingleChildScrollView(
+      //     scrollDirection: Axis.horizontal,
+      child: Stack(
+        children: [
+          SizedBox(height: timeHeight),
+          Column(
+            children: [
+              ...staffs.map(
+                (e) => LongPressDraggable(
+                  data: {'mode': 'staff_sort', 'key': e},
+                  feedback: Text(
+                    staffNames[e],
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  child: DragTarget(
+                    builder:
+                        (context, candidateData, rejectedData) =>
+                            _getGridRow(e),
+                    onAcceptWithDetails: (details) => dragComplete(details.data, e),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        ...shifts.map((e) => _getShiftContent(e)),
-        ...reserves.map((e) => _getShiftContent(e)),
-      ],
-      // )
-    ));
-  }
-
-  Widget _getGridRow(item) {
-    return Container(
-      child: Row(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: staffWidth,
-            height: gridHeight,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.4),
-              border: Border(
-                bottom: BorderSide(width: 1, color: gridColor),
-              ),
-            ),
-            child: Text(staffNames[item]),
+            ],
           ),
-          ...times.map(
-            (e) => Row(
-              children: [
-                for (int i = 0; i < 4; i++)
-                  Container(
-                    height: gridHeight,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                            width: (i == 0 ? 4 : (i == 2 ? 2 : 1)),
-                            color: gridColor),
-                        bottom: (times.indexOf(e) < times.length - 1 &&
-                                times.elementAt((times.indexOf(e) + 1)) !=
-                                    (e + 1))
-                            ? BorderSide.none
-                            : BorderSide(width: 1, color: gridColor),
-                      ),
-                    ),
-                    width: timeWidth / 4,
-                  )
-              ],
-            ),
-          ),
+          ...shifts.map((e) => _getShiftContent(e)),
+          ...reserves.map((e) => _getShiftContent(e)),
         ],
+        // )
       ),
     );
   }
 
+  Widget _getGridRow(item) {
+    return Row(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          width: staffWidth,
+          height: gridHeight,
+          decoration: BoxDecoration(
+            color: Colors.grey.withValues(alpha: 0.4),
+            border: Border(bottom: BorderSide(width: 1, color: gridColor)),
+          ),
+          child: Text(staffNames[item]),
+        ),
+        ...times.map(
+          (e) => Row(
+            children: [
+              for (int i = 0; i < 4; i++)
+                Container(
+                  height: gridHeight,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(
+                        width: (i == 0 ? 4 : (i == 2 ? 2 : 1)),
+                        color: gridColor,
+                      ),
+                      bottom:
+                          (times.indexOf(e) < times.length - 1 &&
+                                  times.elementAt((times.indexOf(e) + 1)) !=
+                                      (e + 1))
+                              ? BorderSide.none
+                              : BorderSide(width: 1, color: gridColor),
+                    ),
+                  ),
+                  width: timeWidth / 4,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _getShiftContent(e) {
-    double top = gridHeight * staffs.indexOf(e.staffId).toDouble() +
+    double top =
+        gridHeight * staffs.indexOf(e.staffId).toDouble() +
         (gridHeight - shiftHeight) / 2;
     double left = staffWidth + (times.indexOf(e.fromH) + e.fromM) * timeWidth;
     num length = timeWidth * e.length;
-    var shiftColor = Colors.purple.withOpacity(0.5);
+    var shiftColor = Colors.purple.withValues(alpha: 0.5);
     String shiftComment = '';
     if (e.type == '1') {
       shiftColor = Colors.blue;
@@ -636,72 +711,86 @@ class _ShiftDay extends State<ShiftDay> {
     }
 
     return Positioned(
-        top: e.type == '0' ? top + (shiftHeight - reserveHeight) : top,
-        left: left,
-        child: GestureDetector(
-          child: e.type == '0' && e.staffId == '0' && widget.isEdit
-              ? LongPressDraggable(
+      top: e.type == '0' ? top + (shiftHeight - reserveHeight) : top,
+      left: left,
+      child: GestureDetector(
+        child:
+            e.type == '0' && e.staffId == '0' && widget.isEdit
+                ? LongPressDraggable(
                   data: {'mode': 'reserve', 'key': e.reserveId},
-                  feedback: Container(
-                      child: Text(
+                  feedback: Text(
                     e.userName,
                     style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.grey,
-                        decoration: TextDecoration.none),
-                  )),
+                      fontSize: 24,
+                      color: Colors.grey,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                   child: _getShiftEachContent(
-                      e, shiftColor, shiftComment, length),
+                    e,
+                    shiftColor,
+                    shiftComment,
+                    length,
+                  ),
                 )
-              : _getShiftEachContent(e, shiftColor, shiftComment, length),
-          onTap: () {
-            viewDetail(e);
-          },
-          onLongPress: () {
-            if (e.type != '0') updateShiftStaus(e.shiftId, e.type);
-          },
-        ));
+                : _getShiftEachContent(e, shiftColor, shiftComment, length),
+        onTap: () {
+          viewDetail(e);
+        },
+        onLongPress: () {
+          if (e.type != '0') updateShiftStaus(e.shiftId, e.type);
+        },
+      ),
+    );
   }
 
   Widget _getShiftEachContent(e, shiftColor, shiftComment, length) {
-    return Row(children: [
-      Container(
-        height: e.type == '0' ? reserveHeight : shiftHeight,
-        width: length.toDouble(),
-        decoration:
-            BoxDecoration(color: shiftColor, border: Border.all(width: 0.2)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            ' ' + shiftComment,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          if (e.type == '0')
-            Text(
-              e.fromTime + '~' + e.toTime,
-              style: TextStyle(fontSize: 9),
-            ),
-        ]),
-      ),
-      if (int.parse(e.reserveInterval) > 0)
+    return Row(
+      children: [
         Container(
           height: e.type == '0' ? reserveHeight : shiftHeight,
-          width: timeWidth * (int.parse(e.reserveInterval) / 60),
-          decoration:
-              BoxDecoration(color: Colors.grey, border: Border.all(width: 0.2)),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              '',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            if (e.type == '0')
+          width: length.toDouble(),
+          decoration: BoxDecoration(
+            color: shiftColor,
+            border: Border.all(width: 0.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                e.reserveInterval + '分',
-                style: TextStyle(fontSize: 9),
+                ' $shiftComment',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
-          ]),
+              if (e.type == '0')
+                Text(
+                  '${e.fromTime}~${e.toTime}',
+                  style: TextStyle(fontSize: 9),
+                ),
+            ],
+          ),
         ),
-    ]);
+        if (int.parse(e.reserveInterval) > 0)
+          Container(
+            height: e.type == '0' ? reserveHeight : shiftHeight,
+            width: timeWidth * (int.parse(e.reserveInterval) / 60),
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              border: Border.all(width: 0.2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                if (e.type == '0')
+                  Text(e.reserveInterval + '分', style: TextStyle(fontSize: 9)),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 
   /* detail content style start */
@@ -711,67 +800,89 @@ class _ShiftDay extends State<ShiftDay> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-          border: Border.all(width: 2, color: Color(0xffffbd79)),
-          color: Color(0xfffaffce)),
+        border: Border.all(width: 2, color: Color(0xffffbd79)),
+        color: Color(0xfffaffce),
+      ),
       // height: 180,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Text(
-              '${detailData!.userName}(${detailData!.userSex})',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '${detailData!.userName}(${detailData!.userSex})',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            IconButton(
+              IconButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return AdminUserInfo(userId: detailData!.userId);
-                  }));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) {
+                        return AdminUserInfo(userId: detailData!.userId);
+                      },
+                    ),
+                  );
                 },
-                icon: Icon(Icons.link, color: Colors.blue)),
-            Expanded(child: Container()),
-            WhiteButton(
-                label: '施術変更', tapFunc: () => updateReserveItem(detailData!)),
-            IconButton(
+                icon: Icon(Icons.link, color: Colors.blue),
+              ),
+              Expanded(child: Container()),
+              WhiteButton(
+                label: '施術変更',
+                tapFunc: () => updateReserveItem(detailData!),
+              ),
+              IconButton(
                 onPressed: () {
                   isDetail = false;
                   setState(() {});
                 },
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey))
-          ]),
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              ),
+            ],
+          ),
           SizedBox(height: 8),
           Text(
-              '${detailData!.menus}  ${Funcs().dateTimeFormatJP1(detailData!.strFromTime)}',
-              style: TextStyle(fontSize: 16)),
+            '${detailData!.menus}  ${Funcs().dateTimeFormatJP1(detailData!.strFromTime)}',
+            style: TextStyle(fontSize: 16),
+          ),
           SizedBox(height: 8),
-          Row(children: [
-            SizedBox(
-                width: 120, child: Text('クレジット: ', style: amountTxtStyle)),
-            Container(
-                child: Text(
-                    detailData!.payMethod == "1"
-                        ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
-                        : '',
-                    style: amountTxtStyle)),
-          ]),
-          Row(children: [
-            SizedBox(width: 120, child: Text('回数券: ', style: amountTxtStyle)),
-            Container(child: Text('', style: amountTxtStyle)),
-          ]),
+          Row(
+            children: [
+              SizedBox(
+                width: 120,
+                child: Text('クレジット: ', style: amountTxtStyle),
+              ),
+              Text(
+                detailData!.payMethod == "1"
+                    ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
+                    : '',
+                style: amountTxtStyle,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(width: 120, child: Text('回数券: ', style: amountTxtStyle)),
+              Text('', style: amountTxtStyle),
+            ],
+          ),
           Row(children: []),
-          Row(children: [
-            SizedBox(width: 120, child: Text('店払い: ', style: amountTxtStyle)),
-            Container(
-                child: Text(
-                    detailData!.payMethod == "2"
-                        ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
-                        : '',
-                    style: amountTxtStyle)),
-          ]),
+          Row(
+            children: [
+              SizedBox(width: 120, child: Text('店払い: ', style: amountTxtStyle)),
+              Text(
+                detailData!.payMethod == "2"
+                    ? ('${Funcs().currencyFormat(detailData!.allAmount)}円')
+                    : '',
+                style: amountTxtStyle,
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -781,22 +892,27 @@ class _ShiftDay extends State<ShiftDay> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-          border: Border.all(width: 2, color: Colors.grey),
-          color: Colors.grey.withOpacity(0.3)),
+        border: Border.all(width: 2, color: Colors.grey),
+        color: Colors.grey.withValues(alpha: 0.3),
+      ),
       // height: 180,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Text('次の申請を承認しますか？ '),
-            Expanded(child: Container()),
-            IconButton(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('次の申請を承認しますか？ '),
+              Expanded(child: Container()),
+              IconButton(
                 onPressed: () {
                   isApply = false;
                   setState(() {});
                 },
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey))
-          ]),
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              ),
+            ],
+          ),
           Row(
             children: [
               Text(
@@ -808,22 +924,26 @@ class _ShiftDay extends State<ShiftDay> {
                 ),
               ),
               SizedBox(width: 40),
-              Text('${detailData!.fromTime}~${detailData!.toTime}',
-                  style: TextStyle(fontSize: 16)),
+              Text(
+                '${detailData!.fromTime}~${detailData!.toTime}',
+                style: TextStyle(fontSize: 16),
+              ),
             ],
           ),
           SizedBox(height: 12),
           Row(
             children: [
               PrimaryButton(
-                  label: '承認',
-                  tapFunc: () => updateShiftStatus(detailData!.shiftId, '2')),
+                label: '承認',
+                tapFunc: () => updateShiftStatus(detailData!.shiftId, '2'),
+              ),
               Expanded(child: Container()),
               DeleteButton(
-                  label: '保留',
-                  tapFunc: () => updateShiftStatus(detailData!.shiftId, '-2')),
+                label: '保留',
+                tapFunc: () => updateShiftStatus(detailData!.shiftId, '-2'),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -833,22 +953,27 @@ class _ShiftDay extends State<ShiftDay> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-          border: Border.all(width: 2, color: Colors.grey),
-          color: Colors.grey.withOpacity(0.3)),
+        border: Border.all(width: 2, color: Colors.grey),
+        color: Colors.grey.withValues(alpha: 0.3),
+      ),
       // height: 180,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Text('スケジュールの変更'),
-            Expanded(child: Container()),
-            IconButton(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('スケジュールの変更'),
+              Expanded(child: Container()),
+              IconButton(
                 onPressed: () {
                   isReschedule = false;
                   setState(() {});
                 },
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey))
-          ]),
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              ),
+            ],
+          ),
           Row(
             children: [
               Text(
@@ -860,39 +985,48 @@ class _ShiftDay extends State<ShiftDay> {
                 ),
               ),
               SizedBox(width: 40),
-              Text('', //detailData!.fromTime + '~' + detailData!.toTime,
-                  style: TextStyle(fontSize: 16)),
+              Text(
+                '', //detailData!.fromTime + '~' + detailData!.toTime,
+                style: TextStyle(fontSize: 16),
+              ),
             ],
           ),
           PosTimeRange(
-              selectDate: shiftScheduleDate,
-              fromTime: shiftScheduleFromTime,
-              toTime: shiftScheduleToTime,
-              confFromFunc: (date) {
-                shiftScheduleFromTime =
-                    Funcs().getDurationTime(date, isShowSecond: true);
-                setState(() {});
-              },
-              confToFunc: (date) {
-                shiftScheduleToTime =
-                    Funcs().getDurationTime(date, isShowSecond: true);
-                setState(() {});
-              }),
+            selectDate: shiftScheduleDate,
+            fromTime: shiftScheduleFromTime,
+            toTime: shiftScheduleToTime,
+            confFromFunc: (date) {
+              shiftScheduleFromTime = Funcs().getDurationTime(
+                date,
+                isShowSecond: true,
+              );
+              setState(() {});
+            },
+            confToFunc: (date) {
+              shiftScheduleToTime = Funcs().getDurationTime(
+                date,
+                isShowSecond: true,
+              );
+              setState(() {});
+            },
+          ),
           SizedBox(height: 40),
           Row(
             children: [
               PrimaryButton(
-                  label: '変更',
-                  tapFunc: () => updateShiftTime(detailData!.shiftId)),
+                label: '変更',
+                tapFunc: () => updateShiftTime(detailData!.shiftId),
+              ),
               Expanded(child: Container()),
               CancelButton(
-                  label: 'キャンセル',
-                  tapFunc: () {
-                    isReschedule = false;
-                    setState(() {});
-                  }),
+                label: 'キャンセル',
+                tapFunc: () {
+                  isReschedule = false;
+                  setState(() {});
+                },
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

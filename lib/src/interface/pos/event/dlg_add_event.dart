@@ -25,7 +25,7 @@ class DlgAddEvent extends StatefulWidget {
   const DlgAddEvent({super.key, required this.selection, this.eventId});
 
   @override
-  _DlgAddEvent createState() => _DlgAddEvent();
+  State<DlgAddEvent> createState() => _DlgAddEvent();
 }
 
 class _DlgAddEvent extends State<DlgAddEvent> {
@@ -74,7 +74,9 @@ class _DlgAddEvent extends State<DlgAddEvent> {
       txtUrlController.text = event.url;
     }
 
-    organs = await ClOrgan().loadOrganList(context, '', globals.staffId);
+    if (mounted) {
+      organs = await ClOrgan().loadOrganList(context, '', globals.staffId);
+    }
 
     setState(() {});
   }
@@ -93,8 +95,10 @@ class _DlgAddEvent extends State<DlgAddEvent> {
       txtCommentController.text,
       txtUrlController.text,
     );
-    Navigator.pop(context);
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
   }
 
   Future<void> deleteEvent() async {
@@ -102,7 +106,9 @@ class _DlgAddEvent extends State<DlgAddEvent> {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
 
+    if (!mounted) return;
     await ClEvent().deleteEvent(context, widget.eventId!);
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

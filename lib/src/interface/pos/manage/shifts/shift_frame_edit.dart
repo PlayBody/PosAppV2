@@ -30,6 +30,7 @@ import 'package:staff_pos_app/src/common/globals.dart' as globals;
 import 'package:staff_pos_app/src/model/shift_frame_ticket_model.dart';
 import 'package:staff_pos_app/src/model/stafflistmodel.dart';
 import 'package:staff_pos_app/src/model/ticketmastermodel.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 class ShiftFrameEdit extends StatefulWidget {

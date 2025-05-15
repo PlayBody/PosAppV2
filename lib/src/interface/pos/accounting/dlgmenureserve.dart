@@ -18,14 +18,15 @@ class DlgMenuReserve extends StatefulWidget {
   final MenuModel item;
   final String userId;
   final List<MenuVariationModel> variationList;
-  const DlgMenuReserve(
-      {required this.item,
-      required this.userId,
-      required this.variationList,
-      super.key});
+  const DlgMenuReserve({
+    required this.item,
+    required this.userId,
+    required this.variationList,
+    super.key,
+  });
 
   @override
-  _DlgMenuReserve createState() => _DlgMenuReserve();
+  State<DlgMenuReserve> createState() => _DlgMenuReserve();
 }
 
 class _DlgMenuReserve extends State<DlgMenuReserve> {
@@ -68,28 +69,31 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
     }
 
     if ((int.parse(widget.item.menuPrice) * int.parse(selQuantity)) <
-       ticketSumAmount) {
-     errMsgs.add('回収券利用金額を超過しました。');
-     isCheck = false;
+        ticketSumAmount) {
+      errMsgs.add('回収券利用金額を超過しました。');
+      isCheck = false;
     }
     setState(() {});
     if (!isCheck) return;
     Funcs().orderInputListAdd(
-        context,
-        OrderMenuModel(
-            menuTitle: widget.item.menuTitle +
-                (selVariation == null
-                    ? ''
-                    : (' (${selVariation!.variationTitle})')),
-            quantity: selQuantity,
-            menuPrice: selVariation == null
+      context,
+      OrderMenuModel(
+        menuTitle:
+            widget.item.menuTitle +
+            (selVariation == null
+                ? ''
+                : (' (${selVariation!.variationTitle})')),
+        quantity: selQuantity,
+        menuPrice:
+            selVariation == null
                 ? widget.item.menuPrice
                 : selVariation!.variationPrice,
-            menuTax: widget.item.menuTax,
-            menuId: widget.item.menuId,
-            variationId:
-                selVariation?.variationId,
-            useTickets: inuseTickets));
+        menuTax: widget.item.menuTax,
+        menuId: widget.item.menuId,
+        variationId: selVariation?.variationId,
+        useTickets: inuseTickets,
+      ),
+    );
     Navigator.of(context).pop();
   }
 
@@ -101,32 +105,29 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
         children: <Widget>[
           PosDlgHeaderText(label: qMenuReserve),
           if (errMsgs.isNotEmpty)
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ...errMsgs.map((e) => Text(
-                        e,
-                        style: TextStyle(color: redColor),
-                      )),
-                  SizedBox(height: 10)
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...errMsgs.map(
+                  (e) => Text(e, style: TextStyle(color: redColor)),
+                ),
+                SizedBox(height: 10),
+              ],
             ),
           if (widget.variationList.isNotEmpty)
-            Container(
-              child: DropDownModelSelect(
-                hint: warningSelectMenuVariation,
-                items: [
-                  ...widget.variationList.map((e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e.variationTitle),
-                      ))
-                ],
-                tapFunc: (v) {
-                  selVariation = v!;
-                },
-              ),
+            DropDownModelSelect(
+              hint: warningSelectMenuVariation,
+              items: [
+                ...widget.variationList.map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e.variationTitle),
+                  ),
+                ),
+              ],
+              tapFunc: (v) {
+                selVariation = v!;
+              },
             ),
           SizedBox(height: 8),
           Container(
@@ -141,28 +142,34 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
             ),
           ),
           if (globals.companyId == '2' && int.parse(widget.userId) > 1)
-            ...userTickets.map((e) => Container(
+            ...userTickets.map(
+              (e) => Container(
                 padding: EdgeInsets.only(bottom: 8),
-                child: Row(children: [
-                  Flexible(
+                child: Row(
+                  children: [
+                    Flexible(
                       child: DropDownNumberSelect(
-                    value: e.usecount,
-                    hint: '${e.title}の利用枚数',
-                    max: e.count == null ? 0 : int.parse(e.count!),
-                    tapFunc: (String? v) {
-                      e.usecount = v;
-                      setState(() {});
-                    },
-                  )),
-                  if (e.usecount != null)
-                    IconButton(
-                      icon: Icon(Icons.close, color: redColor),
-                      onPressed: () {
-                        e.usecount = null;
-                        setState(() {});
-                      },
-                    )
-                ]))),
+                        value: e.usecount,
+                        hint: '${e.title}の利用枚数',
+                        max: e.count == null ? 0 : int.parse(e.count!),
+                        tapFunc: (String? v) {
+                          e.usecount = v;
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                    if (e.usecount != null)
+                      IconButton(
+                        icon: Icon(Icons.close, color: redColor),
+                        onPressed: () {
+                          e.usecount = null;
+                          setState(() {});
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
           Container(
             padding: EdgeInsets.only(top: 40),
             child: Row(
@@ -171,7 +178,9 @@ class _DlgMenuReserve extends State<DlgMenuReserve> {
                 PrimaryButton(label: 'はい', tapFunc: () => menuAdd()),
                 SizedBox(width: 12),
                 CancelButton(
-                    label: 'いいえ', tapFunc: () => Navigator.of(context).pop()),
+                  label: 'いいえ',
+                  tapFunc: () => Navigator.of(context).pop(),
+                ),
               ],
             ),
           ),

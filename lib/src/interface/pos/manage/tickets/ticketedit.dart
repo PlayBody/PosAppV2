@@ -7,7 +7,6 @@ import 'package:staff_pos_app/src/common/business/ticket.dart';
 import 'package:staff_pos_app/src/common/const.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:staff_pos_app/src/common/messages.dart';
-import 'package:staff_pos_app/src/http/webservice.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
 import 'package:staff_pos_app/src/interface/components/dropdowns.dart';
 import 'package:staff_pos_app/src/interface/components/form_widgets.dart';
@@ -16,7 +15,6 @@ import 'package:staff_pos_app/src/interface/components/textformfields.dart';
 import 'package:staff_pos_app/src/interface/components/texts.dart';
 import 'package:staff_pos_app/src/interface/pos/manage/tickets/dlg_ticket_reset_push_setting.dart';
 import 'package:staff_pos_app/src/interface/style/textstyles.dart';
-import 'package:staff_pos_app/src/model/companymodel.dart';
 import 'package:staff_pos_app/src/model/menumodel.dart';
 import 'package:staff_pos_app/src/model/menuvariationmodel.dart';
 import 'package:staff_pos_app/src/model/ticket_reset_push_setting_model.dart';
@@ -38,7 +36,7 @@ class TicketEdit extends StatefulWidget {
   const TicketEdit({this.id, required this.companyId, super.key});
 
   @override
-  _TicketEdit createState() => _TicketEdit();
+  State<TicketEdit> createState() => _TicketEdit();
 }
 
 class _TicketEdit extends State<TicketEdit> {
@@ -92,47 +90,51 @@ class _TicketEdit extends State<TicketEdit> {
       return [];
     }
 
-    ticket = await ClTicket().loadTicket(context, widget.id);
-    if (ticket != null) {
-      BuildContext cx = context;
-      List<TicketMasterModel> ts = await ClTicket().loadMasterTicketById(
-        cx,
-        ticket!.ticketId,
-      );
-      for (TicketMasterModel tm in ts) {
-        int i;
-        for (i = 0; i < ticketMaster.length; i++) {
-          if (ticketMaster[i].id == tm.id) {
-            break;
+    if (mounted) {
+      ticket = await ClTicket().loadTicket(context, widget.id);
+      if (ticket != null) {
+        if (mounted) {
+          List<TicketMasterModel> ts = await ClTicket().loadMasterTicketById(
+            context,
+            ticket!.ticketId,
+          );
+          for (TicketMasterModel tm in ts) {
+            int i;
+            for (i = 0; i < ticketMaster.length; i++) {
+              if (ticketMaster[i].id == tm.id) {
+                break;
+              }
+            }
+            if (ticketMaster.length == i) {
+              ticketMaster.add(tm);
+            }
           }
         }
-        if (ticketMaster.length == i) {
-          ticketMaster.add(tm);
-        }
+      }
+
+      if (ticket != null) {
+        txtTitleController.text = ticket!.title;
+        txtDetailController.text = ticket!.detail;
+        txtPriceController.text = ticket!.price;
+        txtCostController.text = ticket!.cost;
+        txtTaxController.text = ticket!.tax;
+        txtDisamountController.text = ticket!.disamount;
+
+        ticketCount = ticket!.cnt;
+        isPeriod = ticket!.isPeriod;
+        periodMonth = ticket!.periodMonth;
+
+        ticketMasterId = ticket!.ticketId;
+      } else {
+        return [];
       }
     }
-
-    if (ticket != null) {
-      txtTitleController.text = ticket!.title;
-      txtDetailController.text = ticket!.detail;
-      txtPriceController.text = ticket!.price;
-      txtCostController.text = ticket!.cost;
-      txtTaxController.text = ticket!.tax;
-      txtDisamountController.text = ticket!.disamount;
-
-      ticketCount = ticket!.cnt;
-      isPeriod = ticket!.isPeriod;
-      periodMonth = ticket!.periodMonth;
-
-      ticketMasterId = ticket!.ticketId;
-    } else {
-      return [];
+    if (mounted) {
+      resetPushSettings = await ClTicket().loadResetPushSettings(
+        context,
+        widget.id ?? '',
+      );
     }
-
-    resetPushSettings = await ClTicket().loadResetPushSettings(
-      context,
-      widget.id ?? '',
-    );
 
     setState(() {});
 
@@ -198,6 +200,7 @@ class _TicketEdit extends State<TicketEdit> {
     if (isUpload) {
       imagename = await ClTicket().uploadTicketImage(context, _uploadFile);
     }
+    if (!mounted) return;
     bool isSave = await ClTicket().saveTicket(context, {
       'id': widget.id ?? '',
       'company_id':
@@ -219,6 +222,7 @@ class _TicketEdit extends State<TicketEdit> {
       'period_month': periodMonth ?? '',
     });
 
+    if (!mounted) return;
     Navigator.pop(context);
     if (isSave) {
       Navigator.pop(context);
@@ -232,23 +236,29 @@ class _TicketEdit extends State<TicketEdit> {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
 
     if (!conf) return;
-
-    Dialogs().loaderDialogNormal(context);
-    bool isDelete = await ClTicket().deleteTicket(context, widget.id);
-    Navigator.pop(context);
-    if (isDelete) {
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+      bool isDelete = await ClTicket().deleteTicket(context, widget.id);
+      if (mounted) {
+        Navigator.pop(context);
+        if (isDelete) {
+          Navigator.pop(context);
+        } else {
+          Dialogs().infoDialog(context, errServerActionFail);
+        }
+      }
     }
   }
 
   Future<void> deletePushSetting(String delId) async {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
-    Dialogs().loaderDialogNormal(context);
-    await ClTicket().deleteResetPushSettings(context, delId);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+      await ClTicket().deleteResetPushSettings(context, delId);
+    }
     await loadTicketData();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 

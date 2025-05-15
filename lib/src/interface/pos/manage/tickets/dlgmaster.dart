@@ -23,7 +23,7 @@ class DlgMaster extends StatefulWidget {
   const DlgMaster({required this.masterId, required this.title, required this.companyList, required this.selCompanyId, super.key});
 
   @override
-  _DlgMaster createState() => _DlgMaster();
+  State<DlgMaster> createState() => _DlgMaster();
 }
 
 class _DlgMaster extends State<DlgMaster> {

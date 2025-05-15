@@ -14,7 +14,7 @@ class Tables extends StatefulWidget {
   const Tables({super.key});
 
   @override
-  _Tables createState() => _Tables();
+  State<Tables> createState() => _Tables();
 }
 
 class _Tables extends State<Tables> {
@@ -186,27 +186,25 @@ class _Tables extends State<Tables> {
                     }));
                   })),
           Expanded(
-            child: Container(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    GridView.count(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      padding: globals.isWideScreen
-                          ? EdgeInsets.fromLTRB(150, 0, 120, 20)
-                          : EdgeInsets.fromLTRB(40, 0, 40, 20),
-                      crossAxisCount:
-                          orientation == Orientation.portrait ? 2 : 3,
-                      crossAxisSpacing: globals.isWideScreen ? 60 : 15,
-                      mainAxisSpacing: globals.isWideScreen ? 30 : 25,
-                      childAspectRatio: 0.95,
-                      children: [
-                        ...tableList.map((d) => _getTableItemContent(d))
-                      ],
-                    )
-                  ],
-                ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  GridView.count(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: globals.isWideScreen
+                        ? EdgeInsets.fromLTRB(150, 0, 120, 20)
+                        : EdgeInsets.fromLTRB(40, 0, 40, 20),
+                    crossAxisCount:
+                        orientation == Orientation.portrait ? 2 : 3,
+                    crossAxisSpacing: globals.isWideScreen ? 60 : 15,
+                    mainAxisSpacing: globals.isWideScreen ? 30 : 25,
+                    childAspectRatio: 0.95,
+                    children: [
+                      ...tableList.map((d) => _getTableItemContent(d))
+                    ],
+                  )
+                ],
               ),
             ),
           ),
@@ -256,7 +254,7 @@ class _Tables extends State<Tables> {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15.0)),
           elevation: 0,
-          backgroundColor: Colors.white.withOpacity(0.8),
+          backgroundColor: Colors.white.withValues(alpha: 0.8),
           foregroundColor: (item.status == constOrderStatusTableStart ||
                   item.status == constOrderStatusTableEnd)
               ? Color.fromRGBO(255, 137, 155, 1)
@@ -268,9 +266,8 @@ class _Tables extends State<Tables> {
         ),
         child: Column(children: [
           Expanded(child: Container()),
-          Container(
-              child: Text(item.seatno,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))),
+          Text(item.seatno,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           Container(
               padding: EdgeInsets.only(bottom: 8),
               margin: EdgeInsets.symmetric(

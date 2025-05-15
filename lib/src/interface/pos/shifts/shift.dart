@@ -473,7 +473,7 @@ class _Shift extends State<Shift> {
           timeTextStyle: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 15,
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           )),
       appointmentTextStyle: TextStyle(
           fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),

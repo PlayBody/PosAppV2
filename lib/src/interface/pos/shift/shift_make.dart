@@ -5,7 +5,6 @@ import 'package:staff_pos_app/src/common/business/organ.dart';
 import 'package:staff_pos_app/src/common/business/shift.dart';
 import 'package:staff_pos_app/src/common/business/staffs.dart';
 import 'package:staff_pos_app/src/common/dialogs.dart';
-import 'package:staff_pos_app/src/common/functions/datetimes.dart';
 import 'package:staff_pos_app/src/common/functions/shifts.dart';
 import 'package:staff_pos_app/src/common/messages.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
@@ -16,7 +15,6 @@ import 'package:staff_pos_app/src/common/globals.dart' as globals;
 import 'package:staff_pos_app/src/interface/components/texts.dart';
 import 'package:staff_pos_app/src/interface/pos/manage/shifts/settingshiftinit.dart';
 import 'package:staff_pos_app/src/interface/pos/shift/shift_manage.dart';
-import 'package:staff_pos_app/src/interface/pos/staffs/stafflist.dart';
 import 'package:staff_pos_app/src/model/order_model.dart';
 import 'package:staff_pos_app/src/model/organmodel.dart';
 import 'package:staff_pos_app/src/model/shift_model.dart';
@@ -42,10 +40,14 @@ class _ShiftMake extends State<ShiftMake> {
   List<TimeRegion> regions = <TimeRegion>[];
   List<Appointment> appointments = <Appointment>[];
 
-  String showFromDate = DateFormat('yyyy-MM-dd').format(
-      DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
-  String showToDate = DateFormat('yyyy-MM-dd').format(DateTime.now()
-      .add(Duration(days: DateTime.daysPerWeek - DateTime.now().weekday)));
+  String showFromDate = DateFormat(
+    'yyyy-MM-dd',
+  ).format(DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
+  String showToDate = DateFormat('yyyy-MM-dd').format(
+    DateTime.now().add(
+      Duration(days: DateTime.daysPerWeek - DateTime.now().weekday),
+    ),
+  );
   int viewFromHour = 0;
   int viewToHour = 24;
   int showTimeDuring = 15;
@@ -55,7 +57,7 @@ class _ShiftMake extends State<ShiftMake> {
   DateTime? reserveTo;
   String? reserveId;
 
-//  String? applicationShiftTime = '';
+  //  String? applicationShiftTime = '';
 
   @override
   void initState() {
@@ -75,10 +77,20 @@ class _ShiftMake extends State<ShiftMake> {
     // bool isLoad = await ClShift()
     //     .loadStaffShiftTime(context, globals.staffId, selOrganId!);
 
-    regions = await ClShift().loadActiveShiftRegions(context, selOrganId!, showFromDate);
+    regions = await ClShift().loadActiveShiftRegions(
+      context,
+      selOrganId!,
+      showFromDate,
+    );
 
-    regions.addAll(await ClShift()
-        .loadColorShiftCountsByWeek(context, selOrganId!, showFromDate, showToDate));
+    regions.addAll(
+      await ClShift().loadColorShiftCountsByWeek(
+        context,
+        selOrganId!,
+        showFromDate,
+        showToDate,
+      ),
+    );
 
     globals.shiftWeekPlanMinute = 0;
     var staffs = await ClStaff().loadStaffs(context, {'organ_id': selOrganId});
@@ -93,7 +105,7 @@ class _ShiftMake extends State<ShiftMake> {
       'organ_id': selOrganId,
       'staff_id': globals.staffId,
       'from_time': fromTime,
-      'to_time': toTime
+      'to_time': toTime,
     });
     for (var s in shifts) {
       if (constShiftAutoUsingList.contains(s.shiftType) &&
@@ -105,7 +117,11 @@ class _ShiftMake extends State<ShiftMake> {
 
     appointments = FuncShifts().getAppoinsFromList(shifts);
     var minMaxHour = await ClOrgan().loadOrganShiftMinMaxHour(
-        context, selOrganId!, showFromDate, showToDate);
+      context,
+      selOrganId!,
+      showFromDate,
+      showToDate,
+    );
 
     List<OrderModel> reserves = await ClOrder().loadOrderList(context, {
       'organ_id': selOrganId,
@@ -119,8 +135,12 @@ class _ShiftMake extends State<ShiftMake> {
     viewFromHour = int.parse(minMaxHour['start'].toString());
     viewToHour = int.parse(minMaxHour['end'].toString());
 
-    isLock =
-        await ClShift().loadShiftLock(context, selOrganId!, fromTime, toTime);
+    isLock = await ClShift().loadShiftLock(
+      context,
+      selOrganId!,
+      fromTime,
+      toTime,
+    );
 
     ClNotification().removeBadge(context, globals.staffId, '11');
     ClNotification().removeBadge(context, globals.staffId, '12');
@@ -133,11 +153,20 @@ class _ShiftMake extends State<ShiftMake> {
   Future<void> onTapInitButton() async {
     if (!isOldDate()) return;
     String selPattern = await Dialogs().confirmWithSelectNumberDialog(
-        context, qShiftFormat, "パターンを選択してください。", 5);
+      context,
+      qShiftFormat,
+      "パターンを選択してください。",
+      5,
+    );
     Dialogs().loaderDialogNormal(context);
     if (int.parse(selPattern) > 0) {
       await ClShift().setInitShift(
-          context, selOrganId, showFromDate, showToDate, selPattern.toString());
+        context,
+        selOrganId,
+        showFromDate,
+        showToDate,
+        selPattern.toString(),
+      );
     }
 
     await loadInitData();
@@ -146,26 +175,39 @@ class _ShiftMake extends State<ShiftMake> {
 
   void onTapPushManage() async {
     if (selOrganId == null) return;
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return ShiftManage(
-          initOrgan: selOrganId!,
-          initDate: DateTime.parse('$showFromDate 00:00:00'));
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return ShiftManage(
+            initOrgan: selOrganId!,
+            initDate: DateTime.parse('$showFromDate 00:00:00'),
+          );
+        },
+      ),
+    );
     globals.saveShiftFromAutoControl = [];
     refreshLoad();
   }
 
   void onTapPushSetting() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return const SettingShiftInit();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return const SettingShiftInit();
+        },
+      ),
+    );
   }
 
   Future<void> onChangeCalander(DateTime date) async {
-    String from = DateFormat('yyyy-MM-dd')
-        .format(date.subtract(Duration(days: date.weekday - 1)));
-    String to = DateFormat('yyyy-MM-dd').format(
-        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+    String from = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.subtract(Duration(days: date.weekday - 1)));
+    String to = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
     if (from == showFromDate) return;
     showFromDate = from;
     showToDate = to;
@@ -182,26 +224,31 @@ class _ShiftMake extends State<ShiftMake> {
   void onLongTapCalander(date) {
     if (!isOldDate()) return;
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftEdit(
-            organId: selOrganId!,
-            selection: date,
-            isLock: isLock,
-          );
-        }).then((_) => refreshLoad());
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftEdit(
+          organId: selOrganId!,
+          selection: date,
+          isLock: isLock,
+        );
+      },
+    ).then((_) => refreshLoad());
   }
 
   Future<void> refreshLoad() async {
-    Dialogs().loaderDialogNormal(context);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+    }
     await loadInitData();
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   bool isOldDate() {
     DateTime showEndDate = DateTime.parse('$showToDate 23:59:59');
     if (showEndDate.isBefore(DateTime.now())) {
-      Dialogs().infoDialog(context, '使用できません。'); 
+      Dialogs().infoDialog(context, '使用できません。');
       return false;
     }
     return true;
@@ -232,8 +279,11 @@ class _ShiftMake extends State<ShiftMake> {
 
   Future<void> onTapReserveApply() async {
     if (reserveId == null) return;
-    bool isSave =
-        await ClOrder().applyReserveOrder(context, reserveId, globals.staffId);
+    bool isSave = await ClOrder().applyReserveOrder(
+      context,
+      reserveId,
+      globals.staffId,
+    );
     if (isSave) refreshLoad();
   }
 
@@ -242,7 +292,7 @@ class _ShiftMake extends State<ShiftMake> {
     bool isSave = await ClOrder().updateOrder(context, {
       'reserve_id': reserveId,
       'status': constOrderStatusReserveReject,
-      'staff_id': globals.staffId
+      'staff_id': globals.staffId,
     });
     if (isSave) refreshLoad();
   }
@@ -258,7 +308,9 @@ class _ShiftMake extends State<ShiftMake> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return _getBodyContent();
-          } else if (snapshot.hasError) return Text("${snapshot.error}");
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
           return Center(child: CircularProgressIndicator());
         },
       ),
@@ -266,27 +318,31 @@ class _ShiftMake extends State<ShiftMake> {
   }
 
   Widget _fullScreenContainer() {
-    return Column(children: [
-      FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
-      FullScreenButton(
-        icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
-        tapFunc: () {
-          isHideBannerBar = !isHideBannerBar;
-          setState(() {});
-        },
-      )
-    ]);
+    return Column(
+      children: [
+        FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
+        FullScreenButton(
+          icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
+          tapFunc: () {
+            isHideBannerBar = !isHideBannerBar;
+            setState(() {});
+          },
+        ),
+      ],
+    );
   }
 
   Widget _getBodyContent() {
     return Container(
       color: bodyColor,
-      child: Column(children: [
-        _getTopButtons(),
-        _getOrganDropDown(),
-        Expanded(child: _getCalendar()),
-        if (isShowReservePan) _getAddApplyContent(),
-      ]),
+      child: Column(
+        children: [
+          _getTopButtons(),
+          _getOrganDropDown(),
+          Expanded(child: _getCalendar()),
+          if (isShowReservePan) _getAddApplyContent(),
+        ],
+      ),
     );
   }
 
@@ -295,8 +351,9 @@ class _ShiftMake extends State<ShiftMake> {
         globals.shiftWeekPlanMinute - globals.shiftWeekStaffMinute;
     restPlanMinutes = restPlanMinutes > 0 ? restPlanMinutes : 0;
     return Container(
-        padding: EdgeInsets.only(top: 10, bottom: 5, left: 8),
-        child: Column(children: [
+      padding: EdgeInsets.only(top: 10, bottom: 5, left: 8),
+      child: Column(
+        children: [
           Row(
             children: [
               // Expanded(
@@ -309,69 +366,92 @@ class _ShiftMake extends State<ShiftMake> {
               //     child: Text(),
               // // child: Text(
               // //     'A: ${globals.shiftWeekPlanMinute} \nB: ${globals.shiftWeekStaffMinute}')),
-
               Expanded(
-                  child: Text(
-                '推奨シフト申請時間まで残り ${restPlanMinutes ~/ 60}時間 ${restPlanMinutes % 60}分',
-                textAlign: TextAlign.center,
-              ))
+                child: Text(
+                  '推奨シフト申請時間まで残り ${restPlanMinutes ~/ 60}時間 ${restPlanMinutes % 60}分',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
-          Row(children: [
-            SizedBox(width: 18),
-            Container(
-              child: WhiteButton(
-                  label: '     標準設定適用     ', tapFunc: () => onTapInitButton()),
-            ),
-            SizedBox(width: 8),
-            Container(
-              child: WhiteButton(
-                  label: '     設定画面へ    ', tapFunc: () => onTapPushSetting()),
-            ),
-            SizedBox(width: 8),
-            PopupMenuButton(
+          Row(
+            children: [
+              SizedBox(width: 18),
+              WhiteButton(
+                label: '     標準設定適用     ',
+                tapFunc: () => onTapInitButton(),
+              ),
+              SizedBox(width: 8),
+              WhiteButton(
+                label: '     設定画面へ    ',
+                tapFunc: () => onTapPushSetting(),
+              ),
+              SizedBox(width: 8),
+              PopupMenuButton(
                 onSelected: (v) => onChangeCalanderDuring(v),
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                itemBuilder:
+                    (BuildContext context) => <PopupMenuEntry<String>>[
                       PopupMenuItem<String>(
-                          value: '15',
-                          child: Text('15分間間隔で表示',
-                              style: TextStyle(fontSize: 12))),
+                        value: '15',
+                        child: Text(
+                          '15分間間隔で表示',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
                       PopupMenuItem<String>(
-                          value: '30',
-                          child: Text('30分間間隔で表示',
-                              style: TextStyle(fontSize: 12))),
+                        value: '30',
+                        child: Text(
+                          '30分間間隔で表示',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
                       PopupMenuItem<String>(
-                          value: '60',
-                          child: Text('60分間間隔で表示',
-                              style: TextStyle(fontSize: 12))),
-                    ]),
-          ]),
-        ]));
+                        value: '60',
+                        child: Text(
+                          '60分間間隔で表示',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getOrganDropDown() {
-    return Row(children: [
-      SizedBox(width: 16),
-      InputLeftText(label: '店名', rPadding: 8, width: 60),
-      Expanded(
+    return Row(
+      children: [
+        SizedBox(width: 16),
+        InputLeftText(label: '店名', rPadding: 8, width: 60),
+        Expanded(
           child: DropDownModelSelect(
-        contentPadding: EdgeInsets.symmetric(vertical: 7),
-        value: selOrganId,
-        items: [
-          ...organList.map((e) =>
-              DropdownMenuItem(value: e.organId, child: Text(e.organName)))
-        ],
-        tapFunc: (v) => onChangeOrgan(v),
-      )),
-      SizedBox(width: 8),
-      if (globals.auth > constAuthStaff)
-        WhiteButton(
+            contentPadding: EdgeInsets.symmetric(vertical: 7),
+            value: selOrganId,
+            items: [
+              ...organList.map(
+                (e) => DropdownMenuItem(
+                  value: e.organId,
+                  child: Text(e.organName),
+                ),
+              ),
+            ],
+            tapFunc: (v) => onChangeOrgan(v),
+          ),
+        ),
+        SizedBox(width: 8),
+        if (globals.auth > constAuthStaff)
+          WhiteButton(
             label: 'シフト管理',
             tapFunc: () {
               onTapPushManage();
-            }),
-      SizedBox(width: 30)
-    ]);
+            },
+          ),
+        SizedBox(width: 30),
+      ],
+    );
   }
 
   Widget _getCalendar() {
@@ -392,21 +472,26 @@ class _ShiftMake extends State<ShiftMake> {
         timeTextStyle: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: 15,
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
         ),
       ),
       appointmentTextStyle: TextStyle(
-          fontSize: 12,
-          color: Colors.black.withOpacity(0.5),
-          fontWeight: FontWeight.bold),
-      timeRegionBuilder:
-          (BuildContext context, TimeRegionDetails timeRegionDetails) {
+        fontSize: 12,
+        color: Colors.black.withValues(alpha: 0.5),
+        fontWeight: FontWeight.bold,
+      ),
+      timeRegionBuilder: (
+        BuildContext context,
+        TimeRegionDetails timeRegionDetails,
+      ) {
         return Container(
           padding: EdgeInsets.only(top: 5),
           color: timeRegionDetails.region.color,
           alignment: Alignment.topCenter,
-          child: Text(timeRegionDetails.region.text.toString(),
-              style: const TextStyle(fontSize: 25, color: Colors.black)),
+          child: Text(
+            timeRegionDetails.region.text.toString(),
+            style: const TextStyle(fontSize: 25, color: Colors.black),
+          ),
         );
       },
     );
@@ -415,19 +500,22 @@ class _ShiftMake extends State<ShiftMake> {
   Widget _getAddApplyContent() {
     return Container(
       color: Colors.white,
-      child: Row(children: [
-        const SizedBox(width: 4),
-        const InputLeftText(label: '予約申込', width: 60, rPadding: 2),
-        Text(
+      child: Row(
+        children: [
+          const SizedBox(width: 4),
+          const InputLeftText(label: '予約申込', width: 60, rPadding: 2),
+          Text(
             DateFormat('yyyy-MM-dd HH:mm ~').format(reserveFrom!) +
                 DateFormat('HH:mm').format(reserveTo!),
-            style: const TextStyle(color: Color(0xff454545), fontSize: 14)),
-        const SizedBox(width: 4),
-        PrimaryButton(label: '承認', tapFunc: () => onTapReserveApply()),
-        const SizedBox(width: 4),
-        DeleteButton(label: '拒否', tapFunc: () => onTapReserveReject()),
-        const SizedBox(width: 4),
-      ]),
+            style: const TextStyle(color: Color(0xff454545), fontSize: 14),
+          ),
+          const SizedBox(width: 4),
+          PrimaryButton(label: '承認', tapFunc: () => onTapReserveApply()),
+          const SizedBox(width: 4),
+          DeleteButton(label: '拒否', tapFunc: () => onTapReserveReject()),
+          const SizedBox(width: 4),
+        ],
+      ),
     );
   }
 }

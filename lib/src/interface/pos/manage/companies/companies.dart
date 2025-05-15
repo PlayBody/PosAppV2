@@ -82,7 +82,7 @@ class _Companies extends State<Companies> {
                                 decoration: BoxDecoration(
                                   color: (e.visible == '1')
                                       ? Colors.white
-                                      : Colors.grey.withOpacity(0.4),
+                                      : Colors.grey.withValues(alpha: 0.4),
                                   border: Border(
                                     bottom: BorderSide(
                                       color: Color.fromARGB(255, 230, 230, 230),

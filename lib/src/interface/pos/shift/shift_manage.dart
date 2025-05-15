@@ -449,7 +449,7 @@ class _ShiftManage extends State<ShiftManage> {
           timeTextStyle: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 15,
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           )),
       appointmentTextStyle: apppointmentsTextStyle,
       // specialRegions: regions,

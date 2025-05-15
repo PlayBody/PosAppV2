@@ -5,7 +5,6 @@ import 'package:staff_pos_app/src/common/dialogs.dart';
 import 'package:staff_pos_app/src/common/messages.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
-import 'package:staff_pos_app/src/interface/pos/manage/companies/dlgstamp.dart';
 import 'package:staff_pos_app/src/interface/pos/manage/companies/rank_edit.dart';
 import 'package:staff_pos_app/src/model/companymodel.dart';
 
@@ -142,7 +141,7 @@ class _Stamps extends State<Stamps> {
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.5),
+              color: Colors.grey.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
