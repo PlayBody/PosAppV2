@@ -21,6 +21,7 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xff117fc1),
+          foregroundColor: Colors.white,
         ),
         onPressed: tapFunc,
         child: Text(label, style: btnTxtStyle),
@@ -41,7 +42,10 @@ class PrimaryColButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Color(0xff117fc1)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xff117fc1),
+        foregroundColor: Colors.white,
+      ),
       onPressed: tapFunc,
       child: Text(label, style: btnTxtStyle1),
     );
@@ -57,7 +61,10 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Color(0xff868686)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xff868686),
+          foregroundColor: Colors.white,
+        ),
         onPressed: tapFunc,
         child: Text(label, style: btnTxtStyle),
       ),
@@ -77,7 +84,10 @@ class CancelColButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Color(0xff868686)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xff868686),
+        foregroundColor: Colors.white,
+      ),
       onPressed: tapFunc,
       child: Text(label, style: btnTxtStyle1),
     );
@@ -93,7 +103,10 @@ class DeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Color(0xffee385a)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xffee385a),
+          foregroundColor: Colors.white,
+        ),
         onPressed: tapFunc,
         child: Text(label, style: btnTxtStyle),
       ),
@@ -113,7 +126,10 @@ class DeleteColButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Color(0xffee385a)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xffee385a),
+        foregroundColor: Colors.white,
+      ),
       onPressed: tapFunc,
       child: Text(label, style: btnTxtStyle1),
     );

@@ -47,7 +47,7 @@ class Webservice {
         }
       } catch (e) {
         if (constIsTestApi == 1) {
-          _logger.info('\t\tRes: $errNetworkString');
+          _logger.info('\t\tRes: $errNetworkString ${e.toString()}');
         }
         conf = await Dialogs().retryOrExit(context!, errNetworkString);
       }

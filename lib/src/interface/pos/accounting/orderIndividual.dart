@@ -16,7 +16,7 @@ class OrderIndividual extends StatefulWidget {
   const OrderIndividual({super.key});
 
   @override
-  _OrderIndividual createState() => _OrderIndividual();
+  State<OrderIndividual> createState() => _OrderIndividual();
 }
 
 class _OrderIndividual extends State<OrderIndividual> {

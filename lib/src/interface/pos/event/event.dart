@@ -17,7 +17,7 @@ class Event extends StatefulWidget {
   const Event({super.key});
 
   @override
-  _Event createState() => _Event();
+  State<Event> createState() => _Event();
 }
 
 class _Event extends State<Event> {
@@ -28,10 +28,14 @@ class _Event extends State<Event> {
   List<Appointment> appointments = <Appointment>[];
   List<OrganModel> organList = [];
 
-  String _fromDate = DateFormat('yyyy-MM-dd').format(
-      DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
-  String _toDate = DateFormat('yyyy-MM-dd').format(DateTime.now()
-      .add(Duration(days: DateTime.daysPerWeek - DateTime.now().weekday)));
+  String _fromDate = DateFormat(
+    'yyyy-MM-dd',
+  ).format(DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
+  String _toDate = DateFormat('yyyy-MM-dd').format(
+    DateTime.now().add(
+      Duration(days: DateTime.daysPerWeek - DateTime.now().weekday),
+    ),
+  );
 
   bool isHideBannerBar = false;
 
@@ -61,22 +65,28 @@ class _Event extends State<Event> {
       'to_time': vToDateTime,
     });
 
-    appointments.addAll(await ClEvent().loadEvents(context, {
-      'company_id': globals.companyId,
-      'from_time': vFromDateTime,
-      'to_time': vToDateTime,
-      'is_all_organ': '1'
-    }));
+    if (mounted) {
+      appointments.addAll(
+        await ClEvent().loadEvents(context, {
+          'company_id': globals.companyId,
+          'from_time': vFromDateTime,
+          'to_time': vToDateTime,
+          'is_all_organ': '1',
+        }),
+      );
+    }
 
     setState(() {});
     return [];
   }
 
   Future<void> changeViewCalander(DateTime date) async {
-    _fromDate = DateFormat('yyyy-MM-dd')
-        .format(date.subtract(Duration(days: date.weekday - 1)));
-    _toDate = DateFormat('yyyy-MM-dd').format(
-        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+    _fromDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.subtract(Duration(days: date.weekday - 1)));
+    _toDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
 
     await refreshLoad();
   }
@@ -86,18 +96,25 @@ class _Event extends State<Event> {
   Future<void> refreshLoad() async {
     Dialogs().loaderDialogNormal(context);
     await loadEventData();
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Future<void> addEvent(date, eventId) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgAddEvent(selection: date, eventId: eventId);
-        }).then((_) async {
-      Dialogs().loaderDialogNormal(context);
+      context: context,
+      builder: (BuildContext context) {
+        return DlgAddEvent(selection: date, eventId: eventId);
+      },
+    ).then((_) async {
+      if (mounted) {
+        Dialogs().loaderDialogNormal(context);
+      }
       await loadEventData();
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -114,62 +131,69 @@ class _Event extends State<Event> {
   Widget build(BuildContext context) {
     globals.appTitle = 'イベント';
     return MainBodyWdiget(
-        fullscreenTop: 60,
-        fullScreenButton: _fullScreenContainer(),
-        isFullScreen: isHideBannerBar,
-        render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Container(
-                // padding: EdgeInsets.only(bottom: 8),
-                color: bodyColor,
-                child: Column(
-                  children: [
-                    _getTopButtons(),
-                    // _getOrganDropDown(),
-                    Expanded(child: _getCalendar()),
-                  ],
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            // By default, show a loading spinner.
-            return Center(
-              child: CircularProgressIndicator(),
+      fullscreenTop: 60,
+      fullScreenButton: _fullScreenContainer(),
+      isFullScreen: isHideBannerBar,
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              // padding: EdgeInsets.only(bottom: 8),
+              color: bodyColor,
+              child: Column(
+                children: [
+                  _getTopButtons(),
+                  // _getOrganDropDown(),
+                  Expanded(child: _getCalendar()),
+                ],
+              ),
             );
-          },
-        ));
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   var labelTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
 
   Widget _fullScreenContainer() {
-    return Column(children: [
-      FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
-      FullScreenButton(
-        icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
-        tapFunc: () {
-          isHideBannerBar = !isHideBannerBar;
-          setState(() {});
-        },
-      )
-    ]);
+    return Column(
+      children: [
+        FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
+        FullScreenButton(
+          icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
+          tapFunc: () {
+            isHideBannerBar = !isHideBannerBar;
+            setState(() {});
+          },
+        ),
+      ],
+    );
   }
 
   Widget _getTopButtons() {
-    return Row(children: [
-      SizedBox(width: 100),
-      Container(
+    return Row(
+      children: [
+        SizedBox(width: 100),
+        Container(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: SubHeaderText(
-              label: DateTimes().convertJPYMFromString(_fromDate))),
-      Expanded(child: Container()),
-      WhiteButton(
-          label: 'イベントの追加', tapFunc: () => addEvent(selectedDate, null)),
-      SizedBox(width: 20)
-    ]);
+            label: DateTimes().convertJPYMFromString(_fromDate),
+          ),
+        ),
+        Expanded(child: Container()),
+        WhiteButton(
+          label: 'イベントの追加',
+          tapFunc: () => addEvent(selectedDate, null),
+        ),
+        SizedBox(width: 20),
+      ],
+    );
   }
 
   Widget _getCalendar() {
@@ -180,21 +204,27 @@ class _Event extends State<Event> {
       cellBorderColor: timeSlotCellBorderColor,
       selectionDecoration: timeSlotSelectDecoration,
       timeSlotViewSettings: TimeSlotViewSettings(
-          // startHour: viewFromHour.toDouble(),
-          // endHour: viewToHour.toDouble(),
-          timeIntervalHeight: timeSlotCellHeight.toDouble(),
-          dayFormat: 'E',
-          timeInterval: Duration(minutes: 15),
-          timeFormat: 'H:mm',
-          timeTextStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black.withValues(alpha: 0.5),
-          )),
+        // startHour: viewFromHour.toDouble(),
+        // endHour: viewToHour.toDouble(),
+        timeIntervalHeight: timeSlotCellHeight.toDouble(),
+        dayFormat: 'E',
+        timeInterval: Duration(minutes: 15),
+        timeFormat: 'H:mm',
+        timeTextStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
+          color: Colors.black.withValues(alpha: 0.5),
+        ),
+      ),
       appointmentTextStyle: TextStyle(
-          fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),
-      timeRegionBuilder:
-          (BuildContext context, TimeRegionDetails timeRegionDetails) {
+        fontSize: 10,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+      timeRegionBuilder: (
+        BuildContext context,
+        TimeRegionDetails timeRegionDetails,
+      ) {
         return Container(
           padding: EdgeInsets.only(top: 5),
           color: timeRegionDetails.region.color,

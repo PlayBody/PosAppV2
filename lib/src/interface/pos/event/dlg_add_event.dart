@@ -169,22 +169,20 @@ class _DlgAddEvent extends State<DlgAddEvent> {
   }
 
   Widget _getButtons() {
-    return Container(
-      child: Row(
-        children: [
-          PrimaryColButton(label: '保存する', tapFunc: () => saveEvent()),
-          Container(width: 12),
-          DeleteColButton(
-            label: '削除',
-            tapFunc: widget.eventId == null ? null : () => deleteEvent(),
-          ),
-          Container(width: 12),
-          CancelColButton(
-            label: 'キャンセル',
-            tapFunc: () => Navigator.pop(context),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        PrimaryColButton(label: '保存する', tapFunc: () => saveEvent()),
+        Container(width: 12),
+        DeleteColButton(
+          label: '削除',
+          tapFunc: widget.eventId == null ? null : () => deleteEvent(),
+        ),
+        Container(width: 12),
+        CancelColButton(
+          label: 'キャンセル',
+          tapFunc: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 }

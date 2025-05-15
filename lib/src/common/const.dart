@@ -6,7 +6,7 @@ const String consAndroidStore =
 const String consIOSStore = 'https://apps.apple.com/jp/app/visit/id1584026647';
 const String consPrivacyPolicy = 'https://devotion-co.jp/privacy/';
 
-const int constIsTestApi = 0;
+const int constIsTestApi = 1;
 
 // ---------------- Permission Manager -----------------------
 const int constAuthGuest = 0;

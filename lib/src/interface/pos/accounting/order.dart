@@ -36,7 +36,7 @@ class Order extends StatefulWidget {
   const Order({required this.orderId, super.key});
 
   @override
-  _Order createState() => _Order();
+  State<Order> createState() => _Order();
 }
 
 class _Order extends State<Order> {
@@ -59,7 +59,7 @@ class _Order extends State<Order> {
   Future<List> loadUpdateCategoryData() async {
     menuList = await ClMenu().loadMenuList(context, {
       'organ_id': globals.organId,
-      'category_id': selCategory == "0" ? "" : selCategory
+      'category_id': selCategory == "0" ? "" : selCategory,
     });
 
     setState(() {});
@@ -68,14 +68,20 @@ class _Order extends State<Order> {
 
   Future<List> loadOrderData() async {
     OrganModel organ = await ClOrgan().loadOrganInfo(context, globals.organId);
-    categories = await ClCategory().getCategoryList(context, organ.companyId);
+    if (mounted) {
+      categories = await ClCategory().getCategoryList(context, organ.companyId);
+    }
 
-    menuList = await ClMenu().loadMenuList(context, {
-      'organ_id': globals.organId,
-      'category_id': selCategory == "0" ? "" : selCategory
-    });
+    if (mounted) {
+      menuList = await ClMenu().loadMenuList(context, {
+        'organ_id': globals.organId,
+        'category_id': selCategory == "0" ? "" : selCategory,
+      });
+    }
 
-    order = await ClOrder().loadOrderInfo(context, widget.orderId);
+    if (mounted) {
+      order = await ClOrder().loadOrderInfo(context, widget.orderId);
+    }
     globals.orderMenus = [];
     globals.pendingOrderMenus = [];
     if (order != null) {
@@ -124,9 +130,14 @@ class _Order extends State<Order> {
     Map<dynamic, dynamic> results = {};
     List<MenuVariationModel> variationList = [];
     Dialogs().loaderDialogNormal(context);
-    await Webservice().loadHttp(context, apiLoadMenuVariationListUrl,
-        {'menu_id': item.menuId}).then((v) => results = v);
-    Navigator.pop(context);
+    await Webservice()
+        .loadHttp(context, apiLoadMenuVariationListUrl, {
+          'menu_id': item.menuId,
+        })
+        .then((v) => results = v);
+    if (mounted) {
+      Navigator.pop(context);
+    }
 
     if (results['isLoad']) {
       for (var item in results['variations']) {
@@ -135,7 +146,9 @@ class _Order extends State<Order> {
     } else {
       return;
     }
-    showDialog(
+
+    if (mounted) {
+      showDialog(
         context: context,
         builder: (BuildContext context) {
           return DlgMenuReserve(
@@ -143,11 +156,13 @@ class _Order extends State<Order> {
             userId: order == null ? '0' : order!.userId,
             variationList: variationList,
           );
-        }).then((_) {
-      setState(() {
-        globals.orderMenus.reversed;
+        },
+      ).then((_) {
+        setState(() {
+          globals.orderMenus.reversed;
+        });
       });
-    });
+    }
   }
 
   Future<void> registerOrderMenu() async {
@@ -176,9 +191,11 @@ class _Order extends State<Order> {
       });
     }
     for (var e in globals.orderMenus) {
-      if (data.any((element) =>
-          element['menu_id'] == e.menuId &&
-          element['variation_id'] == e.variationId)) {
+      if (data.any(
+        (element) =>
+            element['menu_id'] == e.menuId &&
+            element['variation_id'] == e.variationId,
+      )) {
         for (var element in data) {
           if (element['menu_id'] == e.menuId &&
               element['variation_id'] == e.variationId) {
@@ -196,17 +213,23 @@ class _Order extends State<Order> {
         'quantity': e.quantity,
         'menu_id': e.menuId,
         'variation_id': e.variationId,
-        'use_tickets': e.useTickets
+        'use_tickets': e.useTickets,
       });
     }
 
-    bool isSave = await ClOrder()
-        .saveOrderMenus(context, widget.orderId, jsonEncode(data));
-
-    if (isSave) {
-      Navigator.pop(context);
-    } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+    if (mounted) {
+      bool isSave = await ClOrder().saveOrderMenus(
+        context,
+        widget.orderId,
+        jsonEncode(data),
+      );
+      if (mounted) {
+        if (isSave) {
+          Navigator.pop(context);
+        } else {
+          Dialogs().infoDialog(context, errServerActionFail);
+        }
+      }
     }
   }
 
@@ -227,49 +250,60 @@ class _Order extends State<Order> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
-        body: OrientationBuilder(builder: (context, orientation) {
-          return FutureBuilder<List>(
-            future: loadData,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Container(
-                  padding: globals.isWideScreen
-                      ? EdgeInsets.only(
-                          top: orientation == Orientation.landscape ? 4 : 0,
-                          left: 80,
-                          right: 80,
-                          bottom: 40)
-                      : const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Column(children: [
-                    _getCategoryContent(),
-                    SizedBox(height: 8),
-                    Flexible(
-                        flex: orientation == Orientation.landscape ? 6 : 5,
-                        child: SingleChildScrollView(
-                          child: _getMenusColumn(orientation),
-                        )),
-                    Container(
-                      padding: const EdgeInsets.only(top: 20, bottom: 10),
-                      child: Text(
-                        '注文内容一覧',
-                        style: tableDetailItemListTitle,
-                      ),
+        body: OrientationBuilder(
+          builder: (context, orientation) {
+            return FutureBuilder<List>(
+              future: loadData,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Container(
+                    padding:
+                        globals.isWideScreen
+                            ? EdgeInsets.only(
+                              top: orientation == Orientation.landscape ? 4 : 0,
+                              left: 80,
+                              right: 80,
+                              bottom: 40,
+                            )
+                            : const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              bottom: 20,
+                            ),
+                    child: Column(
+                      children: [
+                        _getCategoryContent(),
+                        SizedBox(height: 8),
+                        Flexible(
+                          flex: orientation == Orientation.landscape ? 6 : 5,
+                          child: SingleChildScrollView(
+                            child: _getMenusColumn(orientation),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 20, bottom: 10),
+                          child: Text(
+                            '注文内容一覧',
+                            style: tableDetailItemListTitle,
+                          ),
+                        ),
+                        if (orientation == Orientation.portrait)
+                          _getOrderMenusPortrait(),
+                        if (orientation == Orientation.landscape)
+                          _getOrderMenuLandscape(),
+                      ],
                     ),
-                    if (orientation == Orientation.portrait)
-                      _getOrderMenusPortrait(),
-                    if (orientation == Orientation.landscape)
-                      _getOrderMenuLandscape(),
-                  ]),
-                );
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
 
-              // By default, show a loading spinner.
-              return const Center(child: CircularProgressIndicator());
-            },
-          );
-        }),
+                // By default, show a loading spinner.
+                return const Center(child: CircularProgressIndicator());
+              },
+            );
+          },
+        ),
         drawer: MyDrawer(),
         bottomNavigationBar: SubBottomNavi(),
       ),
@@ -282,12 +316,14 @@ class _Order extends State<Order> {
         GridView.count(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          padding: globals.isWideScreen
-              ? const EdgeInsets.all(0)
-              : const EdgeInsets.only(left: 30, right: 30),
-          crossAxisCount: orientation == Orientation.landscape
-              ? 4
-              : globals.isWideScreen
+          padding:
+              globals.isWideScreen
+                  ? const EdgeInsets.all(0)
+                  : const EdgeInsets.only(left: 30, right: 30),
+          crossAxisCount:
+              orientation == Orientation.landscape
+                  ? 4
+                  : globals.isWideScreen
                   ? 3
                   : 2,
           crossAxisSpacing: globals.isWideScreen ? 40 : 25,
@@ -301,30 +337,43 @@ class _Order extends State<Order> {
                   globals.orderInputSaveFlag = true;
                   txtIndividualAmountController.text = '0';
 
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return const OrderIndividual();
-                  })).then((_) => setState(() {
-                        globals.orderMenus.reversed;
-                      }));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) {
+                        return const OrderIndividual();
+                      },
+                    ),
+                  ).then(
+                    (_) => setState(() {
+                      globals.orderMenus.reversed;
+                    }),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(20)),
+                    color: Colors.white.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Container(
-                          alignment: Alignment.topRight,
-                          height: 40,
-                          child: Image.asset('images/icon_order_calculator.png',
-                              scale: 1.8)),
+                        alignment: Alignment.topRight,
+                        height: 40,
+                        child: Image.asset(
+                          'images/icon_order_calculator.png',
+                          scale: 1.8,
+                        ),
+                      ),
                       Container(
                         alignment: Alignment.center,
-                        child:
-                            const Text('個別入力', style: TextStyle(fontSize: 18)),
-                      )
+                        child: const Text(
+                          '個別入力',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -337,102 +386,117 @@ class _Order extends State<Order> {
 
   Widget _getOrderMenusPortrait() {
     return Flexible(
-        flex: globals.isWideScreen ? 7 : 3,
-        child: Container(
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                  child: Container(
-                      padding: const EdgeInsets.only(top: 20, bottom: 20),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ...globals.orderMenus
-                                .map((e) => _getOrderMenuItem(e)),
-                          ],
-                        ),
-                      ))),
-              Container(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: Column(
-                  children: <Widget>[
-                    ConstrainedBox(
-                      constraints: BoxConstraints.tightFor(
-                          width: globals.isWideScreen ? 350 : 250),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          registerOrderMenu();
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromRGBO(17, 127, 193, 1),
-                            elevation: 0,
-                            padding:
-                                EdgeInsets.all(globals.isWideScreen ? 15 : 4),
-                            textStyle: TextStyle(
-                                fontSize: globals.isWideScreen ? 24 : 16,
-                                fontWeight: FontWeight.bold)),
-                        child: const Text('注文確定'),
-                      ),
-                    ),
-                  ],
+      flex: globals.isWideScreen ? 7 : 3,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ...globals.orderMenus.map((e) => _getOrderMenuItem(e)),
+                    ],
+                  ),
                 ),
-              )
-            ],
-          ),
-        ));
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: Column(
+                children: <Widget>[
+                  ConstrainedBox(
+                    constraints: BoxConstraints.tightFor(
+                      width: globals.isWideScreen ? 350 : 250,
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        registerOrderMenu();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(17, 127, 193, 1),
+                        elevation: 0,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.all(globals.isWideScreen ? 15 : 4),
+                        textStyle: TextStyle(
+                          fontSize: globals.isWideScreen ? 24 : 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: const Text('注文確定'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _getOrderMenuLandscape() {
     return Expanded(
-        flex: globals.isWideScreen ? 7 : 3,
-        child: Container(
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                  child: Container(
-                      padding: const EdgeInsets.only(top: 20, bottom: 20),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ...globals.orderMenus
-                                .map((e) => _getOrderMenuItem(e)),
-                          ],
-                        ),
-                      ))),
-              Container(
-                padding: const EdgeInsets.only(
-                    bottom: 40, top: 40, right: 20, left: 40),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints.tightFor(width: 180),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      registerOrderMenu();
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(17, 127, 193, 1),
-                        elevation: 0,
-                        minimumSize:
-                            const Size(double.infinity, double.infinity),
-                        // padding: EdgeInsets.all(max),
-                        textStyle: TextStyle(
-                            fontSize: globals.isWideScreen ? 24 : 16,
-                            fontWeight: FontWeight.bold)),
-                    child: const Text('注文確定'),
+      flex: globals.isWideScreen ? 7 : 3,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ...globals.orderMenus.map((e) => _getOrderMenuItem(e)),
+                    ],
                   ),
                 ),
-              )
-            ],
-          ),
-        ));
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                bottom: 40,
+                top: 40,
+                right: 20,
+                left: 40,
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints.tightFor(width: 180),
+                child: ElevatedButton(
+                  onPressed: () {
+                    registerOrderMenu();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(17, 127, 193, 1),
+                    elevation: 0,
+                    minimumSize: const Size(double.infinity, double.infinity),
+                    // padding: EdgeInsets.all(max),
+                    textStyle: TextStyle(
+                      fontSize: globals.isWideScreen ? 24 : 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  child: const Text('注文確定'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _getOrderMenuItem(e) {
@@ -477,16 +541,17 @@ class _Order extends State<Order> {
         reserveMenuAdd(e);
       },
       child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(20)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                  child: Stack(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: Stack(
                 children: [
                   // Positioned(
                   //     right: 0,
@@ -497,98 +562,114 @@ class _Order extends State<Order> {
                   //     )),
                   Positioned.fill(
                     child: Container(
-                        alignment: Alignment.center,
-                        child: Text(e.menuTitle,
-                            style: const TextStyle(fontSize: 14))),
-                  )
+                      alignment: Alignment.center,
+                      child: Text(
+                        e.menuTitle,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ),
                 ],
-              )),
-              Container(
-                padding: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
-                decoration: BoxDecoration(
-                    color: const Color(0xff4ca1d2),
-                    borderRadius: BorderRadius.circular(12)),
-                child: Text(
-                  '¥ ${Funcs().currencyFormat(e.menuPrice)}-',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: globals.isWideScreen ? 32 : 16),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xff4ca1d2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '¥ ${Funcs().currencyFormat(e.menuPrice)}-',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: globals.isWideScreen ? 32 : 16,
                 ),
-              )
-            ],
-          )),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _getCategoryContent() {
     return DropDownModelSelect(
-        value: selCategory,
-        items: [
-          DropdownMenuItem(
-              value: "0",
-              child: Text('すべて',
-                  style: TextStyle(
-                    fontSize: 12,
-                  ))),
-          ...categories.map((c) => DropdownMenuItem(
-              value: c.id.toString(),
-              child: Text(c.name,
-                  style: TextStyle(
-                    fontSize: 12,
-                  )))),
-        ],
-        tapFunc: (v) async {
-          selCategory = v.toString();
-          Dialogs().loaderDialogNormal(context);
-          await loadUpdateCategoryData();
+      value: selCategory,
+      items: [
+        DropdownMenuItem(
+          value: "0",
+          child: Text('すべて', style: TextStyle(fontSize: 12)),
+        ),
+        ...categories.map(
+          (c) => DropdownMenuItem(
+            value: c.id.toString(),
+            child: Text(c.name, style: TextStyle(fontSize: 12)),
+          ),
+        ),
+      ],
+      tapFunc: (v) async {
+        selCategory = v.toString();
+        Dialogs().loaderDialogNormal(context);
+        await loadUpdateCategoryData();
+        if (mounted) {
           Navigator.pop(context);
-        });
+        }
+      },
+    );
   }
 }
 
 class OrderItemList extends StatelessWidget {
-  final item;
-  final rowNm;
+  final dynamic item;
+  final dynamic rowNm;
   final GestureTapCallback? onTap;
   final Function(OrderMenuModel, String)? onQuantityChanged;
 
-  const OrderItemList(
-      {required this.item,
-      required this.rowNm,
-      this.onTap,
-      this.onQuantityChanged,
-      super.key});
+  const OrderItemList({
+    required this.item,
+    required this.rowNm,
+    this.onTap,
+    this.onQuantityChanged,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: rowNm % 2 == 1
-            ? Colors.white
-            : const Color.fromRGBO(238, 250, 255, 1),
-        padding: const EdgeInsets.only(bottom: 8, left: 10, right: 10),
-        child: Row(
-          children: [
-            Expanded(
-                // padding: EdgeInsets.only(top: 12),
-                // width: 180,
-                child: Container(
+      color:
+          rowNm % 2 == 1
+              ? Colors.white
+              : const Color.fromRGBO(238, 250, 255, 1),
+      padding: const EdgeInsets.only(bottom: 8, left: 10, right: 10),
+      child: Row(
+        children: [
+          Expanded(
+            // padding: EdgeInsets.only(top: 12),
+            // width: 180,
+            child: Container(
               padding: EdgeInsets.only(top: 8),
               child: Row(
                 children: [
                   Expanded(
                     // width: 110,
-                    child: Text(item.menuTitle,
-                        style: TextStyle(
-                            fontSize: globals.isWideScreen ? 20 : 16,
-                            color: Color.fromRGBO(70, 88, 134, 1),
-                            fontWeight: FontWeight.bold)),
-                  ),
-                  Text(' × ',
+                    child: Text(
+                      item.menuTitle,
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Color.fromRGBO(70, 88, 134, 1),
-                          fontWeight: FontWeight.bold)),
+                        fontSize: globals.isWideScreen ? 20 : 16,
+                        color: Color.fromRGBO(70, 88, 134, 1),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    ' × ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color.fromRGBO(70, 88, 134, 1),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () async {
                       if (onQuantityChanged == null) return;
@@ -596,35 +677,39 @@ class OrderItemList extends StatelessWidget {
                       String selQuantity = item.quantity;
                       final value = await showDialog<String>(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text('数量を変更'),
-                          content: SizedBox(
-                            height: 90,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 12),
-                                DropDownNumberSelect(
-                                  value: selQuantity,
-                                  max: 50,
-                                  tapFunc: (v) {
-                                    selQuantity = v;
-                                  },
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text('数量を変更'),
+                              content: SizedBox(
+                                height: 90,
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    DropDownNumberSelect(
+                                      value: selQuantity,
+                                      max: 50,
+                                      tapFunc: (v) {
+                                        selQuantity = v;
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text("確定"),
+                                  onPressed:
+                                      () => Navigator.of(
+                                        context,
+                                      ).pop(selQuantity),
+                                ),
+                                TextButton(
+                                  child: const Text("キャンセル"),
+                                  onPressed:
+                                      () => Navigator.of(context).pop(null),
                                 ),
                               ],
                             ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text("確定"),
-                              onPressed: () =>
-                                  Navigator.of(context).pop(selQuantity),
-                            ),
-                            TextButton(
-                              child: const Text("キャンセル"),
-                              onPressed: () => Navigator.of(context).pop(null),
-                            ),
-                          ],
-                        ),
                       );
 
                       if (value != null && value != item.quantity) {
@@ -634,41 +719,49 @@ class OrderItemList extends StatelessWidget {
                     },
                     child: Container(
                       width: 60,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       alignment: Alignment.center,
-                      child: Text(item.quantity,
-                          style: TextStyle(
-                              fontSize: globals.isWideScreen ? 20 : 16,
-                              color: Color.fromRGBO(70, 88, 134, 1),
-                              fontWeight: FontWeight.bold)),
+                      child: Text(
+                        item.quantity,
+                        style: TextStyle(
+                          fontSize: globals.isWideScreen ? 20 : 16,
+                          color: Color.fromRGBO(70, 88, 134, 1),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-            )),
-            Container(width: globals.isWideScreen ? 80 : 25),
-            GestureDetector(
-              onTap: onTap,
-              child: Container(
-                  margin: EdgeInsets.only(top: 10),
-                  alignment: Alignment.center,
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.grey)),
-                  width: 100,
-                  child: Text(
-                    'キャンセル',
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Color.fromRGBO(70, 88, 134, 1),
-                        fontWeight: FontWeight.bold),
-                  )),
             ),
-          ],
-        ));
+          ),
+          Container(width: globals.isWideScreen ? 80 : 25),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              margin: EdgeInsets.only(top: 10),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+              width: 100,
+              child: Text(
+                'キャンセル',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color.fromRGBO(70, 88, 134, 1),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
