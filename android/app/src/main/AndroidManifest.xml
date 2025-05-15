@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="staff_pos_app"
+        android:label="VISIT"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_pos">
         <activity
             android:name=".MainActivity"
             android:exported="true"
