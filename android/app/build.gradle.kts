@@ -24,30 +24,30 @@ android {
         applicationId = "com.example.staff_pos_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion 24
-        targetSdkVersion 34
-        versionCode 82
-        versionName '1.0.5'
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 82
+        versionName = "1.0.5"
     }
     
     signingConfigs {
-        release {
-            storeFile file("pos_app.keystore")
-            keyAlias "my-key-alias"
-            storePassword "nishio"
-            keyPassword "nishio"
-            v1SigningEnabled true
-            v2SigningEnabled true
+        create("release") {
+            storeFile = file("pos_app.keystore")
+            keyAlias = "my-key-alias"
+            keyPassword = "nishio"
+            storePassword = "nishio"
+            enableV1Signing = true
+            enableV2Signing = true
         }
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.release
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
