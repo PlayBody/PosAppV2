@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.staff_pos_app"
+    namespace = "com.cloud.posandroid"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.staff_pos_app"
+        applicationId = "com.cloud.posandroid"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24
