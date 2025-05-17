@@ -26,7 +26,7 @@ class Masters extends StatefulWidget {
   const Masters({super.key});
 
   @override
-  _Masters createState() => _Masters();
+  State<Masters> createState() => _Masters();
 }
 
 class _Masters extends State<Masters> {

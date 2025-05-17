@@ -21,7 +21,7 @@ class SettingOrganTime extends StatefulWidget {
       {required this.selOrganId, required this.type, super.key});
 
   @override
-  _SettingOrganTime createState() => _SettingOrganTime();
+  State<SettingOrganTime> createState() => _SettingOrganTime();
 }
 
 class _SettingOrganTime extends State<SettingOrganTime> {

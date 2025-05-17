@@ -251,7 +251,9 @@ class _AdminMesseageMake extends State<AdminMesseageMake> {
     if (isSend) {
       messages = await loadMessage();
     } else {
-      Dialogs().infoDialog(context, errServerActionFail);
+      if (mounted) {
+        Dialogs().infoDialog(context, errServerActionFail);
+      }
     }
     isSending = false;
     setState(() {});

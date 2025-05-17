@@ -5,7 +5,6 @@ import 'package:staff_pos_app/src/common/functions.dart';
 import 'package:staff_pos_app/src/interface/admin/users/admin_user_info.dart';
 import 'package:staff_pos_app/src/interface/components/buttons.dart';
 import 'package:staff_pos_app/src/interface/components/loadwidgets.dart';
-import 'package:staff_pos_app/src/model/historymenumodel.dart';
 
 import 'package:staff_pos_app/src/common/globals.dart' as globals;
 import 'package:staff_pos_app/src/http/webservice.dart';
@@ -18,7 +17,7 @@ class SumSaleItemView extends StatefulWidget {
       {required this.orderId, required this.position, super.key});
 
   @override
-  _SumSaleItemView createState() => _SumSaleItemView();
+  State<SumSaleItemView> createState() => _SumSaleItemView();
 }
 
 class _SumSaleItemView extends State<SumSaleItemView> {
@@ -85,10 +84,8 @@ class _SumSaleItemView extends State<SumSaleItemView> {
                                           child: Text('代表者様名',
                                               style: TextStyle(fontSize: 22)),
                                         ),
-                                        Container(
-                                          child: Text(userNick,
-                                              style: TextStyle(fontSize: 22)),
-                                        ),
+                                        Text(userNick,
+                                            style: TextStyle(fontSize: 22)),
                                         if (userId != '1')
                                           IconButton(
                                               onPressed: () {
@@ -235,9 +232,7 @@ class SumSaleItemViewContentRow extends StatelessWidget {
             width: 180,
             child: Text(label, style: TextStyle(fontSize: 22)),
           ),
-          Container(
-            child: Text(val, style: TextStyle(fontSize: 22)),
-          )
+          Text(val, style: TextStyle(fontSize: 22))
         ],
       ),
     );

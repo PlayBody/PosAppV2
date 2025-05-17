@@ -20,7 +20,7 @@ class Companies extends StatefulWidget {
   const Companies({super.key});
 
   @override
-  _Companies createState() => _Companies();
+  State<Companies> createState() => _Companies();
 }
 
 class _Companies extends State<Companies> {
@@ -35,8 +35,9 @@ class _Companies extends State<Companies> {
 
   Future<List> loadCompanyList() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(
-        context, apiLoadCompanyListUrl, {}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadCompanyListUrl, {})
+        .then((v) => {results = v});
     if (results['isLoad']) {
       companyList = [];
 
@@ -54,13 +55,16 @@ class _Companies extends State<Companies> {
     if (!conf) return;
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteOrganUrl,
-        {'organ_id': id}).then((v) => {results = v});
+    if (!mounted) return;
+    await Webservice()
+        .loadHttp(context, apiDeleteOrganUrl, {'organ_id': id})
+        .then((v) => {results = v});
     if (!results['isDelete']) {
+      if (!mounted) return;
       Dialogs().infoDialog(context, errServerActionFail);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     globals.appTitle = '会社管理';
@@ -70,78 +74,95 @@ class _Companies extends State<Companies> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    Expanded(
-                        child: Scrollbar(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Scrollbar(
                       child: ListView(
                         children: [
                           ...companyList.map(
                             (e) => Container(
-                                decoration: BoxDecoration(
-                                  color: (e.visible == '1')
-                                      ? Colors.white
-                                      : Colors.grey.withValues(alpha: 0.4),
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Color.fromARGB(255, 230, 230, 230),
-                                      width: 1,
-                                    ),
+                              decoration: BoxDecoration(
+                                color:
+                                    (e.visible == '1')
+                                        ? Colors.white
+                                        : Colors.grey.withValues(alpha: 0.4),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Color.fromARGB(255, 230, 230, 230),
+                                    width: 1,
                                   ),
                                 ),
-                                padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: Text(
+                              ),
+                              padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
                                       e.companyName,
                                       style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    )),
-                                    WhiteButton(
-                                        label: '変更',
-                                        tapFunc: () async {
-                                          await Navigator.push(context,
-                                              MaterialPageRoute(builder: (_) {
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  WhiteButton(
+                                    label: '変更',
+                                    tapFunc: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) {
                                             return CompanyEdit(
                                               selComapnyId: e.companyId,
                                             );
-                                          }));
-                                          loadCompanyList();
-                                        }),
-                                    // Container(width: 5),
-                                    // ElevatedButton(
-                                    //   onPressed: () {
-                                    //     deleteOrgan(e.organId);
-                                    //   },
-                                    //   child: Text('削除'),
-                                    //   style: deleteButtonStyle,
-                                    // )
-                                  ],
-                                )),
-                          )
+                                          },
+                                        ),
+                                      );
+                                      loadCompanyList();
+                                    },
+                                  ),
+                                  // Container(width: 5),
+                                  // ElevatedButton(
+                                  //   onPressed: () {
+                                  //     deleteOrgan(e.organId);
+                                  //   },
+                                  //   child: Text('削除'),
+                                  //   style: deleteButtonStyle,
+                                  // )
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    )),
-                    Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 60, vertical: 12),
-                        child: Row(children: [
-                          PrimaryButton(
-                            label: '新規登録',
-                            tapFunc: () async {
-                              await Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) {
-                                return CompanyEdit();
-                              }));
-                              loadCompanyList();
-                            },
-                          )
-                        ]))
-                  ],
-                ));
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 60, vertical: 12),
+                    child: Row(
+                      children: [
+                        PrimaryButton(
+                          label: '新規登録',
+                          tapFunc: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return CompanyEdit();
+                                },
+                              ),
+                            );
+                            loadCompanyList();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -160,5 +181,4 @@ class _Companies extends State<Companies> {
       // ),
     );
   }
-
 }

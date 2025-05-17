@@ -16,7 +16,7 @@ class DlgTicketResetPushSetting extends StatefulWidget {
   const DlgTicketResetPushSetting({required this.ticketId, super.key});
 
   @override
-  _DlgTicketResetPushSetting createState() => _DlgTicketResetPushSetting();
+  State<DlgTicketResetPushSetting> createState() => _DlgTicketResetPushSetting();
 }
 
 class _DlgTicketResetPushSetting extends State<DlgTicketResetPushSetting> {

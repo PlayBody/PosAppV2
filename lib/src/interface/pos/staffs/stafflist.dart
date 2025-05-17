@@ -15,7 +15,7 @@ class StaffList extends StatefulWidget {
   const StaffList({super.key});
 
   @override
-  _StaffList createState() => _StaffList();
+  State<StaffList> createState() => _StaffList();
 }
 
 class _StaffList extends State<StaffList> {
@@ -127,7 +127,7 @@ class _StaffList extends State<StaffList> {
                 child: DragTarget(
                   builder: (context, candidateData, rejectedData) =>
                       _getStaffItem(ee),
-                  onAccept: (staffId) => exchangeMenuSort(staffId, ee.staffId),
+                  onAcceptWithDetails: (details) => exchangeMenuSort(details.data, ee.staffId),
                 ),
               )),
         ],

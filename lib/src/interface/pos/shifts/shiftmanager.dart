@@ -31,7 +31,7 @@ class ShiftManager extends StatefulWidget {
   });
 
   @override
-  _ShiftManager createState() => _ShiftManager();
+  State<ShiftManager> createState() => _ShiftManager();
 }
 
 class _ShiftManager extends State<ShiftManager> {

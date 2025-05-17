@@ -54,11 +54,18 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
     }
 
     if (selOrgan != null) {
-      var pointData = await ClStaff().loadStaffAddPoints(
-          context, selOrgan!, widget.selectStaffId, selYear, selMonth);
+      if (mounted) {
+        var pointData = await ClStaff().loadStaffAddPoints(
+          context,
+          selOrgan!,
+          widget.selectStaffId,
+          selYear,
+          selMonth,
+        );
 
-      points = pointData['points'];
-      sumPoints = pointData['sum_points'].toString();
+        points = pointData['points'];
+        sumPoints = pointData['sum_points'].toString();
+      }
     }
 
     setState(() {});
@@ -80,17 +87,21 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
 
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiStaffAddpointSubmitUrl, {
-      'staff_id': widget.selectStaffId,
-      'organ_id': selOrgan,
-      'date_year': selYear,
-      'date_month': selMonth,
-      'time': selProTime == null ? '1' : selProTime!,
-      'point_type': type
-    }).then((value) => results = value);
+    if (mounted) {
+      await Webservice()
+          .loadHttp(context, apiStaffAddpointSubmitUrl, {
+            'staff_id': widget.selectStaffId,
+            'organ_id': selOrgan,
+            'date_year': selYear,
+            'date_month': selMonth,
+            'time': selProTime == null ? '1' : selProTime!,
+            'point_type': type,
+          })
+          .then((value) => results = value);
 
-    if (results['isSave']) {
-      loadStaffPointData();
+      if (results['isSave']) {
+        loadStaffPointData();
+      }
     }
   }
 
@@ -98,13 +109,19 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
     bool conf = await Dialogs().confirmDialog(context, qCommonDelete);
     if (!conf) return;
 
-    Dialogs().loaderDialogNormal(context);
-    bool isDelete = await ClStaff().deleteStaffAddPoint(context, pointId);
-    Navigator.pop(context);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+      bool isDelete = await ClStaff().deleteStaffAddPoint(context, pointId);
+      if (mounted) {
+        Navigator.pop(context);
+      }
 
-    if (!isDelete) {
-      Dialogs().infoDialog(context, errServerActionFail);
-      return;
+      if (!isDelete) {
+        if (mounted) {
+          Dialogs().infoDialog(context, errServerActionFail);
+        }
+        return;
+      }
     }
 
     loadStaffPointData();
@@ -114,13 +131,19 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
     bool conf = await Dialogs().confirmDialog(context, 'ポイント申請を承認しますか？');
     if (!conf) return;
 
-    Dialogs().loaderDialogNormal(context);
-    bool isUpdate = await ClStaff().applyStaffAddPoint(context, pointId);
-    Navigator.pop(context);
+    if (mounted) {
+      Dialogs().loaderDialogNormal(context);
+      bool isUpdate = await ClStaff().applyStaffAddPoint(context, pointId);
+      if (mounted) {
+        Navigator.pop(context);
+      }
 
-    if (!isUpdate) {
-      Dialogs().infoDialog(context, errServerActionFail);
-      return;
+      if (!isUpdate) {
+        if (mounted) {
+          Dialogs().infoDialog(context, errServerActionFail);
+        }
+        return;
+      }
     }
 
     loadStaffPointData();
@@ -146,8 +169,7 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
       }
     }
 
-    selMonth =
-        tmpMonth < 10 ? ('0$tmpMonth') : tmpMonth.toString();
+    selMonth = tmpMonth < 10 ? ('0$tmpMonth') : tmpMonth.toString();
     selYear = tmpYear.toString();
 
     setState(() {});
@@ -159,19 +181,20 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
   Widget build(BuildContext context) {
     globals.appTitle = 'ポイント申請';
     return MainBodyWdiget(
-        render: FutureBuilder<List>(
-      future: loadData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Container(child: _getBodyContent());
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(child: _getBodyContent());
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-        // By default, show a loading spinner.
-        return const Center(child: CircularProgressIndicator());
-      },
-    ));
+          // By default, show a loading spinner.
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   double gMargin = 45;
@@ -195,7 +218,10 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
                         _getPointButton('飛び込み\n獲得', () => submitAddPoint('1')),
                         SizedBox(width: gSpacing),
                         _getPointButtonWithDropDown(
-                            '販促', 120, () => submitAddPoint('2')),
+                          '販促',
+                          120,
+                          () => submitAddPoint('2'),
+                        ),
                         SizedBox(width: gMargin),
                       ],
                     ),
@@ -233,62 +259,69 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
                   Text(
                     '獲得ポイント合計　$sumPoints ポイント',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Column(
                     children: [
-                      ...points.map((e) => Row(
-                            children: [
-                              const SizedBox(width: 20),
+                      ...points.map(
+                        (e) => Row(
+                          children: [
+                            const SizedBox(width: 20),
+                            SizedBox(
+                              width: 70,
+                              child: Text(
+                                DateFormat(
+                                  'MM月dd日',
+                                ).format(DateTime.parse(e.cdate)),
+                              ),
+                            ),
+                            Expanded(child: Text(e.comment)),
+                            SizedBox(width: 90, child: Text('${e.value}ポイント')),
+                            if (widget.selectStaffId == globals.staffId)
                               SizedBox(
-                                width: 70,
-                                child: Text(
-                                  DateFormat('MM月dd日')
-                                      .format(DateTime.parse(e.cdate)),
+                                width: e.status == '1' ? 50 : 80,
+                                child:
+                                    e.status == '1'
+                                        ? const LabelButton(label: '申請中')
+                                        : const LabelButton(label: '承認済み'),
+                              ),
+                            if (e.status == '1' &&
+                                widget.selectStaffId == globals.staffId)
+                              Container(
+                                padding: const EdgeInsets.only(left: 5),
+                                width: 30,
+                                child: IconWhiteButton(
+                                  icon: Icons.cancel,
+                                  color: Colors.red,
+                                  tapFunc: () => deleteAddpoints(e.pointId),
                                 ),
                               ),
-                              Expanded(child: Text(e.comment)),
-                              SizedBox(
-                                  width: 90, child: Text('${e.value}ポイント')),
-                              if (widget.selectStaffId == globals.staffId)
-                                SizedBox(
-                                    width: e.status == '1' ? 50 : 80,
-                                    child: e.status == '1'
-                                        ? const LabelButton(label: '申請中')
-                                        : const LabelButton(label: '承認済み')),
-                              if (e.status == '1' &&
-                                  widget.selectStaffId == globals.staffId)
-                                Container(
-                                    padding: const EdgeInsets.only(left: 5),
-                                    width: 30,
-                                    child: IconWhiteButton(
-                                      icon: Icons.cancel,
-                                      color: Colors.red,
-                                      tapFunc: () => deleteAddpoints(e.pointId),
-                                    )),
-                              // Container(
-                              //     padding: EdgeInsets.only(left: 5),
-                              //     width: 30,
-                              //     child: IconWhiteButton(
-                              //       icon: Icons.check,
-                              //       color: globals.auth > AUTH_STAFF && e.status == '1'
-                              //           ? Colors.green
-                              //           : Colors.grey,
-                              //       tapFunc: globals.auth > AUTH_STAFF && e.status == '1'
-                              //           ? () => applyAddpoints(e.pointId)
-                              //           : null,
-                              //     )),
-                              const SizedBox(width: 20),
-                            ],
-                          ))
+                            // Container(
+                            //     padding: EdgeInsets.only(left: 5),
+                            //     width: 30,
+                            //     child: IconWhiteButton(
+                            //       icon: Icons.check,
+                            //       color: globals.auth > AUTH_STAFF && e.status == '1'
+                            //           ? Colors.green
+                            //           : Colors.grey,
+                            //       tapFunc: globals.auth > AUTH_STAFF && e.status == '1'
+                            //           ? () => applyAddpoints(e.pointId)
+                            //           : null,
+                            //     )),
+                            const SizedBox(width: 20),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -315,14 +348,14 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
                     value: e.organId,
                     child: Text(e.organName),
                   ),
-                )
+                ),
               ],
               tapFunc: (v) {
                 selOrgan = v;
                 loadStaffPointData();
               },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -343,7 +376,10 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: primaryColor, fontSize: 16, fontWeight: FontWeight.bold),
+              color: primaryColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -361,26 +397,31 @@ class _StaffPointSubmit extends State<StaffPointSubmit> {
             color: const Color(0xffd9e1e5),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Column(children: [
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   color: primaryColor,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
                 width: 60,
                 child: DropDownNumberSelect(
-                    value: selProTime,
-                    max: max,
-                    tapFunc: (v) {
-                      selProTime = v;
-                    },
-                    contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8)))
-          ]),
+                  value: selProTime,
+                  max: max,
+                  tapFunc: (v) {
+                    selProTime = v;
+                  },
+                  contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

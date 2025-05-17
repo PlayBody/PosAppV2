@@ -21,7 +21,7 @@ class SumSaleDetail extends StatefulWidget {
   const SumSaleDetail({this.organId, required this.detailDate, super.key});
 
   @override
-  _SumSaleDetail createState() => _SumSaleDetail();
+  State<SumSaleDetail> createState() => _SumSaleDetail();
 }
 
 class _SumSaleDetail extends State<SumSaleDetail> {
@@ -58,7 +58,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadSumSaleDetailUrl, {
       'organ_id': organId,
-      'select_date': dateYear + '-' + dateMonth + '-' + dateDay
+      'select_date': '$dateYear-$dateMonth-$dateDay'
     }).then((v) => {results = v});
 
     tableSaleData = [];
@@ -88,7 +88,7 @@ class _SumSaleDetail extends State<SumSaleDetail> {
     Map<dynamic, dynamic> results = {};
     await Webservice().loadHttp(context, apiLoadSumSaleDetailUrl, {
       'organ_id': organId,
-      'select_date': dateYear + '-' + dateMonth + '-' + dateDay
+      'select_date': '$dateYear-$dateMonth-$dateDay'
     }).then((v) => {results = v});
 
     tableSaleData = [];

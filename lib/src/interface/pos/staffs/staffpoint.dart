@@ -25,7 +25,7 @@ class StaffPoint extends StatefulWidget {
   const StaffPoint({required this.staffId, super.key});
 
   @override
-  _StaffPoint createState() => _StaffPoint();
+  State<StaffPoint> createState() => _StaffPoint();
 }
 
 class _StaffPoint extends State<StaffPoint> {

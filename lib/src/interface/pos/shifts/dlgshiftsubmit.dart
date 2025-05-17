@@ -28,7 +28,7 @@ class DlgShiftSubmit extends StatefulWidget {
   });
 
   @override
-  _DlgShiftSubmit createState() => _DlgShiftSubmit();
+  State<DlgShiftSubmit> createState() => _DlgShiftSubmit();
 }
 
 class _DlgShiftSubmit extends State<DlgShiftSubmit> {
@@ -49,42 +49,52 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
 
   Future<void> loadShift() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadShiftStatus, {
-      'staff_id': globals.staffId,
-      'organ_id': widget.organId,
-      'select_datetime':
-          DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.selection),
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadShiftStatus, {
+          'staff_id': globals.staffId,
+          'organ_id': widget.organId,
+          'select_datetime': DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(widget.selection),
+        })
+        .then((v) => {results = v});
 
     if (results['isLoad']) {
       if (results['status'] == '0') {
         if (results['count_shift'] != null) {
-          fromTime = DateFormat('HH:mm:ss')
-              .format(DateTime.parse(results['count_shift']['from_time']));
-          toTime = DateFormat('HH:mm:ss')
-              .format(DateTime.parse(results['count_shift']['to_time']));
+          fromTime = DateFormat(
+            'HH:mm:ss',
+          ).format(DateTime.parse(results['count_shift']['from_time']));
+          toTime = DateFormat(
+            'HH:mm:ss',
+          ).format(DateTime.parse(results['count_shift']['to_time']));
         } else {
           fromTime = DateFormat('HH:mm:ss').format(widget.selection);
           if (widget.selection.hour >= 22) {
             toTime = '23:59:59';
           } else {
-            toTime = DateFormat('HH:mm:ss')
-                .format(widget.selection.add(Duration(hours: 2)));
+            toTime = DateFormat(
+              'HH:mm:ss',
+            ).format(widget.selection.add(Duration(hours: 2)));
           }
         }
       } else {
-        fromTime = DateFormat('HH:mm:ss')
-            .format(DateTime.parse(results['shift']['from_time']));
-        toTime = DateFormat('HH:mm:ss')
-            .format(DateTime.parse(results['shift']['to_time']));
+        fromTime = DateFormat(
+          'HH:mm:ss',
+        ).format(DateTime.parse(results['shift']['from_time']));
+        toTime = DateFormat(
+          'HH:mm:ss',
+        ).format(DateTime.parse(results['shift']['to_time']));
         shiftId = results['shift']['shift_id'];
         shiftType = int.parse(results['shift']['shift_type']);
       }
       selectDate = DateFormat('yyyy-MM-dd').format(widget.selection);
 
-      _start = double.parse(fromTime.split(':')[0]) +
+      _start =
+          double.parse(fromTime.split(':')[0]) +
           double.parse(fromTime.split(':')[1]) / 60;
-      _end = double.parse(toTime.split(':')[0]) +
+      _end =
+          double.parse(toTime.split(':')[0]) +
           double.parse(toTime.split(':')[1]) / 60;
     }
     setState(() {});
@@ -96,15 +106,17 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
     if (toTime == '') return;
     Map<dynamic, dynamic> results = {};
     Dialogs().loaderDialogNormal(context);
-    await Webservice().loadHttp(context, apiSubmitShiftStatus, {
-      'shift_id': shiftId == null ? '' : shiftId,
-      'staff_id': globals.staffId,
-      'organ_id': widget.organId,
-      'from_time': '$selectDate $fromTime',
-      'to_time':
-          '$selectDate ${toTime == '24:00:00' ? '23:59:59' : toTime}',
-      'shift_type': shiftType.toString(),
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiSubmitShiftStatus, {
+          'shift_id': shiftId ?? '',
+          'staff_id': globals.staffId,
+          'organ_id': widget.organId,
+          'from_time': '$selectDate $fromTime',
+          'to_time':
+              '$selectDate ${toTime == '24:00:00' ? '23:59:59' : toTime}',
+          'shift_type': shiftType.toString(),
+        })
+        .then((v) => {results = v});
     Navigator.pop(context);
 
     if (results['isUpdate']) {
@@ -129,9 +141,9 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
       return;
     }
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteShift, {
-      'shift_id': shiftId!,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteShift, {'shift_id': shiftId!})
+        .then((v) => {results = v});
 
     if (results['isDelete']) {
       Navigator.of(context).pop();
@@ -151,19 +163,20 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
   @override
   Widget build(BuildContext context) {
     return PushDialogs(
-        render: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        PosDlgHeaderText(label: 'シフト設定'),
-        PosDlgSubHeaderText(label: selectDate),
-        if (shiftType != 6) _getTimeRow(),
-        SizedBox(height: 12),
-        if (shiftType == 1 || shiftType == -3 || shiftType == 6)
-          _getSubmitType(),
-        SizedBox(height: 26),
-        _getButtons(),
-      ],
-    ));
+      render: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PosDlgHeaderText(label: 'シフト設定'),
+          PosDlgSubHeaderText(label: selectDate),
+          if (shiftType != 6) _getTimeRow(),
+          SizedBox(height: 12),
+          if (shiftType == 1 || shiftType == -3 || shiftType == 6)
+            _getSubmitType(),
+          SizedBox(height: 26),
+          _getButtons(),
+        ],
+      ),
+    );
   }
 
   Widget _getTimeRow() {
@@ -228,22 +241,29 @@ class _DlgShiftSubmit extends State<DlgShiftSubmit> {
   }
 
   Widget _getButtons() {
-    return Container(
-      child: Row(children: [
+    return Row(
+      children: [
         PrimaryColButton(
-            label: '保存する',
-            tapFunc: (shiftId != null && (shiftType > 1 || widget.isLock))
-                ? null
-                : () => saveShift()),
+          label: '保存する',
+          tapFunc:
+              (shiftId != null && (shiftType > 1 || widget.isLock))
+                  ? null
+                  : () => saveShift(),
+        ),
         Container(width: 12),
         DeleteColButton(
-            label: '削除',
-            tapFunc: (shiftId == null || (shiftType > 1 || widget.isLock))
-                ? null
-                : () => deleteShift()),
+          label: '削除',
+          tapFunc:
+              (shiftId == null || (shiftType > 1 || widget.isLock))
+                  ? null
+                  : () => deleteShift(),
+        ),
         Container(width: 12),
-        CancelColButton(label: 'キャンセル', tapFunc: () => Navigator.pop(context)),
-      ]),
+        CancelColButton(
+          label: 'キャンセル',
+          tapFunc: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 }

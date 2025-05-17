@@ -22,7 +22,7 @@ class DlgShiftManager extends StatefulWidget {
   });
 
   @override
-  _DlgShiftManager createState() => _DlgShiftManager();
+  State<DlgShiftManager> createState() => _DlgShiftManager();
 }
 
 class _DlgShiftManager extends State<DlgShiftManager> {
@@ -40,10 +40,14 @@ class _DlgShiftManager extends State<DlgShiftManager> {
 
   Future<void> loadShift() async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadShiftStatusManage, {
-      'organ_id': widget.organId,
-      'select_time': DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.selection),
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadShiftStatusManage, {
+          'organ_id': widget.organId,
+          'select_time': DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(widget.selection),
+        })
+        .then((v) => {results = v});
     list = [];
     for (var item in results['staffs']) {
       for (var shift in globals.organShifts) {
@@ -106,10 +110,12 @@ class _DlgShiftManager extends State<DlgShiftManager> {
         globals.organShifts.add({
           'staff_id': e.staffId,
           'shift_type': '5',
-          'from_time':
-              DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.selectionFrom),
-          'to_time':
-              DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.selectionTo)
+          'from_time': DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(widget.selectionFrom),
+          'to_time': DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(widget.selectionTo),
         });
       }
     } else {
@@ -117,8 +123,9 @@ class _DlgShiftManager extends State<DlgShiftManager> {
 
       for (var item in globals.organShifts) {
         if (item['staff_id'] == e.staffId) {
-          if (widget.selectionFrom
-                  .isBefore(DateTime.parse(item['from_time'])) ||
+          if (widget.selectionFrom.isBefore(
+                DateTime.parse(item['from_time']),
+              ) ||
               widget.selectionTo.isAfter(DateTime.parse(item['to_time']))) {
             tmp.add(item);
           } else {
@@ -139,9 +146,7 @@ class _DlgShiftManager extends State<DlgShiftManager> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       backgroundColor: Colors.transparent,
       child: contentBox(context),
@@ -149,33 +154,26 @@ class _DlgShiftManager extends State<DlgShiftManager> {
   }
 
   contentBox(context) {
-    return Stack(
-      children: <Widget>[
-        _getBody(),
-      ],
-    );
+    return Stack(children: <Widget>[_getBody()]);
   }
 
   Widget _getBody() {
     return Container(
       padding: EdgeInsets.fromLTRB(10, 40, 10, 40),
       decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black, offset: Offset(0, 10), blurRadius: 10),
-          ]),
-      child: SingleChildScrollView(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _getDateLabel(),
-          _getShiftList(),
-          _getButtons(),
+        shape: BoxShape.rectangle,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(color: Colors.black, offset: Offset(0, 10), blurRadius: 10),
         ],
-      )),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[_getDateLabel(), _getShiftList(), _getButtons()],
+        ),
+      ),
     );
   }
 
@@ -190,68 +188,69 @@ class _DlgShiftManager extends State<DlgShiftManager> {
   }
 
   Widget _getShiftList() {
-    return Column(children: [
-      ...list.map((e) => Row(
+    return Column(
+      children: [
+        ...list.map(
+          (e) => Row(
             children: [
-              Container(
-                child: Checkbox(
-                  value: int.parse(e.shiftType) > 0,
-                  onChanged: (v) {
-                    editStaffShift(v, e);
-                    loadShift();
-                  },
-                ),
+              Checkbox(
+                value: int.parse(e.shiftType) > 0,
+                onChanged: (v) {
+                  editStaffShift(v, e);
+                  loadShift();
+                },
               ),
               SizedBox(
-                  width: 70,
-                  child: Text(
-                    e.staffName,
-                    style: TextStyle(fontSize: 12),
-                  )),
+                width: 70,
+                child: Text(e.staffName, style: TextStyle(fontSize: 12)),
+              ),
               SizedBox(
-                  width: 32,
-                  child: Text(
-                      e.fromTime == ''
-                          ? ''
-                          : Funcs()
-                              .getTimeFormatHHMM(DateTime.parse(e.fromTime)),
-                      style: TextStyle(fontSize: 12))),
+                width: 32,
+                child: Text(
+                  e.fromTime == ''
+                      ? ''
+                      : Funcs().getTimeFormatHHMM(DateTime.parse(e.fromTime)),
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
               SizedBox(width: 12, child: Text('~')),
               SizedBox(
-                  width: 32,
-                  child: Text(
-                      e.fromTime == ''
-                          ? ''
-                          : Funcs().getTimeFormatHHMM(DateTime.parse(e.toTime)),
-                      style: TextStyle(fontSize: 12))),
+                width: 32,
+                child: Text(
+                  e.fromTime == ''
+                      ? ''
+                      : Funcs().getTimeFormatHHMM(DateTime.parse(e.toTime)),
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
               SizedBox(width: 10),
               if (e.shiftType == '1')
-                Container(child: Text('申請中', style: TextStyle(fontSize: 12))),
+                Text('申請中', style: TextStyle(fontSize: 12)),
               if (e.shiftType == '2')
-                Container(child: Text('承認済み', style: TextStyle(fontSize: 12))),
+                Text('承認済み', style: TextStyle(fontSize: 12)),
               if (e.shiftType == '4')
-                Container(child: Text('出勤要請', style: TextStyle(fontSize: 12))),
+                Text('出勤要請', style: TextStyle(fontSize: 12)),
               if (e.shiftType == '3')
-                Container(child: Text('回答済み', style: TextStyle(fontSize: 12))),
+                Text('回答済み', style: TextStyle(fontSize: 12)),
               if (e.shiftType == '5')
-                Container(
-                    child: Text('一時追加',
-                        style: TextStyle(color: Colors.blue, fontSize: 12))),
+                Text(
+                  '一時追加',
+                  style: TextStyle(color: Colors.blue, fontSize: 12),
+                ),
               if (e.shiftType == '-2')
-                Container(
-                    child: Text('拒否',
-                        style: TextStyle(color: Colors.red, fontSize: 12))),
+                Text('拒否', style: TextStyle(color: Colors.red, fontSize: 12)),
               if (e.shiftType == '-4')
-                Container(
-                    child: Text('一時店外待機',
-                        style: TextStyle(color: Colors.red, fontSize: 12))),
+                Text(
+                  '一時店外待機',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
               if (e.shiftType == '-3')
-                Container(
-                    child: Text('店外待機',
-                        style: TextStyle(color: Colors.red, fontSize: 12))),
+                Text('店外待機', style: TextStyle(color: Colors.red, fontSize: 12)),
             ],
-          )),
-    ]);
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _getButtons() {

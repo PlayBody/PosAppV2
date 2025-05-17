@@ -16,16 +16,14 @@ class DlgActionShift extends StatefulWidget {
   });
 
   @override
-  _DlgActionShift createState() => _DlgActionShift();
+  State<DlgActionShift> createState() => _DlgActionShift();
 }
 
 class _DlgActionShift extends State<DlgActionShift> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       backgroundColor: Colors.transparent,
       child: contentBox(context),
@@ -38,22 +36,27 @@ class _DlgActionShift extends State<DlgActionShift> {
         Container(
           padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
           decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black, offset: Offset(0, 10), blurRadius: 10),
-              ]),
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(0, 10),
+                blurRadius: 10,
+              ),
+            ],
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                  padding: const EdgeInsets.only(bottom: 30),
-                  child: const Text(
-                    'シフトアクション',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                  )),
+                padding: const EdgeInsets.only(bottom: 30),
+                child: const Text(
+                  'シフトアクション',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: const Text(
@@ -72,18 +75,22 @@ class _DlgActionShift extends State<DlgActionShift> {
                     ),
                   ),
                   Text(
-                      DateFormat('HH:mm')
-                          .format(DateTime.parse(widget.param['start_time'])),
-                      style: const TextStyle(fontSize: 20)),
+                    DateFormat(
+                      'HH:mm',
+                    ).format(DateTime.parse(widget.param['start_time'])),
+                    style: const TextStyle(fontSize: 20),
+                  ),
                   Container(
                     width: 20,
                     alignment: Alignment.center,
                     child: const Text('~'),
                   ),
                   Text(
-                      DateFormat('HH:mm')
-                          .format(DateTime.parse(widget.param['end_time'])),
-                      style: const TextStyle(fontSize: 20)),
+                    DateFormat(
+                      'HH:mm',
+                    ).format(DateTime.parse(widget.param['end_time'])),
+                    style: const TextStyle(fontSize: 20),
+                  ),
                   Expanded(child: Container()),
                 ],
               ),
@@ -93,13 +100,15 @@ class _DlgActionShift extends State<DlgActionShift> {
                   children: [
                     Expanded(child: Container()),
                     ElevatedButton(
-                        onPressed: () => actionShift('2'),
-                        child:
-                            const Text("承認", style: TextStyle(fontSize: 14))),
+                      onPressed: () => actionShift('2'),
+                      child: const Text("承認", style: TextStyle(fontSize: 14)),
+                    ),
                     const SizedBox(width: 12),
                     ElevatedButton(
                       onPressed: () => actionShift('3'),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
                       child: const Text("否決", style: TextStyle(fontSize: 14)),
                     ),
                   ],
@@ -114,14 +123,18 @@ class _DlgActionShift extends State<DlgActionShift> {
 
   Future<void> actionShift(String status) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiActionShiftStatus, {
-      'shift_id': widget.param['shift_id'],
-      'status': status,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiActionShiftStatus, {
+          'shift_id': widget.param['shift_id'],
+          'status': status,
+        })
+        .then((v) => {results = v});
 
     if (results['isUpdate']) {
+      if (!mounted) return;
       Navigator.of(context).pop();
     } else {
+      if (!mounted) return;
       Dialogs().infoDialog(context, '登録に失敗しました。');
     }
   }

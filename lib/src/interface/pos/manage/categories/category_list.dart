@@ -60,7 +60,7 @@ class _CategoryList extends State<CategoryList> {
         categories = await ClCategory().getCategoryList(context, selCompanyId);
       }
     }
-    print(categories);
+    // print(categories);
     setState(() {});
     return categories;
   }
@@ -68,6 +68,7 @@ class _CategoryList extends State<CategoryList> {
   Future<void> refreshLoad() async {
     Dialogs().loaderDialogNormal(context);
     await loadInitData();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -76,6 +77,7 @@ class _CategoryList extends State<CategoryList> {
     await ClMenu().exchangeMenuSort(context, moveId, targetId);
 
     refreshLoad();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 

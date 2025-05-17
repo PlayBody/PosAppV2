@@ -7,21 +7,21 @@ class QuestionModel {
   final String question;
   final String? answer;
 
-  const QuestionModel(
-      {required this.questionId,
-      required this.userId,
-      required this.question,
-      required this.questionTitle,
-      required this.userName,
-      this.answerId,
-      this.answer});
+  const QuestionModel({
+    required this.questionId,
+    required this.userId,
+    required this.question,
+    required this.questionTitle,
+    required this.userName,
+    this.answerId,
+    this.answer,
+  });
 
   factory QuestionModel.fromJson(Map<String, dynamic> json) {
     var userNameLabel = json['user_nick'] ?? '';
     if (userNameLabel == '') {
-      userNameLabel = (json['user_first_name'] ?? '') +
-          ' ' +
-          (json['user_last_name'] ?? '');
+      userNameLabel =
+          '${json['user_first_name'] ?? ''} ${json['user_last_name'] ?? ''}';
     }
     return QuestionModel(
       questionId: json['question_id'],

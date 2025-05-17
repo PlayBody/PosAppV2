@@ -30,7 +30,7 @@ class DlgSpecialTime extends StatefulWidget {
       super.key});
 
   @override
-  _DlgSpecialTime createState() => _DlgSpecialTime();
+  State<DlgSpecialTime> createState() => _DlgSpecialTime();
 }
 
 class _DlgSpecialTime extends State<DlgSpecialTime> {
@@ -54,15 +54,15 @@ class _DlgSpecialTime extends State<DlgSpecialTime> {
 
   void setStringTime() {
     _startTime = '${_start.toInt() < 10
-            ? '0' + _start.toInt().toString()
+            ? '0${_start.toInt()}'
             : _start.toInt().toString()}:${((_start - _start.toInt()) * 60).toInt() < 10
-            ? '0' + ((_start - _start.toInt()) * 60).toInt().toString()
+            ? '0${((_start - _start.toInt()) * 60).toInt()}'
             : ((_start - _start.toInt()) * 60).toInt().toString()}';
 
     _endTime = '${_end.toInt() < 10
-            ? '0' + _end.toInt().toString()
+            ? '0${_end.toInt()}'
             : _end.toInt().toString()}:${((_end - _end.toInt()) * 60).toInt() < 10
-            ? '0' + ((_end - _end.toInt()) * 60).toInt().toString()
+            ? '0${((_end - _end.toInt()) * 60).toInt()}'
             : ((_end - _end.toInt()) * 60).toInt().toString()}';
   }
 

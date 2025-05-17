@@ -38,7 +38,7 @@ class MenuVariation extends StatefulWidget {
       super.key});
 
   @override
-  _MenuVariation createState() => _MenuVariation();
+  State<MenuVariation> createState() => _MenuVariation();
 }
 
 class _MenuVariation extends State<MenuVariation> {

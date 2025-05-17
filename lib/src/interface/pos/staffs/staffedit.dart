@@ -272,7 +272,7 @@ class _StaffEdit extends State<StaffEdit> {
 
     print(apiStaffSave);
     print({
-      'staff_id': this.editStaffId ?? '',
+      'staff_id': editStaffId ?? '',
       'staff_auth': selStaffAuth ?? '',
       'table_position': selTablePosition ?? '',
       'staff_first_name': txtFirstName,
@@ -301,7 +301,7 @@ class _StaffEdit extends State<StaffEdit> {
       'epark_id': txtEparkIdController.text
     });
     await Webservice().loadHttp(context, apiStaffSave, {
-      'staff_id': this.editStaffId ?? '',
+      'staff_id': editStaffId ?? '',
       'staff_auth': selStaffAuth ?? '',
       'table_position': selTablePosition ?? '',
       'staff_first_name': txtFirstName,

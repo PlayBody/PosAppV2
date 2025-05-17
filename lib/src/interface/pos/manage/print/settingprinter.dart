@@ -20,7 +20,7 @@ class SettingPrinter extends StatefulWidget {
   const SettingPrinter({super.key});
 
   @override
-  _SettingPrinter createState() => _SettingPrinter();
+  State<SettingPrinter> createState() => _SettingPrinter();
 }
 
 class _SettingPrinter extends State<SettingPrinter> {

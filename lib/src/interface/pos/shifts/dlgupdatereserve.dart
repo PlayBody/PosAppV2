@@ -25,7 +25,7 @@ class DlgUpdateReserve extends StatefulWidget {
   });
 
   @override
-  _DlgUpdateReserve createState() => _DlgUpdateReserve();
+  State<DlgUpdateReserve> createState() => _DlgUpdateReserve();
 }
 
 class _DlgUpdateReserve extends State<DlgUpdateReserve> {
@@ -61,7 +61,7 @@ class _DlgUpdateReserve extends State<DlgUpdateReserve> {
                   ...widget.organStaffs.map((e) => DropdownMenuItem(
                         value: e.staffId,
                         child: Text(e.staffNick == ''
-                            ? (e.staffFirstName! + ' ' + e.staffLastName!)
+                            ? ('${e.staffFirstName!} ${e.staffLastName!}')
                             : e.staffNick),
                       ))
                 ],

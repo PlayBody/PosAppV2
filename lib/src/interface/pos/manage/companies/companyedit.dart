@@ -23,7 +23,7 @@ class CompanyEdit extends StatefulWidget {
   const CompanyEdit({this.selComapnyId, super.key});
 
   @override
-  _CompanyEdit createState() => _CompanyEdit();
+  State<CompanyEdit> createState() => _CompanyEdit();
 }
 
 class _CompanyEdit extends State<CompanyEdit> {
@@ -68,6 +68,7 @@ class _CompanyEdit extends State<CompanyEdit> {
     txtReceiptNumController.text = company.companyReceiptNumber;
     cVisible = company.visible;
 
+    if (!mounted) return [];
     sites = await ClCompany().loadCompanySites(context, editComapnyId!);
     return [];
   }
@@ -114,8 +115,10 @@ class _CompanyEdit extends State<CompanyEdit> {
       setState(() {
         editComapnyId = results['company_id'].toString();
       });
+      if (!mounted) return;
       Dialogs().infoDialog(context, successUpdateAction);
     } else {
+      if (!mounted) return;
       Dialogs().infoDialog(context, errServerActionFail);
     }
   }
@@ -177,6 +180,7 @@ class _CompanyEdit extends State<CompanyEdit> {
     setState(() {
       loadData = loadFormInit();
     });
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -303,20 +307,14 @@ class _CompanyEdit extends State<CompanyEdit> {
         children: [
           SizedBox(
             width: 90,
-            child: Container(
-              child: Text(e.title, style: TextStyle(fontSize: 18)),
-            ),
+            child: Text(e.title, style: TextStyle(fontSize: 18)),
           ),
           Expanded(
-            child: Container(
-              child: Text(e.url, style: TextStyle(fontSize: 18)),
-            ),
+            child: Text(e.url, style: TextStyle(fontSize: 18)),
           ),
-          Container(
-            child: TextButton(
-              child: Text('削除'),
-              onPressed: () => deleteSite(e.siteId),
-            ),
+          TextButton(
+            child: Text('削除'),
+            onPressed: () => deleteSite(e.siteId),
           ),
         ],
       ),

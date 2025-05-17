@@ -17,7 +17,7 @@ class DlgPointSubmit extends StatefulWidget {
       {required this.organId, required this.pointDate, super.key});
 
   @override
-  _DlgPointSubmit createState() => _DlgPointSubmit();
+  State<DlgPointSubmit> createState() => _DlgPointSubmit();
 }
 
 class _DlgPointSubmit extends State<DlgPointSubmit> {

@@ -20,16 +20,17 @@ class ShiftImport extends StatefulWidget {
   const ShiftImport({super.key});
 
   @override
-  _ShiftImport createState() => _ShiftImport();
+  State<ShiftImport> createState() => _ShiftImport();
 }
 
 class _ShiftImport extends State<ShiftImport> {
   late Future<List> loadData;
 
   String selYear = DateTime.now().year.toString();
-  String? selMonth = DateTime.now().month < 10
-      ? '0${DateTime.now().month}'
-      : DateTime.now().month.toString();
+  String? selMonth =
+      DateTime.now().month < 10
+          ? '0${DateTime.now().month}'
+          : DateTime.now().month.toString();
   String? selOrganId;
   String? fileName;
   int maxDay = 0;
@@ -94,9 +95,11 @@ class _ShiftImport extends State<ShiftImport> {
     });
 
     if (isCountImport) {
+      if (!mounted) return;
       Dialogs().infoDialog(context, 'シフトフレームのインポートに成功!');
     }
     if (!isShiftCountTable) {
+      if (!mounted) return;
       Dialogs().infoDialog(context, 'データ形式が正しくありません。');
     }
   }
@@ -143,21 +146,23 @@ class _ShiftImport extends State<ShiftImport> {
           if (int.parse(hour) < 10) hour = '0$hour';
 
           if (fromTime != '') {
-            toTime = DateFormat('yyyy-MM-dd HH:mm:ss')
-                .format(DateTime.parse('$shiftDate $hour:00:00'));
+            toTime = DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(DateTime.parse('$shiftDate $hour:00:00'));
 
             shiftCounts.add({
               'from_time': fromTime,
               'to_time': toTime,
-              'count': countValue
+              'count': countValue,
             });
           }
           countValue = item;
           if (item == '' || item == '0') {
             fromTime = '';
           } else {
-            fromTime = DateFormat('yyyy-MM-dd HH:mm:ss')
-                .format(DateTime.parse('$shiftDate $hour:00:00'));
+            fromTime = DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(DateTime.parse('$shiftDate $hour:00:00'));
           }
         }
       }
@@ -169,21 +174,25 @@ class _ShiftImport extends State<ShiftImport> {
         if (lastHour == 24) {
           lastHourStr = '23:59:59';
         } else {
-          lastHourStr =
-              '${lastHour < 10 ? '0' : ''}$lastHourStr:00:00';
+          lastHourStr = '${lastHour < 10 ? '0' : ''}$lastHourStr:00:00';
         }
 
         shiftCounts.add({
           'from_time': fromTime,
-          'to_time': DateFormat('yyyy-MM-dd HH:mm:ss')
-              .format(DateTime.parse('$shiftDate $lastHourStr')),
-          'count': countValue
+          'to_time': DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(DateTime.parse('$shiftDate $lastHourStr')),
+          'count': countValue,
         });
       }
     }
 
     bool isImport = await ClSettingShift().importShiftCount(
-        context, '$selYear-${selMonth!}', selOrganId!, shiftCounts);
+      context,
+      '$selYear-${selMonth!}',
+      selOrganId!,
+      shiftCounts,
+    );
 
     return isImport;
   }
@@ -192,20 +201,21 @@ class _ShiftImport extends State<ShiftImport> {
   Widget build(BuildContext context) {
     globals.appTitle = 'シフトインポート';
     return MainBodyWdiget(
-        resizeBottom: true,
-        render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return _getBodyContent();
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
+      resizeBottom: true,
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBodyContent();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-            // By default, show a loading spinner.
-            return Center(child: CircularProgressIndicator());
-          },
-        ));
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   Widget _getBodyContent() {
@@ -224,29 +234,35 @@ class _ShiftImport extends State<ShiftImport> {
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ),
-          Container(
-              child: WhiteButton(
-                  label: 'ファイルを選択',
-                  tapFunc: isImportLoading ? null : () => fileSelectTap())),
+          WhiteButton(
+            label: 'ファイルを選択',
+            tapFunc: isImportLoading ? null : () => fileSelectTap(),
+          ),
           if (fileName != null)
             Container(
               padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text(fileName!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.blue)),
+              child: Text(
+                fileName!,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.blue),
+              ),
             ),
           if (isImportLoading)
             Container(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                child: CircularProgressIndicator()),
+              margin: EdgeInsets.symmetric(vertical: 8),
+              child: CircularProgressIndicator(),
+            ),
           SizedBox(height: 64),
-          RowButtonGroup(widgets: [
-            SizedBox(width: 30),
-            PrimaryButton(
+          RowButtonGroup(
+            widgets: [
+              SizedBox(width: 30),
+              PrimaryButton(
                 label: '保存する',
-                tapFunc: isImportLoading ? null : () => importData()),
-            SizedBox(width: 30),
-          ]),
+                tapFunc: isImportLoading ? null : () => importData(),
+              ),
+              SizedBox(width: 30),
+            ],
+          ),
           SizedBox(height: 12),
         ],
       ),
@@ -254,26 +270,26 @@ class _ShiftImport extends State<ShiftImport> {
   }
 
   Widget _getOrganList() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(child: Container()),
-          SizedBox(
-            width: 250,
-            child: DropDownModelSelect(
-              value: selOrganId,
-              items: [
-                ...organList.map((e) => DropdownMenuItem(
-                    value: e.organId,
-                    child: Text(e.organName)))
-              ],
-              tapFunc:
-                  isImportLoading ? null : (v) => selOrganId = v!.toString(),
-            ),
+    return Row(
+      children: [
+        Expanded(child: Container()),
+        SizedBox(
+          width: 250,
+          child: DropDownModelSelect(
+            value: selOrganId,
+            items: [
+              ...organList.map(
+                (e) => DropdownMenuItem(
+                  value: e.organId,
+                  child: Text(e.organName),
+                ),
+              ),
+            ],
+            tapFunc: isImportLoading ? null : (v) => selOrganId = v!.toString(),
           ),
-          Expanded(child: Container()),
-        ],
-      ),
+        ),
+        Expanded(child: Container()),
+      ],
     );
   }
 }

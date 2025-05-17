@@ -30,7 +30,7 @@ class Shift extends StatefulWidget {
   const Shift({super.key});
 
   @override
-  _Shift createState() => _Shift();
+  State<Shift> createState() => _Shift();
 }
 
 class _Shift extends State<Shift> {

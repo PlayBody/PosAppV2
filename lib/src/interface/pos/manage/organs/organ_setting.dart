@@ -35,7 +35,7 @@ class OrganSetting extends StatefulWidget {
   const OrganSetting({this.organId, super.key});
 
   @override
-  _OrganSetting createState() => _OrganSetting();
+  State<OrganSetting> createState() => _OrganSetting();
 }
 
 class _OrganSetting extends State<OrganSetting> {
@@ -176,28 +176,37 @@ class _OrganSetting extends State<OrganSetting> {
     isUseSet = organ.isUseSet;
     checkInType = organ.isNoReserve;
     checkInTypeReserve = organ.isNoReserveType;
-    checkInQR = organ.isNoReserveQR == constCheckinQROff
-        ? constCheckinQROff
-        : constCheckinQROn;
+    checkInQR =
+        organ.isNoReserveQR == constCheckinQROff
+            ? constCheckinQROff
+            : constCheckinQROn;
 
     printLogoUrl = organ.printLogoUrl;
     organImage = organ.organImage;
     await setOrganSetTableData(selSetNumber);
 
-    bussinessTimes =
-        await ClOrgan().loadOrganTimes(context, selOrganId!, 'bussiness');
+    bussinessTimes = await ClOrgan().loadOrganTimes(
+      context,
+      selOrganId!,
+      'bussiness',
+    );
     shiftTimes = await ClOrgan().loadOrganTimes(context, selOrganId!, 'shift');
     specialTimes = await ClOrgan().loadOrganSpecialTime(context, selOrganId);
-    specialShiftTimes =
-        await ClOrgan().loadOrganSpecialShiftTime(context, selOrganId);
+    specialShiftTimes = await ClOrgan().loadOrganSpecialShiftTime(
+      context,
+      selOrganId,
+    );
     setState(() {});
     return [];
   }
 
   Future<void> setOrganSetTableData(String setNum) async {
     selSetNumber = setNum;
-    OrganSetTableModel setData =
-        await ClOrgan().loadOrganSetTableData(context, selOrganId!, setNum);
+    OrganSetTableModel setData = await ClOrgan().loadOrganSetTableData(
+      context,
+      selOrganId!,
+      setNum,
+    );
     txtTableAmountController.text = setData.tableAmount;
     txtSetAmountController.text = setData.setAmount;
     _setTime = setData.setTime;
@@ -213,90 +222,97 @@ class _OrganSetting extends State<OrganSetting> {
 
     String imagename = '';
     if (uploadPrintLogoUrl != null) {
-      imagename = 'print-logo-${DateTime.now()
-              .toString()
-              .replaceAll(':', '')
-              .replaceAll('-', '')
-              .replaceAll('.', '')
-              .replaceAll(' ', '')}.png';
+      imagename =
+          'print-logo-${DateTime.now().toString().replaceAll(':', '').replaceAll('-', '').replaceAll('.', '').replaceAll(' ', '')}.png';
       await Webservice().callHttpMultiPart(
-          'picture', apiUploadPrintLogoUrl, uploadPrintLogoUrl!, imagename);
+        'picture',
+        apiUploadPrintLogoUrl,
+        uploadPrintLogoUrl!,
+        imagename,
+      );
     }
 
     String organImageName = '';
     if (isPhoto) {
-      organImageName = 'organs-${DateTime.now()
-              .toString()
-              .replaceAll(':', '')
-              .replaceAll('-', '')
-              .replaceAll('.', '')
-              .replaceAll(' ', '')}.jpg';
+      organImageName =
+          'organs-${DateTime.now().toString().replaceAll(':', '').replaceAll('-', '').replaceAll('.', '').replaceAll(' ', '')}.jpg';
       await Webservice().callHttpMultiPart(
-          'picture', apiUploadOrganPhoto, _photoFile.path, organImageName);
+        'picture',
+        apiUploadOrganPhoto,
+        _photoFile.path,
+        organImageName,
+      );
     }
 
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiSaveSettingUrl, {
-      'organ_id': selOrganId,
-      'table_count': selTableCount ?? '',
-      'set_number': selSetNumber,
-      'is_use_set': isUseSet ? '1' : '0',
-      'is_no_reserve': checkInType,
-      'is_no_reserve_type': checkInTypeReserve,
-      'is_no_reserve_qr': checkInQR,
-      'set_time': _setTime == null ? '' : Funcs().getTimeFormatHMM00(_setTime),
-      'set_start_time': _setStartTime == null
-          ? ''
-          : Funcs().getTimeFormatHMM00(_setStartTime),
-      'set_amount': txtSetAmountController.text,
-      'table_amount': txtTableAmountController.text,
-      'active_start_time': _activeStartTime == null
-          ? ''
-          : Funcs().getTimeFormatHHMM(_activeStartTime),
-      'active_end_time': _activeEndTime == null
-          ? ''
-          : Funcs().getTimeFormatHHMM(_activeEndTime),
-      'zip_code': txtZipCodeController.text,
-      'address': txtAddressController.text,
-      'tel_phone': txtTelController.text,
-      'lat': txtLatController.text,
-      'lon': txtLonController.text,
-      'distance': txtDistanceController.text,
-      'distance_status': isShowDistance ? '1' : '0',
-      'open_balance': txtOpenBalanceController.text,
-      'comment': txtCommentController.text,
-      'sns_url': txtSNSUrlController.text,
-      'access': txtAccessController.text,
-      'parking': txtParkingController.text,
-      'reserve_menu_response_1_point': txtPtResponse1Controller.text,
-      'reserve_menu_response_2_point': txtPtResponse2Controller.text,
-      'attend_point': txtPtAttendController.text,
-      'grade_1_point': txtPtGrade1Controller.text,
-      'grade_2_point': txtPtGrade2Controller.text,
-      'grade_3_point': txtPtGrade3Controller.text,
-      'entering_1_point': txtPtEndtering1Controller.text,
-      'entering_2_point': txtPtEndtering2Controller.text,
-      'entering_3_point': txtPtEndtering3Controller.text,
-      'entering_4_point': txtPtEndtering4Controller.text,
-      'entering_5_point': txtPtEndtering5Controller.text,
-      'service_tax': serviceTax,
-      'is_service_tax': isServieTax,
-      'is_round_amount': isRoundAmount,
-      'epark_id': txtEparkIdController.text,
-      // 'business_weight': txtBusinessWeightController.text,
-      // 'divide_point': txtDividePointController.text,
-      // 'promotional_point': txtPromotionalPointController.text,
-      // 'optional_acquisition_point': txtOptionPointController.text,
-      // 'next_reservation_point': txtNextPointController.text,
-      // 'extension_point': txtExtenstionPointController.text,
-      // 'open_business_point': txtOpenPointController.text,
-      // 'close_business_point': txtClosePointController.text,
-      'checkin_ticket_consumption': txtCheckinTiecketController.text,
-      'print_logo_file': imagename,
-      'image': organImageName
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiSaveSettingUrl, {
+          'organ_id': selOrganId,
+          'table_count': selTableCount ?? '',
+          'set_number': selSetNumber,
+          'is_use_set': isUseSet ? '1' : '0',
+          'is_no_reserve': checkInType,
+          'is_no_reserve_type': checkInTypeReserve,
+          'is_no_reserve_qr': checkInQR,
+          'set_time':
+              _setTime == null ? '' : Funcs().getTimeFormatHMM00(_setTime),
+          'set_start_time':
+              _setStartTime == null
+                  ? ''
+                  : Funcs().getTimeFormatHMM00(_setStartTime),
+          'set_amount': txtSetAmountController.text,
+          'table_amount': txtTableAmountController.text,
+          'active_start_time':
+              _activeStartTime == null
+                  ? ''
+                  : Funcs().getTimeFormatHHMM(_activeStartTime),
+          'active_end_time':
+              _activeEndTime == null
+                  ? ''
+                  : Funcs().getTimeFormatHHMM(_activeEndTime),
+          'zip_code': txtZipCodeController.text,
+          'address': txtAddressController.text,
+          'tel_phone': txtTelController.text,
+          'lat': txtLatController.text,
+          'lon': txtLonController.text,
+          'distance': txtDistanceController.text,
+          'distance_status': isShowDistance ? '1' : '0',
+          'open_balance': txtOpenBalanceController.text,
+          'comment': txtCommentController.text,
+          'sns_url': txtSNSUrlController.text,
+          'access': txtAccessController.text,
+          'parking': txtParkingController.text,
+          'reserve_menu_response_1_point': txtPtResponse1Controller.text,
+          'reserve_menu_response_2_point': txtPtResponse2Controller.text,
+          'attend_point': txtPtAttendController.text,
+          'grade_1_point': txtPtGrade1Controller.text,
+          'grade_2_point': txtPtGrade2Controller.text,
+          'grade_3_point': txtPtGrade3Controller.text,
+          'entering_1_point': txtPtEndtering1Controller.text,
+          'entering_2_point': txtPtEndtering2Controller.text,
+          'entering_3_point': txtPtEndtering3Controller.text,
+          'entering_4_point': txtPtEndtering4Controller.text,
+          'entering_5_point': txtPtEndtering5Controller.text,
+          'service_tax': serviceTax,
+          'is_service_tax': isServieTax,
+          'is_round_amount': isRoundAmount,
+          'epark_id': txtEparkIdController.text,
+          // 'business_weight': txtBusinessWeightController.text,
+          // 'divide_point': txtDividePointController.text,
+          // 'promotional_point': txtPromotionalPointController.text,
+          // 'optional_acquisition_point': txtOptionPointController.text,
+          // 'next_reservation_point': txtNextPointController.text,
+          // 'extension_point': txtExtenstionPointController.text,
+          // 'open_business_point': txtOpenPointController.text,
+          // 'close_business_point': txtClosePointController.text,
+          'checkin_ticket_consumption': txtCheckinTiecketController.text,
+          'print_logo_file': imagename,
+          'image': organImageName,
+        })
+        .then((v) => {results = v});
 
+    if (!mounted) return;
     Navigator.pop(context);
 
     if (results['isUpdate']) {
@@ -307,7 +323,10 @@ class _OrganSetting extends State<OrganSetting> {
   }
 
   Future<void> updateTitle(
-      String organId, String companyId, String title) async {
+    String organId,
+    String companyId,
+    String title,
+  ) async {
     Navigator.of(context).pop();
     if (organId == '' && companyId == '') return;
     if (title == '') return;
@@ -315,16 +334,20 @@ class _OrganSetting extends State<OrganSetting> {
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
 
-    await Webservice().loadHttp(context, apiUpdateOrganTitleUrl, {
-      'organ_id': organId,
-      'company_id': companyId,
-      'update_title': title
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiUpdateOrganTitleUrl, {
+          'organ_id': organId,
+          'company_id': companyId,
+          'update_title': title,
+        })
+        .then((v) => {results = v});
     if (results['isUpdate']) {
       selOrganId = results['organ_id'].toString();
       loadSettingData();
+      if (!mounted) return;
       Navigator.of(context).pop();
     } else {
+      if (!mounted) return;
       Navigator.of(context).pop();
       Dialogs().infoDialog(context, errServerActionFail);
     }
@@ -334,13 +357,19 @@ class _OrganSetting extends State<OrganSetting> {
     selOrganId = organId;
     Dialogs().loaderDialogNormal(context);
     await loadSettingData();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
   Future<void> onTapOrganTime(typeString) async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return SettingOrganTime(selOrganId: selOrganId!, type: typeString);
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return SettingOrganTime(selOrganId: selOrganId!, type: typeString);
+        },
+      ),
+    );
     loadSettingData();
   }
 
@@ -352,8 +381,9 @@ class _OrganSetting extends State<OrganSetting> {
 
     Dialogs().loaderDialogNormal(context);
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteOrganData,
-        {'organ_id': selOrganId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteOrganData, {'organ_id': selOrganId})
+        .then((v) => {results = v});
     Navigator.pop(context);
     if (!results['isDelete']) {
       Dialogs().infoDialog(context, errServerActionFail);
@@ -369,38 +399,49 @@ class _OrganSetting extends State<OrganSetting> {
     final controller = TextEditingController();
 
     controller.text = txtInputTitle;
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: txtInputTitle.length);
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: txtInputTitle.length,
+    );
 
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(organId == '' ? '店舗の追加' : qChangeTitle),
-        content: SizedBox(
-            height: 130,
-            child: Column(
-              children: [
-                if (globals.auth == constAuthSystem && organId == '')
-                  DropDownModelSelect(items: [
-                    ...companies.map((e) => DropdownMenuItem(
-                        value: e.companyId,
-                        child: Text(e.companyName)))
-                  ], tapFunc: (v) => companyId = v),
-                SizedBox(height: 16),
-                TextInputNormal(controller: controller)
-              ],
-            )),
-        actions: [
-          TextButton(
-            child: const Text('変更'),
-            onPressed: () => updateTitle(organId, companyId, controller.text),
+      builder:
+          (context) => AlertDialog(
+            title: Text(organId == '' ? '店舗の追加' : qChangeTitle),
+            content: SizedBox(
+              height: 130,
+              child: Column(
+                children: [
+                  if (globals.auth == constAuthSystem && organId == '')
+                    DropDownModelSelect(
+                      items: [
+                        ...companies.map(
+                          (e) => DropdownMenuItem(
+                            value: e.companyId,
+                            child: Text(e.companyName),
+                          ),
+                        ),
+                      ],
+                      tapFunc: (v) => companyId = v,
+                    ),
+                  SizedBox(height: 16),
+                  TextInputNormal(controller: controller),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text('変更'),
+                onPressed:
+                    () => updateTitle(organId, companyId, controller.text),
+              ),
+              TextButton(
+                child: const Text('キャンセル'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
-          TextButton(
-            child: const Text('キャンセル'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
     );
   }
 
@@ -408,20 +449,21 @@ class _OrganSetting extends State<OrganSetting> {
   Widget build(BuildContext context) {
     globals.appTitle = '店舗設定';
     return MainBodyWdiget(
-        resizeBottom: true,
-        render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return _getBodyContent();
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
+      resizeBottom: true,
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBodyContent();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-            // By default, show a loading spinner.
-            return Center(child: CircularProgressIndicator());
-          },
-        ));
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   var dropDwonContentPadding = const EdgeInsets.fromLTRB(8, 7, 0, 7);
@@ -433,28 +475,31 @@ class _OrganSetting extends State<OrganSetting> {
       child: Column(
         children: [
           Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                if (globals.auth >= constAuthOwner)
-                  Row(
-                    children: [
-                      const SizedBox(width: 20),
-                      PrimaryColButton(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  if (globals.auth >= constAuthOwner)
+                    Row(
+                      children: [
+                        const SizedBox(width: 20),
+                        PrimaryColButton(
                           label: '店舗の追加',
-                          tapFunc: () => titleChangeDialog('', '')),
-                      const SizedBox(width: 12),
-                      DeleteColButton(
-                          label: '店舗の削除', tapFunc: () => deleteOrgan()),
-                    ],
-                  ),
-                const SizedBox(height: 12),
-                _getAvatarContent(),
-                const SizedBox(height: 12),
-                _getOrganList(),
-                const SizedBox(height: 12),
-                Container(
+                          tapFunc: () => titleChangeDialog('', ''),
+                        ),
+                        const SizedBox(width: 12),
+                        DeleteColButton(
+                          label: '店舗の削除',
+                          tapFunc: () => deleteOrgan(),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 12),
+                  _getAvatarContent(),
+                  const SizedBox(height: 12),
+                  _getOrganList(),
+                  const SizedBox(height: 12),
+                  Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: RowLabelInput(
                       label: 'EPARK ID',
@@ -462,44 +507,48 @@ class _OrganSetting extends State<OrganSetting> {
                       renderWidget: TextInputNormal(
                         controller: txtEparkIdController,
                       ),
-                    )),
-                const SizedBox(height: 12),
-                _getPositionCountContent(),
-                const SizedBox(height: 12),
-                const PageSubHeader(label: 'セット設定'),
-                _getSetGroupContent(),
-                const SizedBox(height: 20),
-                const PageSubHeader(label: '営業時間'),
-                const SizedBox(height: 12),
-                _getOrganTimeContent('営業時間設定', bussinessTimes, 'bussiness'),
-                const SizedBox(height: 20),
-                const PageSubHeader(label: '勤務可能時間'),
-                const SizedBox(height: 12),
-                _getOrganTimeContent('勤務可能時間', shiftTimes, 'shift'),
-                const SizedBox(height: 20),
-                const PageSubHeader(label: '基本情報'),
-                const SizedBox(height: 12),
-                _getMainInfoContent(),
-                const PageSubHeader(label: '初期ポイント設定'),
-                const SizedBox(height: 12),
-                _getBasePointContent(),
-                Container(height: 20),
-                // PageSubHeader(label: '給与ポイント'),
-                // SizedBox(height: 12),
-                // _getPointSettingContent(),
-                // Container(height: 20),
-                const PageSubHeader(label: '印刷ロゴ画像'),
-                const SizedBox(height: 12),
-                _getPrintLogoContent(),
-                const SizedBox(height: 24),
-              ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _getPositionCountContent(),
+                  const SizedBox(height: 12),
+                  const PageSubHeader(label: 'セット設定'),
+                  _getSetGroupContent(),
+                  const SizedBox(height: 20),
+                  const PageSubHeader(label: '営業時間'),
+                  const SizedBox(height: 12),
+                  _getOrganTimeContent('営業時間設定', bussinessTimes, 'bussiness'),
+                  const SizedBox(height: 20),
+                  const PageSubHeader(label: '勤務可能時間'),
+                  const SizedBox(height: 12),
+                  _getOrganTimeContent('勤務可能時間', shiftTimes, 'shift'),
+                  const SizedBox(height: 20),
+                  const PageSubHeader(label: '基本情報'),
+                  const SizedBox(height: 12),
+                  _getMainInfoContent(),
+                  const PageSubHeader(label: '初期ポイント設定'),
+                  const SizedBox(height: 12),
+                  _getBasePointContent(),
+                  Container(height: 20),
+                  // PageSubHeader(label: '給与ポイント'),
+                  // SizedBox(height: 12),
+                  // _getPointSettingContent(),
+                  // Container(height: 20),
+                  const PageSubHeader(label: '印刷ロゴ画像'),
+                  const SizedBox(height: 12),
+                  _getPrintLogoContent(),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
-          )),
-          RowButtonGroup(widgets: [
-            const SizedBox(width: 30),
-            PrimaryButton(label: '保存する', tapFunc: () => saveSetting()),
-            const SizedBox(width: 30),
-          ]),
+          ),
+          RowButtonGroup(
+            widgets: [
+              const SizedBox(width: 30),
+              PrimaryButton(label: '保存する', tapFunc: () => saveSetting()),
+              const SizedBox(width: 30),
+            ],
+          ),
           const SizedBox(height: 12),
         ],
       ),
@@ -513,9 +562,10 @@ class _OrganSetting extends State<OrganSetting> {
         children: [
           SizedBox(
             height: 130,
-            child: isPhoto
-                ? Image.file(_photoFile)
-                : organImage == null
+            child:
+                isPhoto
+                    ? Image.file(_photoFile)
+                    : organImage == null
                     ? Image.asset('images/no_image.jpg')
                     : Image.network(organImageUrl + organImage!),
           ),
@@ -524,14 +574,8 @@ class _OrganSetting extends State<OrganSetting> {
             alignment: Alignment.topRight,
             child: DropdownButton(
               items: [
-                DropdownMenuItem(
-                  value: 1,
-                  child: Text("カメラ撮る"),
-                ),
-                DropdownMenuItem(
-                  value: 2,
-                  child: Text("アルバム"),
-                )
+                DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
+                DropdownMenuItem(value: 2, child: Text("アルバム")),
               ],
               onChanged: (int? v) {
                 if (v == 1 || v == 2) {
@@ -573,17 +617,21 @@ class _OrganSetting extends State<OrganSetting> {
               contentPadding: EdgeInsets.fromLTRB(20, 7, 0, 7),
               value: selOrganId,
               items: [
-                ...organList.map((e) => DropdownMenuItem(
+                ...organList.map(
+                  (e) => DropdownMenuItem(
                     value: e.organId,
-                    child: Text(e.organName)))
+                    child: Text(e.organName),
+                  ),
+                ),
               ],
               tapFunc: (v) => onSelectOrgan(v.toString()),
             ),
           ),
           SizedBox(width: 8),
           WhiteButton(
-              label: '店名変更',
-              tapFunc: () => titleChangeDialog(selOrganId!, organTitle)),
+            label: '店名変更',
+            tapFunc: () => titleChangeDialog(selOrganId!, organTitle),
+          ),
         ],
       ),
     );
@@ -593,13 +641,14 @@ class _OrganSetting extends State<OrganSetting> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: hPadding),
       child: RowLabelInput(
-          label: '席数',
-          renderWidget: DropDownNumberSelect(
-            contentPadding: dropDwonContentPadding,
-            value: selTableCount,
-            max: 99,
-            tapFunc: (v) => selTableCount = v.toString(),
-          )),
+        label: '席数',
+        renderWidget: DropDownNumberSelect(
+          contentPadding: dropDwonContentPadding,
+          value: selTableCount,
+          max: 99,
+          tapFunc: (v) => selTableCount = v.toString(),
+        ),
+      ),
     );
   }
 
@@ -612,96 +661,104 @@ class _OrganSetting extends State<OrganSetting> {
           RowLabelInput(
             label: 'セット使用',
             renderWidget: Switch(
-                value: isUseSet,
-                onChanged: (v) {
-                  isUseSet = v;
-                  setOrganSetTableData('1');
-                  setState(() {});
-                }),
+              value: isUseSet,
+              onChanged: (v) {
+                isUseSet = v;
+                setOrganSetTableData('1');
+                setState(() {});
+              },
+            ),
           ),
           SizedBox(height: 12),
           RowLabelInput(
             label: 'セット番号',
             renderWidget: DropDownNumberSelect(
-                value: selSetNumber,
-                contentPadding: dropDwonContentPadding,
-                max: 5,
-                tapFunc: isUseSet ? (v) => setOrganSetTableData(v) : null),
+              value: selSetNumber,
+              contentPadding: dropDwonContentPadding,
+              max: 5,
+              tapFunc: isUseSet ? (v) => setOrganSetTableData(v) : null,
+            ),
           ),
           SizedBox(height: 12),
           Container(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Row(
-                children: [
-                  InputLeftText(label: '延長開始時間', rPadding: 4),
-                  ElevatedButton(
-                    onPressed: () {
-                      DatePicker.showTimePicker(
-                        context,
-                        locale: LocaleType.jp,
-                        // theme: timePickerTheme,
-                        showSecondsColumn: false,
-                        showTitleActions: true,
-                        currentTime: _setStartTime,
-                        onConfirm: (time) {
-                          setState(() {
-                            _setStartTime = time;
-                          });
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        textStyle: TextStyle(fontSize: 16)),
-                    child: Text(Funcs().getTimeFormatHMM00(_setStartTime)),
+            padding: EdgeInsets.only(bottom: 30),
+            child: Row(
+              children: [
+                InputLeftText(label: '延長開始時間', rPadding: 4),
+                ElevatedButton(
+                  onPressed: () {
+                    DatePicker.showTimePicker(
+                      context,
+                      locale: LocaleType.jp,
+                      // theme: timePickerTheme,
+                      showSecondsColumn: false,
+                      showTitleActions: true,
+                      currentTime: _setStartTime,
+                      onConfirm: (time) {
+                        setState(() {
+                          _setStartTime = time;
+                        });
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    textStyle: TextStyle(fontSize: 16),
                   ),
-                ],
-              )),
+                  child: Text(Funcs().getTimeFormatHMM00(_setStartTime)),
+                ),
+              ],
+            ),
+          ),
           RowLabelInput(
-              label: '入店料金',
-              renderWidget: TextInputNormal(
-                contentPadding: 12,
-                controller: txtTableAmountController,
-                inputType: TextInputType.number,
-              )),
+            label: '入店料金',
+            renderWidget: TextInputNormal(
+              contentPadding: 12,
+              controller: txtTableAmountController,
+              inputType: TextInputType.number,
+            ),
+          ),
           SizedBox(height: 12),
           Container(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Row(
-                children: [
-                  InputLeftText(label: '1延長の時間', rPadding: 4),
-                  ElevatedButton(
-                    onPressed: () {
-                      DatePicker.showTimePicker(
-                        context,
-                        locale: LocaleType.jp,
-                        // theme: timePickerTheme,
-                        showSecondsColumn: false,
-                        showTitleActions: true,
-                        currentTime: _setTime,
-                        onConfirm: (time) {
-                          setState(() {
-                            _setTime = time;
-                          });
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        textStyle: TextStyle(fontSize: 16)),
-                    child: Text(Funcs().getTimeFormatHMM00(_setTime)),
+            padding: EdgeInsets.only(bottom: 30),
+            child: Row(
+              children: [
+                InputLeftText(label: '1延長の時間', rPadding: 4),
+                ElevatedButton(
+                  onPressed: () {
+                    DatePicker.showTimePicker(
+                      context,
+                      locale: LocaleType.jp,
+                      // theme: timePickerTheme,
+                      showSecondsColumn: false,
+                      showTitleActions: true,
+                      currentTime: _setTime,
+                      onConfirm: (time) {
+                        setState(() {
+                          _setTime = time;
+                        });
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    textStyle: TextStyle(fontSize: 16),
                   ),
-                ],
-              )),
+                  child: Text(Funcs().getTimeFormatHMM00(_setTime)),
+                ),
+              ],
+            ),
+          ),
           RowLabelInput(
-              label: '延長料金',
-              renderWidget: TextInputNormal(
-                contentPadding: 12,
-                controller: txtSetAmountController,
-                inputType: TextInputType.number,
-              ))
+            label: '延長料金',
+            renderWidget: TextInputNormal(
+              contentPadding: 12,
+              controller: txtSetAmountController,
+              inputType: TextInputType.number,
+            ),
+          ),
         ],
       ),
     );
@@ -709,21 +766,27 @@ class _OrganSetting extends State<OrganSetting> {
 
   Widget _getOrganTimeContent(label, times, typeString) {
     return Container(
-        child: Column(
-      children: [
-        for (int i = 1; i <= 7; i++)
-          _getWeekDayTime('${weekAry[i - 1]}曜日',
-              times.where((element) => element.weekday == i.toString())),
-        SizedBox(height: 12),
-        if (typeString == 'bussiness')
-          ...specialTimes.map((e) => _getSpecialTime(e)),
-        if (typeString == 'shift')
-          ...specialShiftTimes.map((e) => _getSpecialTime(e)),
-        Container(
+      child: Column(
+        children: [
+          for (int i = 1; i <= 7; i++)
+            _getWeekDayTime(
+              '${weekAry[i - 1]}曜日',
+              times.where((element) => element.weekday == i.toString()),
+            ),
+          SizedBox(height: 12),
+          if (typeString == 'bussiness')
+            ...specialTimes.map((e) => _getSpecialTime(e)),
+          if (typeString == 'shift')
+            ...specialShiftTimes.map((e) => _getSpecialTime(e)),
+          Container(
             child: WhiteButton(
-                label: label, tapFunc: () => onTapOrganTime(typeString))),
-      ],
-    ));
+              label: label,
+              tapFunc: () => onTapOrganTime(typeString),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _getWeekDayTime(weekLabel, data) {
@@ -731,7 +794,8 @@ class _OrganSetting extends State<OrganSetting> {
       width: 250,
       padding: EdgeInsets.only(top: 6, bottom: 6),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0xffcfcfcf)))),
+        border: Border(bottom: BorderSide(color: Color(0xffcfcfcf))),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -744,13 +808,9 @@ class _OrganSetting extends State<OrganSetting> {
           Container(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...data.map(
-                  (e) => _getOpenTimeRow(e),
-                ),
-              ],
+              children: [...data.map((e) => _getOpenTimeRow(e))],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -761,7 +821,8 @@ class _OrganSetting extends State<OrganSetting> {
       width: 250,
       padding: EdgeInsets.only(top: 6, bottom: 6),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0xffcfcfcf)))),
+        border: Border(bottom: BorderSide(color: Color(0xffcfcfcf))),
+      ),
       child: Row(
         children: [
           Container(
@@ -770,7 +831,7 @@ class _OrganSetting extends State<OrganSetting> {
             width: 120,
             child: Text(item.date, style: bodyTextStyle),
           ),
-          _getOpenTimeRow(item)
+          _getOpenTimeRow(item),
         ],
       ),
     );
@@ -800,191 +861,213 @@ class _OrganSetting extends State<OrganSetting> {
           _rowNumber('固定電話番号', txtTelController),
           _getRowHeight(),
           Container(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: <Widget>[
-                  const InputLeftText(label: 'GPS座標'),
-                  Text('Lat', style: bodyTextStyle),
-                  Flexible(
-                    child: TextInputNormal(
-                      controller: txtLatController,
-                      contentPadding: 12,
-                      inputType:
-                          const TextInputType.numberWithOptions(decimal: true),
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: <Widget>[
+                const InputLeftText(label: 'GPS座標'),
+                Text('Lat', style: bodyTextStyle),
+                Flexible(
+                  child: TextInputNormal(
+                    controller: txtLatController,
+                    contentPadding: 12,
+                    inputType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
                   ),
-                  const SizedBox(width: 5),
-                  Text('Lon', style: bodyTextStyle),
-                  Flexible(
-                    child: TextInputNormal(
-                      controller: txtLonController,
-                      contentPadding: 12,
-                      inputType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      // errText: _nickError,
+                ),
+                const SizedBox(width: 5),
+                Text('Lon', style: bodyTextStyle),
+                Flexible(
+                  child: TextInputNormal(
+                    controller: txtLonController,
+                    contentPadding: 12,
+                    inputType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
+                    // errText: _nickError,
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
           _rowNumber('位置偏差の範囲(m)', txtDistanceController),
           RowLabelInput(
             label: '距離表示',
             renderWidget: Switch(
-                value: isShowDistance,
-                onChanged: (v) {
-                  // setOrganSetTableData('1');
-                  setState(() {
-                    isShowDistance = v;
-                  });
-                }),
+              value: isShowDistance,
+              onChanged: (v) {
+                // setOrganSetTableData('1');
+                setState(() {
+                  isShowDistance = v;
+                });
+              },
+            ),
           ),
           _getRowHeight(),
           _rowNumber('オープン時レジ現金残高', txtOpenBalanceController),
           _getRowHeight(),
           _rowNumber('チェックインチケット消費数', txtCheckinTiecketController),
           RowLabelInput(
-              label: '予約チェックイン',
-              renderWidget: Row(
-                children: [
-                  RadioNomal(
-                    label: '予約',
-                    value: constCheckinTypeOnlyReserve,
-                    groupValue: checkInType,
-                    tapFunc: () => setState(() {
-                      checkInType = constCheckinTypeOnlyReserve;
-                    }),
-                  ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: 'オフ',
-                    value: constCheckinTypeNone,
-                    groupValue: checkInType,
-                    tapFunc: () => setState(() {
-                      checkInType = constCheckinTypeNone;
-                    }),
-                  ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: '併用',
-                    value: constCheckinTypeBoth,
-                    groupValue: checkInType,
-                    tapFunc: () => setState(() {
-                      checkInType = constCheckinTypeBoth;
-                    }),
-                  ),
-                ],
-              )),
+            label: '予約チェックイン',
+            renderWidget: Row(
+              children: [
+                RadioNomal(
+                  label: '予約',
+                  value: constCheckinTypeOnlyReserve,
+                  groupValue: checkInType,
+                  tapFunc:
+                      () => setState(() {
+                        checkInType = constCheckinTypeOnlyReserve;
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: 'オフ',
+                  value: constCheckinTypeNone,
+                  groupValue: checkInType,
+                  tapFunc:
+                      () => setState(() {
+                        checkInType = constCheckinTypeNone;
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: '併用',
+                  value: constCheckinTypeBoth,
+                  groupValue: checkInType,
+                  tapFunc:
+                      () => setState(() {
+                        checkInType = constCheckinTypeBoth;
+                      }),
+                ),
+              ],
+            ),
+          ),
           // if (checkInType == constCheckinTypeOnlyReserve)
           RowLabelInput(
-              label: '',
-              renderWidget: Row(
-                children: [
-                  RadioNomal(
-                    label: '出勤スタッフ',
-                    value: constCheckinReserveRiRa,
-                    groupValue: checkInTypeReserve,
-                    tapFunc: () => setState(() {
-                      checkInTypeReserve = constCheckinReserveRiRa;
-                    }),
-                  ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: 'シフト枠',
-                    value: constCheckinReserveShift,
-                    groupValue: checkInTypeReserve,
-                    tapFunc: () => setState(() {
-                      checkInTypeReserve = constCheckinReserveShift;
-                    }),
-                  ),
-                ],
-              )),
+            label: '',
+            renderWidget: Row(
+              children: [
+                RadioNomal(
+                  label: '出勤スタッフ',
+                  value: constCheckinReserveRiRa,
+                  groupValue: checkInTypeReserve,
+                  tapFunc:
+                      () => setState(() {
+                        checkInTypeReserve = constCheckinReserveRiRa;
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: 'シフト枠',
+                  value: constCheckinReserveShift,
+                  groupValue: checkInTypeReserve,
+                  tapFunc:
+                      () => setState(() {
+                        checkInTypeReserve = constCheckinReserveShift;
+                      }),
+                ),
+              ],
+            ),
+          ),
           _getRowHeight(),
           RowLabelInput(
-              label: '',
-              renderWidget: Row(
-                children: [
-                  RadioNomal(
-                    label: 'QR On',
-                    value: constCheckinQROn,
-                    groupValue: checkInQR,
-                    tapFunc: () => setState(() {
-                      checkInQR = constCheckinQROn;
-                    }),
-                  ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: 'QR Off',
-                    value: constCheckinQROff,
-                    groupValue: checkInQR,
-                    tapFunc: () => setState(() {
-                      checkInQR = constCheckinQROff;
-                    }),
-                  ),
-                ],
-              )),
+            label: '',
+            renderWidget: Row(
+              children: [
+                RadioNomal(
+                  label: 'QR On',
+                  value: constCheckinQROn,
+                  groupValue: checkInQR,
+                  tapFunc:
+                      () => setState(() {
+                        checkInQR = constCheckinQROn;
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: 'QR Off',
+                  value: constCheckinQROff,
+                  groupValue: checkInQR,
+                  tapFunc:
+                      () => setState(() {
+                        checkInQR = constCheckinQROff;
+                      }),
+                ),
+              ],
+            ),
+          ),
           RowLabelInput(
-              label: 'サービス料',
-              renderWidget: Row(
-                children: [
-                  RadioNomal(
-                    label: 'オン',
-                    value: '1',
-                    groupValue: isServieTax,
-                    tapFunc: () => setState(() {
-                      isServieTax = '1';
-                    }),
-                  ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: 'オフ',
-                    value: '0',
-                    groupValue: isServieTax,
-                    tapFunc: () => setState(() {
-                      isServieTax = '0';
-                    }),
-                  ),
-                  Flexible(
-                      child: DropDownNumberSelect(
+            label: 'サービス料',
+            renderWidget: Row(
+              children: [
+                RadioNomal(
+                  label: 'オン',
+                  value: '1',
+                  groupValue: isServieTax,
+                  tapFunc:
+                      () => setState(() {
+                        isServieTax = '1';
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: 'オフ',
+                  value: '0',
+                  groupValue: isServieTax,
+                  tapFunc:
+                      () => setState(() {
+                        isServieTax = '0';
+                      }),
+                ),
+                Flexible(
+                  child: DropDownNumberSelect(
                     value: serviceTax,
                     min: 0,
                     max: 50,
                     tapFunc: (v) => {serviceTax = v},
-                  )),
-                  const Text(' %'),
-                ],
-              )),
-          RowLabelInput(
-              label: '四捨五入',
-              renderWidget: Row(
-                children: [
-                  RadioNomal(
-                    label: 'オン',
-                    value: '1',
-                    groupValue: isRoundAmount,
-                    tapFunc: () => setState(() {
-                      isRoundAmount = '1';
-                    }),
                   ),
-                  const SizedBox(width: 4),
-                  RadioNomal(
-                    label: 'オフ',
-                    value: '0',
-                    groupValue: isRoundAmount,
-                    tapFunc: () => setState(() {
-                      isRoundAmount = '0';
-                    }),
-                  )
-                ],
-              )),
+                ),
+                const Text(' %'),
+              ],
+            ),
+          ),
           RowLabelInput(
-              label: '備考 ',
-              labelPadding: 4,
-              renderWidget: TextInputNormal(
-                multiLine: 4,
-                contentPadding: 12,
-                controller: txtCommentController,
-                inputType: TextInputType.multiline,
-              )),
+            label: '四捨五入',
+            renderWidget: Row(
+              children: [
+                RadioNomal(
+                  label: 'オン',
+                  value: '1',
+                  groupValue: isRoundAmount,
+                  tapFunc:
+                      () => setState(() {
+                        isRoundAmount = '1';
+                      }),
+                ),
+                const SizedBox(width: 4),
+                RadioNomal(
+                  label: 'オフ',
+                  value: '0',
+                  groupValue: isRoundAmount,
+                  tapFunc:
+                      () => setState(() {
+                        isRoundAmount = '0';
+                      }),
+                ),
+              ],
+            ),
+          ),
+          RowLabelInput(
+            label: '備考 ',
+            labelPadding: 4,
+            renderWidget: TextInputNormal(
+              multiLine: 4,
+              contentPadding: 12,
+              controller: txtCommentController,
+              inputType: TextInputType.multiline,
+            ),
+          ),
           _rowNumber('SNS URL', txtSNSUrlController),
           _rowText('アクセス', txtAccessController),
           _rowText('駐車場', txtParkingController),
@@ -1024,38 +1107,44 @@ class _OrganSetting extends State<OrganSetting> {
   Widget _rowText(s, c) => _rowLabelInputItem(s, c, TextInputType.text);
   Widget _rowNumber(s, c) => _rowLabelInputItem(s, c, TextInputType.text);
   Widget _rowPoint(s, c) => RowLabelInput(
-      label: s,
-      labelPadding: 4,
-      labelWidth: 150,
-      renderWidget: Row(children: [
+    label: s,
+    labelPadding: 4,
+    labelWidth: 150,
+    renderWidget: Row(
+      children: [
         const InputLeftText(label: '1分 ', width: 40, rPadding: 0),
         Flexible(
-            child: TextInputNormal(
-          contentPadding: 12,
-          controller: c,
-          inputType: TextInputType.number,
-        )),
-        const InputLeftText(label: ' Pt', width: 40, rPadding: 0)
-      ]));
+          child: TextInputNormal(
+            contentPadding: 12,
+            controller: c,
+            inputType: TextInputType.number,
+          ),
+        ),
+        const InputLeftText(label: ' Pt', width: 40, rPadding: 0),
+      ],
+    ),
+  );
   Widget _rowPointRate(s, c) => RowLabelInput(
-      label: s,
-      labelPadding: 4,
-      labelWidth: 150,
-      renderWidget: TextInputNormal(
-        contentPadding: 12,
-        controller: c,
-        inputType: TextInputType.number,
-      ));
+    label: s,
+    labelPadding: 4,
+    labelWidth: 150,
+    renderWidget: TextInputNormal(
+      contentPadding: 12,
+      controller: c,
+      inputType: TextInputType.number,
+    ),
+  );
 
   Widget _rowLabelInputItem(label, controller, inputType) {
     return RowLabelInput(
-        label: label,
-        labelPadding: 4,
-        renderWidget: TextInputNormal(
-          contentPadding: 12,
-          controller: controller,
-          inputType: inputType,
-        ));
+      label: label,
+      labelPadding: 4,
+      renderWidget: TextInputNormal(
+        contentPadding: 12,
+        controller: controller,
+        inputType: inputType,
+      ),
+    );
   }
 
   // Widget _getPointSettingContent() {
@@ -1088,15 +1177,15 @@ class _OrganSetting extends State<OrganSetting> {
       child: Column(
         children: [
           Container(
-              child: uploadPrintLogoUrl == null
-                  ? (printLogoUrl == null
-                      ? Text(
-                          '印刷用ロゴ画像が設定されていません。',
-                          style: bodyTextStyle,
-                        )
-                      : Image(
-                          image: NetworkImage(apiPrintLogoUrl + printLogoUrl!)))
-                  : Image.file(File(uploadPrintLogoUrl!))),
+            child:
+                uploadPrintLogoUrl == null
+                    ? (printLogoUrl == null
+                        ? Text('印刷用ロゴ画像が設定されていません。', style: bodyTextStyle)
+                        : Image(
+                          image: NetworkImage(apiPrintLogoUrl + printLogoUrl!),
+                        ))
+                    : Image.file(File(uploadPrintLogoUrl!)),
+          ),
           SizedBox(
             width: 150,
             child: WhiteButton(
@@ -1107,7 +1196,7 @@ class _OrganSetting extends State<OrganSetting> {
                 setState(() {});
               },
             ),
-          )
+          ),
         ],
       ),
     );

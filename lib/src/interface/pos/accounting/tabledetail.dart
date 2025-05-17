@@ -779,7 +779,6 @@ class _TableDetail extends State<TableDetail> {
                                                     : 250,
                                           ),
                                           child: ElevatedButton(
-                                            child: Text('注 文'),
                                             onPressed:
                                                 tableStatus ==
                                                         constOrderStatusTableStart //status == '0'
@@ -804,6 +803,7 @@ class _TableDetail extends State<TableDetail> {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
+                                            child: Text('注 文'),
                                           ),
                                         ),
                                       ],
@@ -872,7 +872,7 @@ class _TableDetail extends State<TableDetail> {
                 children: [
                   Expanded(
                     child: Text(
-                      this.tableTitle,
+                      tableTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -928,7 +928,7 @@ class _TableDetail extends State<TableDetail> {
                 if (int.parse(tableStatus) > 0)
                   Row(
                     children: [
-                      Container(
+                      SizedBox(
                         width: 30,
                         child: IconWhiteButton(
                           icon: isEditUserName ? Icons.close : Icons.edit,
@@ -940,7 +940,7 @@ class _TableDetail extends State<TableDetail> {
                         ),
                       ),
                       const SizedBox(width: 5),
-                      Container(
+                      SizedBox(
                         width: 30,
                         child: IconWhiteButton(
                           icon: Icons.person,
@@ -1043,10 +1043,10 @@ class _TableDetail extends State<TableDetail> {
                 Expanded(
                   child: Text('現在のお会計', style: tableDetailhedaerLabelTextStyle),
                 ),
-                if (this.amount != '')
+                if (amount != '')
                   Container(
                     child: Text(
-                      '¥ ' + Funcs().currencyFormat(this.amount) + '-',
+                      '¥ ${Funcs().currencyFormat(this.amount)}-',
                       style: tableDetailAllAmountStyle,
                     ),
                   ),
@@ -1085,7 +1085,7 @@ class _TableDetail extends State<TableDetail> {
                     child: Container(
                       child: Row(
                         children: [
-                          Text(userCount + ' 名', style: tableDetailTimeStyle),
+                          Text('$userCount 名', style: tableDetailTimeStyle),
                           SizedBox(width: 8),
                           Icon(Icons.edit, color: Colors.grey, size: 20),
                         ],

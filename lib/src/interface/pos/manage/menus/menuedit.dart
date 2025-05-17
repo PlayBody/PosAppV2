@@ -40,7 +40,7 @@ class MenuEdit extends StatefulWidget {
   const MenuEdit({required this.companyId, this.menuId, super.key});
 
   @override
-  _MenuEdit createState() => _MenuEdit();
+  State<MenuEdit> createState() => _MenuEdit();
 }
 
 class _MenuEdit extends State<MenuEdit> {
@@ -582,62 +582,58 @@ class _MenuEdit extends State<MenuEdit> {
   }
 
   Widget _getMenuOrgans() {
-    return Container(
-      child: Column(
-        children: [
-          CheckNomal(
-            label: '全店舗選択',
-            value: isAllOrgan,
-            scale: 1.0,
-            tapFunc: (v) => onChangeOrganAll(),
-          ),
-          ...organList.map(
-            (e) => Container(
-              margin: EdgeInsets.only(left: 20),
-              child: CheckNomal(
-                label: e.organName,
-                value: menuOrgans.contains(e.organId),
-                scale: 1.0,
-                tapFunc: (v) => onChangeMenuOrgan(v.toString(), e.organId),
-              ),
+    return Column(
+      children: [
+        CheckNomal(
+          label: '全店舗選択',
+          value: isAllOrgan,
+          scale: 1.0,
+          tapFunc: (v) => onChangeOrganAll(),
+        ),
+        ...organList.map(
+          (e) => Container(
+            margin: EdgeInsets.only(left: 20),
+            child: CheckNomal(
+              label: e.organName,
+              value: menuOrgans.contains(e.organId),
+              scale: 1.0,
+              tapFunc: (v) => onChangeMenuOrgan(v.toString(), e.organId),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _getAvatarContent() {
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 120,
-            child:
-                isphoto
-                    ? Image.file(_photoFile)
-                    : menuImage == null
-                    ? Image.asset('images/no_image.jpg')
-                    : Image.network(menuImageUrl + menuImage!),
+    return Column(
+      children: [
+        SizedBox(
+          height: 120,
+          child:
+              isphoto
+                  ? Image.file(_photoFile)
+                  : menuImage == null
+                  ? Image.asset('images/no_image.jpg')
+                  : Image.network(menuImageUrl + menuImage!),
+        ),
+        Container(
+          padding: EdgeInsets.only(right: 30),
+          alignment: Alignment.topRight,
+          child: DropdownButton(
+            items: [
+              DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
+              DropdownMenuItem(value: 2, child: Text("アルバム")),
+            ],
+            onChanged: (int? v) {
+              if (v == 1 || v == 2) {
+                _getFromPhoto(v!);
+              }
+            },
+            hint: Text("画像変更"),
           ),
-          Container(
-            padding: EdgeInsets.only(right: 30),
-            alignment: Alignment.topRight,
-            child: DropdownButton(
-              items: [
-                DropdownMenuItem(value: 1, child: Text("カメラ撮る")),
-                DropdownMenuItem(value: 2, child: Text("アルバム")),
-              ],
-              onChanged: (int? v) {
-                if (v == 1 || v == 2) {
-                  _getFromPhoto(v!);
-                }
-              },
-              hint: Text("画像変更"),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -645,16 +641,14 @@ class _MenuEdit extends State<MenuEdit> {
     if (editMenuId == null || variationList.length >= 15) {
       return Container();
     } else {
-      return Container(
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-              child: Text('バリエーション'),
-            ),
-            WhiteButton(tapFunc: () => variationEdit(null), label: '追加'),
-          ],
-        ),
+      return Row(
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+            child: Text('バリエーション'),
+          ),
+          WhiteButton(tapFunc: () => variationEdit(null), label: '追加'),
+        ],
       );
     }
   }

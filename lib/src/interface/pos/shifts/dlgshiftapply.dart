@@ -27,7 +27,7 @@ class DlgShiftApply extends StatefulWidget {
   });
 
   @override
-  _DlgShiftApply createState() => _DlgShiftApply();
+  State<DlgShiftApply> createState() => _DlgShiftApply();
 }
 
 class _DlgShiftApply extends State<DlgShiftApply> {
@@ -49,14 +49,15 @@ class _DlgShiftApply extends State<DlgShiftApply> {
   @override
   Widget build(BuildContext context) {
     return PushDialogs(
-        render: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        PosDlgHeaderText(
-            label: widget.updateType == '3' ? '出勤要請を承認しますか？' : '出勤要請を拒否しますか？'),
-        PosDlgSubHeaderText(label: widget.selectDate),
-        if (widget.updateType == '3')
-          PosTimeRange(
+      render: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PosDlgHeaderText(
+            label: widget.updateType == '3' ? '出勤要請を承認しますか？' : '出勤要請を拒否しますか？',
+          ),
+          PosDlgSubHeaderText(label: widget.selectDate),
+          if (widget.updateType == '3')
+            PosTimeRange(
               selectDate: widget.selectDate,
               fromTime: _from,
               toTime: _to,
@@ -67,29 +68,29 @@ class _DlgShiftApply extends State<DlgShiftApply> {
               confToFunc: (date) {
                 _to = Funcs().getDurationTime(date, isShowSecond: true);
                 setState(() {});
-              }),
-        RowButtonGroup(widgets: [
-          PrimaryButton(
-            label: 'はい',
-            tapFunc: () => applyRequestShift(),
+              },
+            ),
+          RowButtonGroup(
+            widgets: [
+              PrimaryButton(label: 'はい', tapFunc: () => applyRequestShift()),
+              SizedBox(width: 16),
+              CancelButton(label: 'いいえ', tapFunc: () => Navigator.pop(context)),
+            ],
           ),
-          SizedBox(width: 16),
-          CancelButton(
-            label: 'いいえ',
-            tapFunc: () => Navigator.pop(context),
-          ),
-        ]),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
   Future<void> applyRequestShift() async {
     DateTime updateFrom = DateTime.parse('${widget.selectDate} $_from');
     DateTime updateTo = DateTime.parse('${widget.selectDate} $_to');
-    DateTime requestFrom =
-        DateTime.parse('${widget.selectDate} ${widget.fromTime}');
-    DateTime requestTo =
-        DateTime.parse('${widget.selectDate} ${widget.toTime}');
+    DateTime requestFrom = DateTime.parse(
+      '${widget.selectDate} ${widget.fromTime}',
+    );
+    DateTime requestTo = DateTime.parse(
+      '${widget.selectDate} ${widget.toTime}',
+    );
 
     if (updateFrom.isBefore(requestFrom) || updateTo.isAfter(requestTo)) {
       Dialogs().infoDialog(context, '申請された時間範囲で入力してください。');
@@ -102,16 +103,20 @@ class _DlgShiftApply extends State<DlgShiftApply> {
 
     Dialogs().loaderDialogNormal(context);
     bool isUpdate = await ClShift().applyOrRejectRequestShift(
-        context,
-        widget.shiftId,
-        '${widget.selectDate} $_from',
-        '${widget.selectDate} $_to',
-        widget.updateType);
+      context,
+      widget.shiftId,
+      '${widget.selectDate} $_from',
+      '${widget.selectDate} $_to',
+      widget.updateType,
+    );
 
+    if (!mounted) return;
     Navigator.pop(context);
     if (isUpdate) {
+      if (!mounted) return;
       Navigator.pop(context);
     } else {
+      if (!mounted) return;
       Dialogs().infoDialog(context, errServerActionFail);
     }
   }

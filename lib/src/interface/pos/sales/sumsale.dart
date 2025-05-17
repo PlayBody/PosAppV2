@@ -19,7 +19,7 @@ class SumSale extends StatefulWidget {
   const SumSale({super.key});
 
   @override
-  _SumSale createState() => _SumSale();
+  State<SumSale> createState() => _SumSale();
 }
 
 class _SumSale extends State<SumSale> {

@@ -39,7 +39,7 @@ class ShiftDay extends StatefulWidget {
   });
 
   @override
-  _ShiftDay createState() => _ShiftDay();
+  State<ShiftDay> createState() => _ShiftDay();
 }
 
 class _ShiftDay extends State<ShiftDay> {
@@ -620,7 +620,8 @@ class _ShiftDay extends State<ShiftDay> {
                     builder:
                         (context, candidateData, rejectedData) =>
                             _getGridRow(e),
-                    onAcceptWithDetails: (details) => dragComplete(details.data, e),
+                    onAcceptWithDetails:
+                        (details) => dragComplete(details.data, e),
                   ),
                 ),
               ),

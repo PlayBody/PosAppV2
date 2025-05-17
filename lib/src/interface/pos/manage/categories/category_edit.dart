@@ -28,7 +28,7 @@ class CategoryEdit extends StatefulWidget {
   const CategoryEdit({required this.companyId, this.catId, super.key});
 
   @override
-  _CategoryEdit createState() => _CategoryEdit();
+  State<CategoryEdit> createState() => _CategoryEdit();
 }
 
 class _CategoryEdit extends State<CategoryEdit> {

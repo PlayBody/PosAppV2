@@ -13,7 +13,7 @@ class ViewShiftDialog extends StatefulWidget {
   });
 
   @override
-  _ViewShiftDialog createState() => _ViewShiftDialog();
+  State<ViewShiftDialog> createState() => _ViewShiftDialog();
 }
 
 class _ViewShiftDialog extends State<ViewShiftDialog> {

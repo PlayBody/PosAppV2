@@ -26,7 +26,7 @@ class MenuList extends StatefulWidget {
   const MenuList({this.organId, super.key});
 
   @override
-  _MenuList createState() => _MenuList();
+  State<MenuList> createState() => _MenuList();
 }
 
 class _MenuList extends State<MenuList> {
@@ -58,7 +58,7 @@ class _MenuList extends State<MenuList> {
     }
     menuList = await ClMenu().loadMenuList(context, {
       'company_id': selCompanyId,
-      'organ_id': selOrganId ?? ''
+      'organ_id': selOrganId ?? '',
     });
     setState(() {});
     return menuList;
@@ -67,6 +67,7 @@ class _MenuList extends State<MenuList> {
   Future<void> refreshLoad() async {
     Dialogs().loaderDialogNormal(context);
     await loadInitData();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -75,17 +76,20 @@ class _MenuList extends State<MenuList> {
     await ClMenu().exchangeMenuSort(context, moveId, targetId);
 
     refreshLoad();
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
   Future<void> onMenuEdit(String? menuId) async {
     // globals.editMenuId = _menuId;
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return MenuEdit(
-        menuId: menuId,
-        companyId: selCompanyId!,
-      );
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return MenuEdit(menuId: menuId, companyId: selCompanyId!);
+        },
+      ),
+    );
     refreshLoad();
   }
 
@@ -105,32 +109,38 @@ class _MenuList extends State<MenuList> {
     globals.appTitle = 'メニュー管理';
     return MainBodyWdiget(
       render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return _getBodyContents();
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return Center(child: CircularProgressIndicator());
-          }),
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _getBodyContents();
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 
   Widget _getBodyContents() {
     return Container(
       color: bodyColor,
-      child: Column(children: [
-        if (globals.auth == constAuthSystem) _getTopCompanies(),
-        _getTopOrgans(),
-        Expanded(
+      child: Column(
+        children: [
+          if (globals.auth == constAuthSystem) _getTopCompanies(),
+          _getTopOrgans(),
+          Expanded(
             child: SingleChildScrollView(
-                child: Column(
-                    children: [...menuList.map((e) => _getMenuRow(e))]))),
-        RowButtonGroup(widgets: [
-          PrimaryButton(label: '新規登録', tapFunc: () => onMenuEdit(null))
-        ])
-      ]),
+              child: Column(children: [...menuList.map((e) => _getMenuRow(e))]),
+            ),
+          ),
+          RowButtonGroup(
+            widgets: [
+              PrimaryButton(label: '新規登録', tapFunc: () => onMenuEdit(null)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -138,13 +148,17 @@ class _MenuList extends State<MenuList> {
     return Container(
       padding: EdgeInsets.all(20),
       child: DropDownModelSelect(
-          value: selCompanyId,
-          items: [
-            ...companyList.map((e) => DropdownMenuItem(
-                value: e.companyId,
-                child: Text(e.companyName)))
-          ],
-          tapFunc: (v) => onCompanyChange(v.toString())),
+        value: selCompanyId,
+        items: [
+          ...companyList.map(
+            (e) => DropdownMenuItem(
+              value: e.companyId,
+              child: Text(e.companyName),
+            ),
+          ),
+        ],
+        tapFunc: (v) => onCompanyChange(v.toString()),
+      ),
     );
   }
 
@@ -152,13 +166,15 @@ class _MenuList extends State<MenuList> {
     return Container(
       padding: EdgeInsets.all(20),
       child: DropDownModelSelect(
-          value: selOrganId,
-          items: [
-            DropdownMenuItem(value: null, child: Text('すべて')),
-            ...organList.map((e) =>
-                DropdownMenuItem(value: e.organId, child: Text(e.organName)))
-          ],
-          tapFunc: (v) => onOrganChange(v)),
+        value: selOrganId,
+        items: [
+          DropdownMenuItem(value: null, child: Text('すべて')),
+          ...organList.map(
+            (e) => DropdownMenuItem(value: e.organId, child: Text(e.organName)),
+          ),
+        ],
+        tapFunc: (v) => onOrganChange(v),
+      ),
     );
   }
 
@@ -167,24 +183,34 @@ class _MenuList extends State<MenuList> {
       data: e.menuId,
       feedback: Container(
         color: Colors.grey.withValues(alpha: 0.3),
-        child: Text(e.menuTitle,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        child: Text(
+          e.menuTitle,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
       ),
       child: DragTarget(
-          builder: (context, candidateData, rejectedData) =>
-              _getMenuRowContent(e),
-          onAccept: (menuId) => exchangeMenuSort(menuId, e.menuId)),
+        builder:
+            (context, candidateData, rejectedData) => _getMenuRowContent(e),
+        onAcceptWithDetails:
+            (details) => exchangeMenuSort(details.data, e.menuId),
+      ),
     );
   }
 
   Widget _getMenuRowContent(e) {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-        child: Row(children: [
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+      child: Row(
+        children: [
           Expanded(
-              child: Text(e.menuTitle,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))),
-          WhiteButton(tapFunc: () => onMenuEdit(e.menuId), label: '変更')
-        ]));
+            child: Text(
+              e.menuTitle,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ),
+          WhiteButton(tapFunc: () => onMenuEdit(e.menuId), label: '変更'),
+        ],
+      ),
+    );
   }
 }
