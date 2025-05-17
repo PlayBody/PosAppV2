@@ -47,10 +47,14 @@ class _Shift extends State<Shift> {
 
   bool isLock = false;
 
-  String showFromDate = DateFormat('yyyy-MM-dd').format(
-      DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
-  String showToDate = DateFormat('yyyy-MM-dd').format(DateTime.now()
-      .add(Duration(days: DateTime.daysPerWeek - DateTime.now().weekday)));
+  String showFromDate = DateFormat(
+    'yyyy-MM-dd',
+  ).format(DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
+  String showToDate = DateFormat('yyyy-MM-dd').format(
+    DateTime.now().add(
+      Duration(days: DateTime.daysPerWeek - DateTime.now().weekday),
+    ),
+  );
   String mode = '';
   String initPattern = '1';
 
@@ -68,7 +72,6 @@ class _Shift extends State<Shift> {
   }
 
   Future<List> loadShiftData() async {
-    print('okokokokokokokokokokokokokokokokokokokokokok');
     regions = [];
     appointments = [];
     String vFromDateTime = '$showFromDate 00:00:00';
@@ -78,22 +81,45 @@ class _Shift extends State<Shift> {
     if (organList.isEmpty) return [];
     selOrganId ??= organList.first.organId;
 
-    isLock = await ClShift()
-        .loadShiftLock(context, selOrganId!, showFromDate, showToDate);
+    isLock = await ClShift().loadShiftLock(
+      context,
+      selOrganId!,
+      showFromDate,
+      showToDate,
+    );
     var minMaxHour = await ClOrgan().loadOrganShiftMinMaxHour(
-        context, selOrganId!, vFromDateTime, vToDateTime);
+      context,
+      selOrganId!,
+      vFromDateTime,
+      vToDateTime,
+    );
 
     viewFromHour = int.parse(minMaxHour['start'].toString());
     viewToHour = int.parse(minMaxHour['end'].toString());
 
     regions = await loadRegions();
 
-    appointments.addAll(await ClShift().loadStaffShift(
-        context, globals.staffId, selOrganId!, vFromDateTime, vToDateTime,
-        mode: mode, pattern: initPattern));
+    appointments.addAll(
+      await ClShift().loadStaffShift(
+        context,
+        globals.staffId,
+        selOrganId!,
+        vFromDateTime,
+        vToDateTime,
+        mode: mode,
+        pattern: initPattern,
+      ),
+    );
 
-    appointments.addAll(await ClShift().loadStaffReserve(
-        context, globals.staffId, selOrganId!, vFromDateTime, vToDateTime));
+    appointments.addAll(
+      await ClShift().loadStaffReserve(
+        context,
+        globals.staffId,
+        selOrganId!,
+        vFromDateTime,
+        vToDateTime,
+      ),
+    );
 
     mode = '';
 
@@ -101,7 +127,6 @@ class _Shift extends State<Shift> {
     ClNotification().removeBadge(context, globals.staffId, '12');
     ClNotification().removeBadge(context, globals.staffId, '13');
     ClNotification().removeBadge(context, globals.staffId, '15');
-    print('okokokokokokokokokokokokokokokokokokokokokok');
     setState(() {});
     return [];
   }
@@ -112,21 +137,32 @@ class _Shift extends State<Shift> {
 
     List<TimeRegion> regions = [];
     if (!DateTime.parse(toTime).isBefore(DateTime.now())) {
-      regions = await ClShift()
-          .loadActiveShiftRegions(context, selOrganId!, showFromDate);
+      regions = await ClShift().loadActiveShiftRegions(
+        context,
+        selOrganId!,
+        showFromDate,
+      );
     }
 
     //load shift_counts
-    regions.addAll(await ClShift()
-        .loadColorShiftCountsByWeek(context, selOrganId!, fromTime, toTime));
+    regions.addAll(
+      await ClShift().loadColorShiftCountsByWeek(
+        context,
+        selOrganId!,
+        fromTime,
+        toTime,
+      ),
+    );
     return regions;
   }
 
   Future<void> changeViewCalander(DateTime date) async {
-    showFromDate = DateFormat('yyyy-MM-dd')
-        .format(date.subtract(Duration(days: date.weekday - 1)));
-    showToDate = DateFormat('yyyy-MM-dd').format(
-        date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+    showFromDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.subtract(Duration(days: date.weekday - 1)));
+    showToDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
 
     // Dialogs().loaderDialogNormal(context);
     await loadShiftData();
@@ -139,11 +175,13 @@ class _Shift extends State<Shift> {
     String selDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
 
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadShiftStatus, {
-      'staff_id': globals.staffId,
-      'organ_id': globals.organId,
-      'select_datetime': selDateTime,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadShiftStatus, {
+          'staff_id': globals.staffId,
+          'organ_id': globals.organId,
+          'select_datetime': selDateTime,
+        })
+        .then((v) => {results = v});
 
     regions = [];
     if (results['isLoad']) {
@@ -168,14 +206,15 @@ class _Shift extends State<Shift> {
 
   Future<void> setSubmitShift(date) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftSubmit(
-            organId: selOrganId!,
-            selection: date,
-            isLock: isLock,
-          );
-        }).then((_) async {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftSubmit(
+          organId: selOrganId!,
+          selection: date,
+          isLock: isLock,
+        );
+      },
+    ).then((_) async {
       Dialogs().loaderDialogNormal(context);
       await loadShiftData();
       Navigator.pop(context);
@@ -184,13 +223,14 @@ class _Shift extends State<Shift> {
 
   Future<void> actionShift(date, params) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgActionShift(
-            selectDate: DateFormat('yyyy-MM-dd').format(date),
-            param: params,
-          );
-        }).then((_) async {
+      context: context,
+      builder: (BuildContext context) {
+        return DlgActionShift(
+          selectDate: DateFormat('yyyy-MM-dd').format(date),
+          param: params,
+        );
+      },
+    ).then((_) async {
       Dialogs().loaderDialogNormal(context);
       await loadShiftData();
       Navigator.pop(context);
@@ -204,14 +244,15 @@ class _Shift extends State<Shift> {
     if (params['status'] == '3') txtStatus = '保留'; // Rejected
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ViewShiftDialog(
-            selectDate: selDate,
-            txtStatus: txtStatus,
-            param: params,
-          );
-        }).then((_) async {
+      context: context,
+      builder: (BuildContext context) {
+        return ViewShiftDialog(
+          selectDate: selDate,
+          txtStatus: txtStatus,
+          param: params,
+        );
+      },
+    ).then((_) async {
       Dialogs().loaderDialogNormal(context);
       await loadShiftData();
       Navigator.pop(context);
@@ -220,7 +261,11 @@ class _Shift extends State<Shift> {
 
   Future<void> resetToInit() async {
     String selPattern = await Dialogs().confirmWithSelectNumberDialog(
-        context, qShiftFormat, "パターンを選択してください。", 5);
+      context,
+      qShiftFormat,
+      "パターンを選択してください。",
+      5,
+    );
     if (int.parse(selPattern) > 0) {
       initPattern = selPattern.toString();
       mode = 'init';
@@ -232,12 +277,14 @@ class _Shift extends State<Shift> {
   }
 
   Future<void> pushShiftManage() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return ShiftManager(
-        initOrgan: selOrganId!,
-        initDate: selectedDate,
-      );
-    }));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return ShiftManager(initOrgan: selOrganId!, initDate: selectedDate);
+        },
+      ),
+    );
 
     Dialogs().loaderDialogNormal(context);
     await loadShiftData();
@@ -245,9 +292,14 @@ class _Shift extends State<Shift> {
   }
 
   void pushInitSetting() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return SettingShiftInit();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return SettingShiftInit();
+        },
+      ),
+    );
   }
 
   Future<void> rejectAppoint(Appointment appoint) async {
@@ -255,12 +307,17 @@ class _Shift extends State<Shift> {
       bool conf = await Dialogs().confirmDialog(context, '予約を拒否しますか？');
       if (!conf) return;
       Map<dynamic, dynamic> results = {};
-      await Webservice().loadHttp(context, apiRejectReserveDataUrl, {
-        'staff_id': globals.staffId,
-        'from_time':
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(appoint.startTime),
-        'to_time': DateFormat('yyyy-MM-dd HH:mm:ss').format(appoint.endTime)
-      }).then((value) => results = value);
+      await Webservice()
+          .loadHttp(context, apiRejectReserveDataUrl, {
+            'staff_id': globals.staffId,
+            'from_time': DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(appoint.startTime),
+            'to_time': DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(appoint.endTime),
+          })
+          .then((value) => results = value);
 
       if (results['isReject']) {
         Dialogs().loaderDialogNormal(context);
@@ -281,12 +338,17 @@ class _Shift extends State<Shift> {
       bool conf = await Dialogs().confirmDialog(context, '予約を承認しますか？');
       if (!conf) return;
       Map<dynamic, dynamic> results = {};
-      await Webservice().loadHttp(context, apiApplyReserveDataUrl, {
-        'staff_id': globals.staffId,
-        'from_time':
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(appoint.startTime),
-        'to_time': DateFormat('yyyy-MM-dd HH:mm:ss').format(appoint.endTime)
-      }).then((value) => results = value);
+      await Webservice()
+          .loadHttp(context, apiApplyReserveDataUrl, {
+            'staff_id': globals.staffId,
+            'from_time': DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(appoint.startTime),
+            'to_time': DateFormat(
+              'yyyy-MM-dd HH:mm:ss',
+            ).format(appoint.endTime),
+          })
+          .then((value) => results = value);
 
       if (results['isApply']) {
         Dialogs().loaderDialogNormal(context);
@@ -303,17 +365,21 @@ class _Shift extends State<Shift> {
   }
 
   Future<void> applyOrRejectRequestShift(
-      Appointment appoint, String updateType) async {
+    Appointment appoint,
+    String updateType,
+  ) async {
     await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DlgShiftApply(
-              shiftId: appoint.notes!.split(',').last,
-              selectDate: DateFormat('yyyy-MM-dd').format(appoint.startTime),
-              fromTime: DateFormat('HH:mm:ss').format(appoint.startTime),
-              toTime: DateFormat('HH:mm:ss').format(appoint.endTime),
-              updateType: updateType);
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return DlgShiftApply(
+          shiftId: appoint.notes!.split(',').last,
+          selectDate: DateFormat('yyyy-MM-dd').format(appoint.startTime),
+          fromTime: DateFormat('HH:mm:ss').format(appoint.startTime),
+          toTime: DateFormat('HH:mm:ss').format(appoint.endTime),
+          updateType: updateType,
+        );
+      },
+    );
     Dialogs().loaderDialogNormal(context);
 
     await loadShiftData();
@@ -330,47 +396,48 @@ class _Shift extends State<Shift> {
   Widget build(BuildContext context) {
     globals.appTitle = 'シフト'; // Shift
     return MainBodyWdiget(
-        fullScreenButton: _fullScreenContainer(),
-        isFullScreen: isHideBannerBar,
-        render: FutureBuilder<List>(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Container(
-                color: bodyColor,
-                child: Column(
-                  children: [
-                    _getTopButtons(),
-                    _getOrganDropDown(),
-                    Expanded(child: _getCalendar()),
-                    if (selappoint != null) _getAddApplyContent(),
-                  ],
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            // By default, show a loading spinner.
-            return Center(
-              child: CircularProgressIndicator(),
+      fullScreenButton: _fullScreenContainer(),
+      isFullScreen: isHideBannerBar,
+      render: FutureBuilder<List>(
+        future: loadData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              color: bodyColor,
+              child: Column(
+                children: [
+                  _getTopButtons(),
+                  _getOrganDropDown(),
+                  Expanded(child: _getCalendar()),
+                  if (selappoint != null) _getAddApplyContent(),
+                ],
+              ),
             );
-          },
-        ));
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   var labelTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
 
   Widget _fullScreenContainer() {
-    return Column(children: [
-      FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
-      FullScreenButton(
-        icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
-        tapFunc: () {
-          isHideBannerBar = !isHideBannerBar;
-          setState(() {});
-        },
-      )
-    ]);
+    return Column(
+      children: [
+        FullScreenButton(icon: Icons.refresh, tapFunc: () => refreshLoad()),
+        FullScreenButton(
+          icon: isHideBannerBar ? Icons.fullscreen_exit : Icons.fullscreen,
+          tapFunc: () {
+            isHideBannerBar = !isHideBannerBar;
+            setState(() {});
+          },
+        ),
+      ],
+    );
   }
 
   Widget _getOrganDropDown() {
@@ -379,29 +446,33 @@ class _Shift extends State<Shift> {
         SizedBox(width: 16),
         InputLeftText(label: '店名', rPadding: 8, width: 60), //Store name
         Expanded(
-            child: DropDownModelSelect(
-          contentPadding: EdgeInsets.symmetric(vertical: 7),
-          value: selOrganId,
-          items: [
-            ...organList.map((e) => DropdownMenuItem(
+          child: DropDownModelSelect(
+            contentPadding: EdgeInsets.symmetric(vertical: 7),
+            value: selOrganId,
+            items: [
+              ...organList.map(
+                (e) => DropdownMenuItem(
                   value: e.organId,
                   child: Text(e.organName),
-                ))
-          ],
-          tapFunc: (v) async {
-            selOrganId = v.toString();
+                ),
+              ),
+            ],
+            tapFunc: (v) async {
+              selOrganId = v.toString();
 
-            Dialogs().loaderDialogNormal(context);
-            await loadShiftData();
-            Navigator.pop(context);
-          },
-        )),
+              Dialogs().loaderDialogNormal(context);
+              await loadShiftData();
+              Navigator.pop(context);
+            },
+          ),
+        ),
         SizedBox(width: 8),
         if (globals.auth > constAuthStaff)
           WhiteButton(
-              label: 'シフト管理',
-              tapFunc: () => pushShiftManage()), // Shift Management
-        SizedBox(width: 30)
+            label: 'シフト管理',
+            tapFunc: () => pushShiftManage(),
+          ), // Shift Management
+        SizedBox(width: 30),
       ],
     );
   }
@@ -409,50 +480,50 @@ class _Shift extends State<Shift> {
   Widget _getTopButtons() {
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 5, left: 8, right: 8),
-      child: Row(children: [
-        Expanded(
-          child: SubHeaderText(
-            label: DateTimes().convertJPYMFromString(showFromDate),
+      child: Row(
+        children: [
+          Expanded(
+            child: SubHeaderText(
+              label: DateTimes().convertJPYMFromString(showFromDate),
+            ),
           ),
-        ),
-        Container(
-          child: WhiteButton(
+          WhiteButton(
             label: '標準設定適用', // Apply Standard Settings
-            tapFunc: DateTime.parse('$showToDate 23:59:59')
-                    .isBefore(DateTime.now())
-                ? null
-                : () => resetToInit(),
+            tapFunc:
+                DateTime.parse('$showToDate 23:59:59').isBefore(DateTime.now())
+                    ? null
+                    : () => resetToInit(),
           ),
-        ),
-        SizedBox(width: 8),
-        Container(
-          child: WhiteButton(
-              label: '設定画面へ',
-              tapFunc: () => pushInitSetting()), // Push To Settings
-        )
-      ]),
+          SizedBox(width: 8),
+          WhiteButton(label: '設定画面へ', tapFunc: () => pushInitSetting()),
+        ],
+      ),
     );
   }
 
   Widget _getAddApplyContent() {
     return Container(
       color: selappoint!.notes == 'reserve' ? Colors.white : Colors.orange,
-      child: Row(children: [
-        SizedBox(width: 4),
-        InputLeftText(
+      child: Row(
+        children: [
+          SizedBox(width: 4),
+          InputLeftText(
             label: selappoint!.notes == 'reserve' ? '予約申込' : '出勤要請',
             width: 60,
-            rPadding: 2),
-        Text(
+            rPadding: 2,
+          ),
+          Text(
             DateFormat('yyyy-MM-dd HH:mm~').format(selappoint!.startTime) +
                 DateFormat('HH:mm').format(selappoint!.endTime),
-            style: bodyTextStyle),
-        SizedBox(width: 4),
-        PrimaryButton(label: '承認', tapFunc: () => applyAppoint(selappoint!)),
-        SizedBox(width: 4),
-        DeleteButton(label: '拒否', tapFunc: () => rejectAppoint(selappoint!)),
-        SizedBox(width: 4),
-      ]),
+            style: bodyTextStyle,
+          ),
+          SizedBox(width: 4),
+          PrimaryButton(label: '承認', tapFunc: () => applyAppoint(selappoint!)),
+          SizedBox(width: 4),
+          DeleteButton(label: '拒否', tapFunc: () => rejectAppoint(selappoint!)),
+          SizedBox(width: 4),
+        ],
+      ),
     );
   }
 
@@ -464,21 +535,27 @@ class _Shift extends State<Shift> {
       cellBorderColor: timeSlotCellBorderColor,
       selectionDecoration: timeSlotSelectDecoration,
       timeSlotViewSettings: TimeSlotViewSettings(
-          startHour: viewFromHour.toDouble(),
-          endHour: viewToHour.toDouble(),
-          timeIntervalHeight: timeSlotCellHeight.toDouble(),
-          dayFormat: 'E',
-          timeInterval: Duration(minutes: 15),
-          timeFormat: 'H:mm',
-          timeTextStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black.withValues(alpha: 0.5),
-          )),
+        startHour: viewFromHour.toDouble(),
+        endHour: viewToHour.toDouble(),
+        timeIntervalHeight: timeSlotCellHeight.toDouble(),
+        dayFormat: 'E',
+        timeInterval: Duration(minutes: 15),
+        timeFormat: 'H:mm',
+        timeTextStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
+          color: Colors.black.withValues(alpha: 0.5),
+        ),
+      ),
       appointmentTextStyle: TextStyle(
-          fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),
-      timeRegionBuilder:
-          (BuildContext context, TimeRegionDetails timeRegionDetails) {
+        fontSize: 10,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+      timeRegionBuilder: (
+        BuildContext context,
+        TimeRegionDetails timeRegionDetails,
+      ) {
         return Container(
           padding: EdgeInsets.only(top: 5),
           color: timeRegionDetails.region.color,
@@ -493,10 +570,11 @@ class _Shift extends State<Shift> {
       onTap: calendarTapped,
       specialRegions: regions,
       dataSource: _AppointmentDataSource(appointments),
-      onLongPress: (d) =>
-          (DateTime.parse('$showToDate 23:59:59').isBefore(DateTime.now()))
-              ? null
-              : setSubmitShift(d.date),
+      onLongPress:
+          (d) =>
+              (DateTime.parse('$showToDate 23:59:59').isBefore(DateTime.now()))
+                  ? null
+                  : setSubmitShift(d.date),
       onViewChanged: (d) => changeViewCalander(d.visibleDates[1]),
     );
   }

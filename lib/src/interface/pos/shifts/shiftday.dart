@@ -491,10 +491,8 @@ class _ShiftDay extends State<ShiftDay> {
           onPressed: () => pushMoveDate(-1),
           icon: Icon(Icons.arrow_back_ios),
         ),
-        Container(
-          child: SubHeaderText(
-            label: DateTimes().convertJPYMDFromDateTime(selectedDate),
-          ),
+        SubHeaderText(
+          label: DateTimes().convertJPYMDFromDateTime(selectedDate),
         ),
         IconButton(
           onPressed: () => pushMoveDate(1),
@@ -533,11 +531,9 @@ class _ShiftDay extends State<ShiftDay> {
         ),
         SizedBox(width: 8),
         if (widget.isEdit)
-          Container(
-            child: WhiteButton(
-              label: 'シフト申請 ',
-              tapFunc: () => setSubmitShift(selectedDate),
-            ),
+          WhiteButton(
+            label: 'シフト申請 ',
+            tapFunc: () => setSubmitShift(selectedDate),
           ),
       ],
     );
