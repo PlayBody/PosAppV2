@@ -103,11 +103,19 @@ class _Tables extends State<Tables> {
         ),
       ),
       actions: [
-        PrimaryButton(
-          label: '確認',
-          tapFunc: () {
-            Navigator.of(context).pop(true);
-          },
+        SizedBox(
+          width: 120,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff117fc1),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 12),
+            ),
+            child: Text('確認', style: TextStyle(fontSize: 16)),
+          ),
         ),
         TextButton(
           child: Text('キャンセル'),
@@ -507,7 +515,6 @@ class _Tables extends State<Tables> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 10,
             children: [
               if (!isSeatChangeMode && !isCombineMode)
                 Container(
@@ -529,12 +536,16 @@ class _Tables extends State<Tables> {
                     },
                   ),
                 ),
+              if (!isSeatChangeMode && !isCombineMode)
+                SizedBox(width: 10),
               if (!isCombineMode)
                 _getModeButton(
                   isSeatChangeMode ? '席変更 解除' : '席変更',
                   isSeatChangeMode,
                   toggleSeatChangeMode,
                 ),
+              if (!isCombineMode)
+                SizedBox(width: 10),
               if (!isSeatChangeMode)
                 _getModeButton(
                   isCombineMode ? '合算 解除' : '合算',
