@@ -210,6 +210,8 @@ String apiSaveOrderMenus = '$apiBase/apiorders/saveOrderMenus';
 String apiDeleteOrder = '$apiBase/apiorders/deleteOrder';
 String apiDeleteOrderMenu = '$apiBase/apiorders/deleteOrderMenu';
 String apiChangeQuantityOrderMenu = '$apiBase/apiorders/changeQuantityOrderMenu';
+String apiSwapSeats = '$apiBase/apiorders/swapSeats';
+String apiCombineSeats = '$apiBase/apiorders/combineSeats';
 
 String apiLoadMasterPointSpecialPeriodSetting =
     '$apiBase/apis/master/point/getSpecialPeriodRatesByOrgan';

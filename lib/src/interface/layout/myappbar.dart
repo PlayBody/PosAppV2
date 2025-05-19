@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:staff_pos_app/src/interface/style/sizes.dart';
 import 'package:staff_pos_app/src/interface/style/spacings.dart';
@@ -11,8 +12,14 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
+    return MediaQueryData.fromView(
+              PlatformDispatcher.instance.views.first,
+            ).size.width <=
+            600
+        ? const Size.fromHeight(70)
+        : const Size.fromHeight(120);
     // We need to use a default size initially, then it will be updated when build is called with context
-    return const Size.fromHeight(120);
+    // return const Size.fromHeight(70);
   }
 
   @override
@@ -20,7 +27,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     // Get the current screen width using View.of(context) instead of window
     final screenWidth = MediaQuery.of(context).size.width;
     return AppBar(
-      toolbarHeight: screenWidth <= 600 ? 60 : 100,
+      toolbarHeight: screenWidth <= 600 ? 65 : 100,
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -31,7 +38,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Image(
-              height: screenWidth <= 600
+              height:
+                  screenWidth <= 600
                       ? sizAppBarPointImageSize
                       : sizAppBarPointImageSizeTablet,
               image: AssetImage('images/icon_header_point.png'),
@@ -44,7 +52,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
               },
               child: Text(
                 globals.appTitle,
-                style: screenWidth <= 600
+                style:
+                    screenWidth <= 600
                         ? styleAppBarTitle
                         : styleAppBarTitleTablet,
                 overflow: TextOverflow.ellipsis,
@@ -56,7 +65,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       //メニュー
       actions: [
         Container(
-          padding: screenWidth <= 600
+          padding:
+              screenWidth <= 600
                   ? paddingAppBarAction
                   : paddingAppBarActionTablet,
           child: Row(
@@ -68,13 +78,15 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   children: <Widget>[
                     Text(
                       globals.loginName,
-                      style: screenWidth <= 600
+                      style:
+                          screenWidth <= 600
                               ? styleAppBarActionLabelName
                               : styleAppBarActionLabelNameTablet,
                     ),
                     Text(
                       globals.loginEmail,
-                      style: screenWidth <= 600
+                      style:
+                          screenWidth <= 600
                               ? styleAppBarActionLabelMail
                               : styleAppBarActionLabelMailTablet,
                     ),

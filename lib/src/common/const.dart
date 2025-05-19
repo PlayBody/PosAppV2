@@ -17,11 +17,11 @@ const int constAuthOwner = 4;
 const int constAuthSystem = 5;
 
 const String constOrderStatusNone = '0';
-const String constOrderStatusReserveRequest = '1';
+// const String constOrderStatusReserveRequest = '1';
 const String constOrderStatusReserveReject = '2';
-const String constOrderStatusReserveCancel = '3';
+// const String constOrderStatusReserveCancel = '3';
 const String constOrderStatusReserveApply = '4';
-const String constOrderStatusTableReject = '5';
+// const String constOrderStatusTableReject = '5';
 const String constOrderStatusTableStart = '6';
 const String constOrderStatusTableEnd = '7';
 const String constOrderStatusTableComplete = '8';

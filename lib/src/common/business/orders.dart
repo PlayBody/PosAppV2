@@ -23,8 +23,9 @@ class ClOrder {
 
   Future<List<String>> loadOrderUserIds(context, String staffId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadOrderUserIds,
-        {'staff_id': staffId}).then((value) => results = value);
+    await Webservice()
+        .loadHttp(context, apiLoadOrderUserIds, {'staff_id': staffId})
+        .then((value) => results = value);
 
     List<String> userIds = [];
     if (results['isLoad']) {
@@ -38,8 +39,12 @@ class ClOrder {
 
   Future<bool> acceptOrderRequestTables(context, orderId, staffId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiAcceptCurrentOrder,
-        {'order_id': orderId, 'staff_id': staffId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiAcceptCurrentOrder, {
+          'order_id': orderId,
+          'staff_id': staffId,
+        })
+        .then((v) => {results = v});
 
     if (results['isLoad']) {
       return true;
@@ -48,12 +53,17 @@ class ClOrder {
   }
 
   Future<List<OrderModel>> loadCureentRequestTables(
-      context, organId, staffId) async {
+    context,
+    organId,
+    staffId,
+  ) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadCurrentOrganTables, {
-      'organ_id': organId,
-      'staff_id': staffId,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadCurrentOrganTables, {
+          'organ_id': organId,
+          'staff_id': staffId,
+        })
+        .then((v) => {results = v});
 
     List<OrderModel> tables = [];
 
@@ -67,10 +77,12 @@ class ClOrder {
 
   Future<List<OrderModel>> loadOrganTables(context, organId, staffId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadOrganTables, {
-      'organ_id': organId,
-      'staff_id': staffId,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadOrganTables, {
+          'organ_id': organId,
+          'staff_id': staffId,
+        })
+        .then((v) => {results = v});
 
     List<OrderModel> tables = [];
 
@@ -84,9 +96,9 @@ class ClOrder {
 
   Future<OrderModel?> loadOrderInfo(context, orderId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadOrderInfo, {
-      'order_id': orderId,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadOrderInfo, {'order_id': orderId})
+        .then((v) => {results = v});
 
     OrderModel? table;
 
@@ -111,19 +123,21 @@ class ClOrder {
 
   Future<bool> exitOrder(context, orderId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiExitOrder, {
-      'order_id': orderId,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiExitOrder, {'order_id': orderId})
+        .then((v) => {results = v});
 
     return results['isUpdate'];
   }
 
   Future<bool> resetOrder(context, orderId, payMethod) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiResetOrder, {
-      'order_id': orderId,
-      'pay_method': payMethod,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiResetOrder, {
+          'order_id': orderId,
+          'pay_method': payMethod,
+        })
+        .then((v) => {results = v});
 
     return results['isUpdate'];
   }
@@ -139,71 +153,91 @@ class ClOrder {
 
   Future<bool> applyReserveOrder(context, orderId, staffId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiApplyReserveOrder,
-        {'order_id': orderId, 'staff_id': staffId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiApplyReserveOrder, {
+          'order_id': orderId,
+          'staff_id': staffId,
+        })
+        .then((v) => {results = v});
 
     return results['isUpdate'];
   }
 
   Future<bool> saveOrderMenus(context, orderId, param) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiSaveOrderMenus,
-        {'order_id': orderId, 'data': param}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiSaveOrderMenus, {
+          'order_id': orderId,
+          'data': param,
+        })
+        .then((v) => {results = v});
 
     return results['isSave'];
   }
 
   Future<bool> deleteOrder(context, orderId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteOrder,
-        {'order_id': orderId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteOrder, {'order_id': orderId})
+        .then((v) => {results = v});
 
     return results['isDelete'];
   }
 
   Future<bool> deleteOrderMenu(context, orderMenuId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiDeleteOrderMenu,
-        {'order_menu_id': orderMenuId}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiDeleteOrderMenu, {'order_menu_id': orderMenuId})
+        .then((v) => {results = v});
 
     return results['isDelete'];
   }
 
   Future<bool> changeQuantityOrderMenu(context, orderMenuId, quantity) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiChangeQuantityOrderMenu,
-        {'order_menu_id': orderMenuId, 'quantity': quantity}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiChangeQuantityOrderMenu, {
+          'order_menu_id': orderMenuId,
+          'quantity': quantity,
+        })
+        .then((v) => {results = v});
 
     return results['isUpdate'] ?? false;
   }
 
   Future<String> loadTableTitle(context, organId, position) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadTableTitle, {
-      'organ_id': organId,
-      'table_position': position,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadTableTitle, {
+          'organ_id': organId,
+          'table_position': position,
+        })
+        .then((v) => {results = v});
 
     return results['table_name'];
   }
 
   Future<bool> updateTableTitle(context, organId, position, title) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiUpdateTableTitle, {
-      'organ_id': organId,
-      'table_position': position,
-      'title': title,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiUpdateTableTitle, {
+          'organ_id': organId,
+          'table_position': position,
+          'title': title,
+        })
+        .then((v) => {results = v});
 
     return results['isUpdate'];
   }
 
   Future<bool> rejectOrder(context, organId, userId) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiRejectOrder, {
-      'organ_id': organId,
-      'user_id': userId,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiRejectOrder, {
+          'organ_id': organId,
+          'user_id': userId,
+        })
+        .then((v) => {results = v});
 
     if (!results['isSave']) {
       return false;
@@ -213,12 +247,17 @@ class ClOrder {
   }
 
   Future<List<CheckShiftOrderModel>> loadCheckOrders(
-      context, organId, selectedDate) async {
+    context,
+    organId,
+    selectedDate,
+  ) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiLoadCheckShiftOrders, {
-      'organ_id': organId,
-      'select_date': selectedDate,
-    }).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiLoadCheckShiftOrders, {
+          'organ_id': organId,
+          'select_date': selectedDate,
+        })
+        .then((v) => {results = v});
     List<CheckShiftOrderModel> orders = [];
     if (results['is_result']) {
       for (var item in results['data']) {
@@ -231,16 +270,53 @@ class ClOrder {
 
   Future<bool> updateOrderStaus(context, orderId, status) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiUpdateOrderStatus,
-        {'order_id': orderId, 'status': status}).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiUpdateOrderStatus, {
+          'order_id': orderId,
+          'status': status,
+        })
+        .then((v) => {results = v});
 
     return results['is_result'];
   }
+
   Future<bool> insertOrder(context, param) async {
     Map<dynamic, dynamic> results = {};
-    await Webservice().loadHttp(context, apiInsertOrder,
-        param).then((v) => {results = v});
+    await Webservice()
+        .loadHttp(context, apiInsertOrder, param)
+        .then((v) => {results = v});
     return results['is_result'];
   }
-    
+
+  Future<bool> swapSeats(
+    context,
+    String orderId1,
+    String orderId2,
+    String tablePosition1,
+    String tablePosition2,
+  ) async {
+    Map<dynamic, dynamic> results = {};
+    await Webservice()
+        .loadHttp(context, apiSwapSeats, {
+          'order_id1': orderId1,
+          'order_id2': orderId2,
+          'table_position1': tablePosition1,
+          'table_position2': tablePosition2,
+        })
+        .then((v) => {results = v});
+
+    return results['isUpdate'] ?? false;
+  }
+
+  Future<bool> combineSeats(context, String orderId1, String orderId2) async {
+    Map<dynamic, dynamic> results = {};
+    await Webservice()
+        .loadHttp(context, apiCombineSeats, {
+          'order_id1': orderId1,
+          'order_id2': orderId2,
+        })
+        .then((v) => {results = v});
+
+    return results['isUpdate'] ?? false;
+  }
 }
