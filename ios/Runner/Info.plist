@@ -93,5 +93,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app uses local network to debug Flutter Dart VM service.</string>
 </dict>
 </plist>
