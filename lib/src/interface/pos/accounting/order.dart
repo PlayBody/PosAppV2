@@ -194,11 +194,15 @@ class _Order extends State<Order> {
       if (data.any(
         (element) =>
             element['menu_id'] == e.menuId &&
-            element['variation_id'] == e.variationId,
+            element['variation_id'] == e.variationId &&
+            element['menu_title'] == e.menuTitle &&
+            element['menu_price'] == e.menuPrice,
       )) {
         for (var element in data) {
           if (element['menu_id'] == e.menuId &&
-              element['variation_id'] == e.variationId) {
+              element['variation_id'] == e.variationId &&
+              element['menu_title'] == e.menuTitle &&
+              element['menu_price'] == e.menuPrice) {
             element['quantity'] =
                 (int.parse(element['quantity']) + int.parse(e.quantity))
                     .toString();
