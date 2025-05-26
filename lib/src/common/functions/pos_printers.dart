@@ -371,13 +371,20 @@ class PosPrinters {
       generator.textEncoded(encodeToJapanese('上記          として領収致しました。')),
     );
     _socket.add(generator.feed(1));
-
-    final ByteData data = await rootBundle.load('images/receipt_img1.png');
-    final Uint8List bytes = data.buffer.asUint8List();
-    final image = decodeImage(bytes);
     await _socket.flush();
-    // Using `ESC *`
-    if (image != null) _socket.add(generator.image(image));
+
+    try {
+      final ByteData data = await rootBundle.load('images/receipt_img1.png');
+      final Uint8List bytes = data.buffer.asUint8List();
+      final image = decodeImage(bytes);
+      if (image != null) {
+        final grayImage = grayscale(image);
+        _socket.add(generator.image(grayImage));
+        await _socket.flush();
+      }
+    } catch (e) {
+      print('Error processing image: $e');
+    }
 
     // _socket.add(generator.textEncoded(encodeToJapanese('------------'),
     //     styles: PosStyles(align: PosAlign.center)));

@@ -538,12 +538,12 @@ class _TableDetail extends State<TableDetail> {
                                       padding:
                                           globals.isWideScreen
                                               ? EdgeInsets.only(
-                                                top: 35,
-                                                bottom: 35,
+                                                top: 25,
+                                                bottom: 25,
                                               )
                                               : EdgeInsets.only(
-                                                top: 20,
-                                                bottom: 20,
+                                                top: 10,
+                                                bottom: 10,
                                               ),
                                       child: SingleChildScrollView(
                                         child: Column(
@@ -619,7 +619,7 @@ class _TableDetail extends State<TableDetail> {
                                           ),
                                         ),
                                         Container(
-                                          height: globals.isWideScreen ? 20 : 5,
+                                          height: globals.isWideScreen ? 10 : 0,
                                         ),
                                         ConstrainedBox(
                                           constraints: BoxConstraints.tightFor(
@@ -892,9 +892,9 @@ class _TableDetail extends State<TableDetail> {
                     ? EdgeInsets.only(
                       left: orientation == Orientation.portrait ? 40 : 150,
                       right: orientation == Orientation.portrait ? 40 : 150,
-                      top: 20,
+                      top: 10,
                     )
-                    : EdgeInsets.only(left: 20, right: 20, top: 12),
+                    : EdgeInsets.only(left: 20, right: 20, top: 6),
             child: Row(
               children: [
                 Container(
@@ -960,9 +960,9 @@ class _TableDetail extends State<TableDetail> {
                     ? EdgeInsets.only(
                       left: orientation == Orientation.portrait ? 40 : 150,
                       right: orientation == Orientation.portrait ? 40 : 150,
-                      top: 20,
+                      top: 10,
                     )
-                    : EdgeInsets.only(left: 20, right: 20, top: 12),
+                    : EdgeInsets.only(left: 20, right: 20, top: 6),
             child: Row(
               children: [
                 Expanded(
@@ -1016,9 +1016,9 @@ class _TableDetail extends State<TableDetail> {
                     ? EdgeInsets.only(
                       left: orientation == Orientation.portrait ? 40 : 150,
                       right: orientation == Orientation.portrait ? 40 : 150,
-                      top: 20,
+                      top: 10,
                     )
-                    : EdgeInsets.only(left: 20, right: 20, top: 12),
+                    : EdgeInsets.only(left: 20, right: 20, top: 6),
             child: Row(
               children: [
                 Expanded(
@@ -1035,9 +1035,9 @@ class _TableDetail extends State<TableDetail> {
                     ? EdgeInsets.only(
                       left: orientation == Orientation.portrait ? 40 : 150,
                       right: orientation == Orientation.portrait ? 40 : 150,
-                      top: 20,
+                      top: 10,
                     )
-                    : EdgeInsets.only(left: 20, right: 20, top: 20),
+                    : EdgeInsets.only(left: 20, right: 20, top: 10),
             child: Row(
               children: [
                 Expanded(
@@ -1070,9 +1070,9 @@ class _TableDetail extends State<TableDetail> {
                       ? EdgeInsets.only(
                         left: orientation == Orientation.portrait ? 40 : 150,
                         right: orientation == Orientation.portrait ? 40 : 150,
-                        top: 20,
+                        top: 6,
                       )
-                      : EdgeInsets.only(left: 20, right: 20, top: 12),
+                      : EdgeInsets.only(left: 20, right: 20, top: 6),
               child: Row(
                 children: [
                   Expanded(
@@ -1102,9 +1102,9 @@ class _TableDetail extends State<TableDetail> {
                       ? EdgeInsets.only(
                         left: orientation == Orientation.portrait ? 40 : 150,
                         right: orientation == Orientation.portrait ? 40 : 150,
-                        top: 20,
+                        top: 10,
                       )
-                      : EdgeInsets.only(left: 20, right: 20, top: 12),
+                      : EdgeInsets.only(left: 20, right: 20, top: 6),
               child: WhiteButton(
                 label: '削除',
                 tapFunc: () async {
