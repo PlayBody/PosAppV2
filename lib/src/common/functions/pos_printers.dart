@@ -373,29 +373,51 @@ class PosPrinters {
     _socket.add(generator.feed(1));
     await _socket.flush();
 
-    try {
-      final ByteData data = await rootBundle.load('images/receipt_img1.png');
-      final Uint8List bytes = data.buffer.asUint8List();
-      final image = decodeImage(bytes);
-      if (image != null) {
-        final grayImage = grayscale(image);
-        _socket.add(generator.image(grayImage));
-        await _socket.flush();
+    if (Platform.isAndroid) {
+      try {
+        final ByteData data = await rootBundle.load('images/receipt_img1.png');
+        final Uint8List bytes = data.buffer.asUint8List();
+        final image = decodeImage(bytes);
+        if (image != null) {
+          final grayImage = grayscale(image);
+          _socket.add(generator.image(grayImage));
+          await _socket.flush();
+        }
+      } catch (e) {
+        print('Error processing image: $e');
       }
-    } catch (e) {
-      print('Error processing image: $e');
+    } else {
+      _socket.add(
+        generator.textEncoded(
+          encodeToJapanese('------------'),
+          styles: PosStyles(align: PosAlign.center),
+        ),
+      );
+      _socket.add(
+        generator.textEncoded(
+          encodeToJapanese('|   ￥50000   |'),
+          styles: PosStyles(align: PosAlign.center),
+        ),
+      );
+      _socket.add(
+        generator.textEncoded(
+          encodeToJapanese('|   末満印   |'),
+          styles: PosStyles(align: PosAlign.center),
+        ),
+      );
+      _socket.add(
+        generator.textEncoded(
+          encodeToJapanese('|   紙不要   |'),
+          styles: PosStyles(align: PosAlign.center),
+        ),
+      );
+      _socket.add(
+        generator.textEncoded(
+          encodeToJapanese('------------'),
+          styles: PosStyles(align: PosAlign.center),
+        ),
+      );
     }
-
-    // _socket.add(generator.textEncoded(encodeToJapanese('------------'),
-    //     styles: PosStyles(align: PosAlign.center)));
-    // _socket.add(generator.textEncoded(encodeToJapanese('|   ￥50000   |'),
-    //     styles: PosStyles(align: PosAlign.center)));
-    // _socket.add(generator.textEncoded(encodeToJapanese('|   末満印   |'),
-    //     styles: PosStyles(align: PosAlign.center)));
-    // _socket.add(generator.textEncoded(encodeToJapanese('|   紙不要   |'),
-    //     styles: PosStyles(align: PosAlign.center)));
-    // _socket.add(generator.textEncoded(encodeToJapanese('------------'),
-    //     styles: PosStyles(align: PosAlign.center)));
 
     _socket.add(generator.feed(1));
     _socket.add(generator.textEncoded(encodeToJapanese('★保管上のお願い')));
