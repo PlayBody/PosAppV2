@@ -64,6 +64,19 @@ class PosPrinters {
     return generator;
   }
 
+  // Future<void> testFeature() async {
+  //   final profile = await CapabilityProfile.load();
+  //   generator = Generator(PaperSize.mm80, profile);
+  //   final ByteData data = await rootBundle.load('images/receipt_img1.png');
+  //   final Uint8List bytes = data.buffer.asUint8List();
+  //   final image = decodeImage(bytes);
+  //   if (image != null) {
+  //     final grayImage = grayscale(image);
+  //     List<int> result = generator.image(grayImage);
+  //     print(result);
+  //   }
+  // }
+
   Future<void> ticketPrint(printData) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var printerIP =
@@ -174,6 +187,10 @@ class PosPrinters {
       } catch (ex) {
         menuPrice = double.parse(e.menuPrice).toInt();
       }
+      String menuTitle = e.menuTitle;
+      if(menuTitle.length > 8) {
+        menuTitle = menuTitle.substring(0, 8);
+      }
 
       _socket.add(
         generator.row([
@@ -183,7 +200,7 @@ class PosPrinters {
             styles: const PosStyles(align: PosAlign.center),
           ),
           PosColumn(
-            textEncoded: Uint8List.fromList(encodeToJapanese(e.menuTitle)),
+            textEncoded: Uint8List.fromList(encodeToJapanese(menuTitle)),
             width: 5,
             styles: const PosStyles(align: PosAlign.center),
           ),
@@ -389,31 +406,31 @@ class PosPrinters {
     } else {
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('------------'),
+          encodeToJapanese('┌──────────┐'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('|   ￥50000   |'),
+          encodeToJapanese('│ ￥50000 │'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('|   末満印   |'),
+          encodeToJapanese('│  末満印  │'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('|   紙不要   |'),
+          encodeToJapanese('│  紙不要  │'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('------------'),
+          encodeToJapanese('└──────────┘'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
@@ -518,12 +535,16 @@ class PosPrinters {
                   int.parse(item.quantity))
               .toInt()
               .toString();
+      String menuTitle = item.menuTitle;
+      if (menuTitle.length > 15) {
+        menuTitle = menuTitle.substring(0, 15);
+      }
       _socket.add(
         generator.row([
-          PosColumn(textEncoded: encodeToJapanese(item.menuTitle), width: 8),
+          PosColumn(textEncoded: encodeToJapanese(menuTitle), width: 9),
           PosColumn(
             textEncoded: encodeToJapanese('￥${Funcs().currencyFormat(am)}'),
-            width: 4,
+            width: 3,
             styles: const PosStyles(align: PosAlign.right),
           ),
         ]),
@@ -597,11 +618,15 @@ class PosPrinters {
     //       width: 4,
     //       styles: PosStyles(align: PosAlign.right)),
     // ]));
+    String globalLoginName = globals.loginName;
+    if(globalLoginName.length > 7) {
+      globalLoginName = globalLoginName.substring(0, 7);
+    }
     _socket.add(generator.feed(1));
     _socket.add(
       generator.row([
         PosColumn(
-          textEncoded: encodeToJapanese('扱：${globals.loginName}'),
+          textEncoded: encodeToJapanese('扱：$globalLoginName'),
           width: 6,
         ),
         PosColumn(
