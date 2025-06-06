@@ -406,7 +406,7 @@ class PosPrinters {
     } else {
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('┌──────┐'),
+          encodeToJapanese('┌─────┐'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
@@ -430,7 +430,7 @@ class PosPrinters {
       );
       _socket.add(
         generator.textEncoded(
-          encodeToJapanese('└──────┘'),
+          encodeToJapanese('└─────┘'),
           styles: PosStyles(align: PosAlign.center),
         ),
       );
