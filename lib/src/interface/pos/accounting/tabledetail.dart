@@ -56,7 +56,7 @@ class _TableDetail extends State<TableDetail> {
   String userId = '';
 
   String tableStatus = constOrderStatusNone;
-  String tablePosition = '0';
+  // String tablePosition = '0';
   String tableAmount = '0';
   String setAmount = '0';
   String btnActionText = '';
@@ -192,7 +192,7 @@ class _TableDetail extends State<TableDetail> {
         Dialogs().loaderDialogNormal(context);
       }
       dynamic printData = {
-        'position': tablePosition,
+        'position': widget.tablePosition,
         'user_count': userCount,
         'menus': menuList,
         'amount': amount,
